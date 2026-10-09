@@ -112,6 +112,13 @@
   details.how { clear: both; margin: 8px 0 0; font-size: 14px; }
   details.how summary { cursor: pointer; color: var(--heading); font-weight: 500; }
   details.how p { margin: 6px 0 0; }
+  .pics { display: grid; grid-template-columns: repeat(auto-fill, minmax(104px, 1fr)); gap: 6px; margin-top: 8px; }
+  .pic { margin: 0; padding: 6px; border: 1px solid var(--border); border-radius: var(--radius); background: var(--soft); text-align: center; cursor: pointer; color: var(--heading); }
+  .pic svg { display: block; width: 100%; height: auto; }
+  .pic figcaption { font-family: var(--mono); font-size: 12px; margin-top: 2px; }
+  .pic figcaption span { display: block; font-family: var(--sans); font-size: 11.5px; color: var(--body); line-height: 1.3; }
+  .pic.on { border-color: var(--brand); box-shadow: inset 0 0 0 1px var(--brand); }
+  .pics-note { font-size: 12.5px; margin: 6px 0 0; }
 
   /* result */
   .result-big { font-family: var(--serif); font-size: 2.1rem; line-height: 1.1; color: var(--heading); margin: 0 0 4px; }
@@ -300,6 +307,97 @@ const TABLE = []; for (let s = -10; s <= 50; s += 5) TABLE.push([s, 24 + 0.4 * s
 const MIN_SCORE = -10, MAX_SCORE = 50;
 const gaFromScore = s => 24 + 0.4 * s;
 
+
+/* ============================ drawings ============================
+   Original schematic line drawings made for this site from the verified criteria above
+   (not copies of the official chart, which is copyrighted). viewBox 100 x 70. */
+const R = d => d * Math.PI / 180;
+const P = (x, y, len, deg) => [x + len * Math.cos(R(deg)), y + len * Math.sin(R(deg))];   // screen degrees, y down
+const f1 = n => Math.round(n * 10) / 10;
+const line = (a, b, extra = "") => `<line x1="${f1(a[0])}" y1="${f1(a[1])}" x2="${f1(b[0])}" y2="${f1(b[1])}" ${extra}/>`;
+const poly = pts => `<polyline points="${pts.map(q => f1(q[0]) + "," + f1(q[1])).join(" ")}" fill="none"/>`;
+const txt = (x, y, t, anchor = "middle", size = 8) => `<text x="${x}" y="${y}" font-size="${size}" text-anchor="${anchor}" fill="currentColor" stroke="none" font-family="Inter, sans-serif">${t}</text>`;
+const svg = (body, label) => `<svg viewBox="0 0 100 70" role="img" aria-label="${esc(label)}" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none">${body}</svg>`;
+// angle arc at vertex v between directions d1 and d2 (screen degrees), radius r
+function arc(v, d1, d2, r) {
+  const a = P(v[0], v[1], r, d1), b = P(v[0], v[1], r, d2);
+  let sweep = ((d2 - d1) % 360 + 360) % 360;
+  return `<path d="M${f1(a[0])},${f1(a[1])} A${r},${r} 0 ${sweep > 180 ? 1 : 0} 1 ${f1(b[0])},${f1(b[1])}" stroke-width="1" opacity=".6"/>`;
+}
+
+// Joint angle drawing: fixed segment points left from the vertex; moving segment at `ang` degrees from it.
+function jointSVG(ang, label, fixedName, movingName, extra = "") {
+  const v = [56, 50], fixedEnd = P(v[0], v[1], 40, 180);
+  const dir = 180 + ang;                      // 180° = straight on; smaller = folds up toward the fixed segment
+  const end = P(v[0], v[1], 34, dir);
+  return svg(line(fixedEnd, v) + line(v, end) + `<circle cx="${v[0]}" cy="${v[1]}" r="2" fill="currentColor"/>` +
+    (ang < 179 ? arc(v, 180, dir, 10) : "") + txt(16, 62, fixedName, "start", 7) + extra, label);
+}
+
+const DRAW = {
+  posture(score) {
+    // Baby supine, seen from above: head left, legs right. [elbow, hand] and [knee, foot] for the upper side; the lower side mirrors.
+    const arms = { 0: [[34, 27], [45, 22]], 1: [[34, 27], [45, 22]], 2: [[34, 27], [45, 22]], 3: [[33, 22], [39, 15]], 4: [[32, 20], [24, 19]] }[score];
+    const legs = { 0: [[73, 32], [92, 31]], 1: [[71, 26], [88, 30]], 2: [[68, 20], [84, 29]], 3: [[64, 12], [80, 22]], 4: [[67, 25], [59, 31]] }[score];
+    const m = q => [q[0], 70 - q[1]];        // mirror across the body midline (y = 35)
+    const sh = [24, 31], hp = [56, 32];
+    const body = `<circle cx="14" cy="35" r="7"/>` + line([21, 35], [58, 35]) +
+      poly([sh, arms[0], arms[1]]) + poly([m(sh), m(arms[0]), m(arms[1])]) +
+      poly([hp, legs[0], legs[1]]) + poly([m(hp), m(legs[0]), m(legs[1])]);
+    return svg(body, "Posture score " + score);
+  },
+  window(score) {
+    // Forearm vertical below the wrist; the hand folds toward it. Angle = between palm and forearm.
+    const ang = { "-1": 120, 0: 90, 1: 60, 2: 45, 3: 30, 4: 0 }[score];
+    const w = [40, 18], elbow = [40, 66];
+    const hand = P(w[0] + (ang === 0 ? 3 : 0), w[1], 30, 90 - ang);   // 0° lies along the forearm
+    const body = line(elbow, w) + line([w[0] + (ang === 0 ? 3 : 0), w[1]], hand) +
+      (ang > 0 ? arc(w, 90 - ang, 90, 9) : "") + txt(80, 64, (score === -1 ? ">90" : ang) + "°", "middle", 9) + txt(28, 64, "forearm", "middle", 7);
+    return svg(body, "Square window " + (score === -1 ? "over 90" : ang) + " degrees");
+  },
+  recoil(score) {
+    const ang = { 0: 180, 1: 160, 2: 125, 3: 100, 4: 70 }[score];
+    const lbl = { 0: "180°", 1: "140–180°", 2: "110–140°", 3: "90–110°", 4: "<90°" }[score];
+    return jointSVG(ang, "Arm recoil " + lbl, "upper arm", "forearm",
+      txt(92, 14, lbl, "end", 8) + (score === 4 ? `<circle cx="38" cy="10" r="7" stroke-width="1.5"/>` + txt(22, 13, "face", "end", 7) : ""));
+  },
+  popliteal(score) {
+    const ang = { "-1": 180, 0: 160, 1: 140, 2: 120, 3: 100, 4: 90, 5: 75 }[score];
+    const lbl = score === 5 ? "<90°" : ang + "°";
+    return jointSVG(ang, "Popliteal angle " + lbl, "thigh", "lower leg", txt(92, 14, lbl, "end", 8));
+  },
+  scarf(score) {
+    // Chest seen from the front. The tested arm comes from the shoulder on the right (same side).
+    const xs = { "-1": 38, 0: 24, 1: 36, 2: 50, 3: 64, 4: 76 };
+    const elbow = score === -1 ? [38, 10] : [xs[score], 34];
+    const marks = [[24, "opp. axilla"], [36, "opp. nipple"], [50, "xiphoid"], [64, "nipple"], [76, "axilla"]];
+    let body = `<path d="M30,6 Q50,14 70,6" stroke-width="1" opacity=".5"/>` +           // neck/shoulder line
+      `<rect x="20" y="12" width="60" height="44" rx="10" stroke-width="1.2" opacity=".55"/>`;
+    marks.forEach(([x]) => { body += line([x, 14], [x, 54], 'stroke-width="1" stroke-dasharray="2 2" opacity=".45"'); });
+    body += `<circle cx="36" cy="26" r="1.5" fill="currentColor" stroke="none" opacity=".5"/><circle cx="64" cy="26" r="1.5" fill="currentColor" stroke="none" opacity=".5"/>`;
+    const shoulder = [82, 16], hand = score === -1 ? [26, 12] : [Math.max(14, elbow[0] - 12), 22];
+    body += poly([shoulder, elbow, hand]) + `<circle cx="${elbow[0]}" cy="${elbow[1]}" r="3.2" fill="currentColor" stroke="none"/>`;
+    const name = { "-1": "neck (full scarf)", 0: "opposite axillary line", 1: "opposite nipple line", 2: "xiphoid", 3: "same-side nipple line", 4: "same-side axillary line" }[score];
+    return svg(body, "Scarf sign: elbow at " + name);
+  },
+  heel(score) {
+    // Front view: head and trunk with landmarks; the dot is where the heel meets resistance.
+    const spots = { "-1": [41, 13, "ear"], 0: [50, 15, "nose"], 1: [50, 22, "chin"], 2: [50, 34, "nipple line"], 3: [50, 47, "umbilicus"], 4: [50, 58, "femoral crease"] };
+    const [hx, hy, name] = spots[score];
+    let body = `<circle cx="50" cy="14" r="9" stroke-width="1.2" opacity=".6"/>` +
+      `<path d="M41,12 q-3,1 0,4" stroke-width="1" opacity=".6"/>` +
+      `<rect x="38" y="25" width="24" height="34" rx="7" stroke-width="1.2" opacity=".6"/>` +
+      `<circle cx="44" cy="34" r="1.2" fill="currentColor" stroke="none" opacity=".5"/><circle cx="56" cy="34" r="1.2" fill="currentColor" stroke="none" opacity=".5"/>` +
+      `<circle cx="50" cy="47" r="1.2" fill="currentColor" stroke="none" opacity=".5"/>` + line([42, 58], [58, 58], 'stroke-width="1" opacity=".5"');
+    // leg from the hip, folded up toward the heel position
+    const hip = [60, 57], heel = score === -1 ? [hx, hy] : [hx + 14, hy];
+    const knee = [Math.min(90, 76 + (4 - (score + 1)) * 2), (hip[1] + heel[1]) / 2 + 4];
+    body += poly([hip, knee, heel]) + line(heel, [hx, hy], 'stroke-width="1" stroke-dasharray="2 2"') +
+      `<circle cx="${f1(heel[0])}" cy="${f1(heel[1])}" r="3.2" fill="currentColor" stroke="none"/>`;
+    return svg(body, "Heel to ear: resistance with the heel at the " + name);
+  }
+};
+
 /* ============================ rendering ============================ */
 const $ = id => document.getElementById(id);
 const esc = s => String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
@@ -310,6 +408,9 @@ function itemHTML(it) {
   return `<fieldset class="item" id="f-${it.id}"${it.sex ? ` data-sex="${it.sex}"` : ""}>
     <legend>${esc(it.name)} <span class="pts" id="p-${it.id}"></span></legend>
     <div class="opts">${it.opts.map(([s, t]) => `<label class="opt"><input type="radio" name="${it.id}" value="${s}"><span><b>${sgn(s)}</b>${esc(t)}</span></label>`).join("")}</div>
+    ${DRAW[it.id] ? `<details class="how"><summary>Show drawings</summary>
+      <div class="pics">${it.opts.map(([s, t]) => `<figure class="pic" data-item="${it.id}" data-score="${s}">${DRAW[it.id](s)}<figcaption>${sgn(s)}<span>${esc(t)}</span></figcaption></figure>`).join("")}</div>
+      <p class="pics-note">Schematic drawings made for this site. Tap one to select that score. <a href="https://www.ballardscore.com/ScoreSheet/ScoreSheet" target="_blank" rel="noopener">Official illustrated chart</a></p></details>` : ""}
     ${it.how ? `<details class="how"><summary>How to do it</summary><p>${esc(it.how)}</p></details>` : ""}
   </fieldset>`;
 }
@@ -330,6 +431,7 @@ function update() {
   PH.filter(i => i.sex).forEach(i => { $("f-" + i.id).hidden = i.sex !== sex; });
   const items = activeItems();
   items.forEach(i => { $("p-" + i.id).textContent = scores[i.id] == null ? "" : sgn(scores[i.id]); });
+  document.querySelectorAll(".pic").forEach(f => f.classList.toggle("on", scores[f.dataset.item] === Number(f.dataset.score)));
   const sum = list => list.reduce((a, i) => a + (scores[i.id] || 0), 0);
   const nmDone = NM.filter(i => scores[i.id] != null).length;
   const phList = items.filter(i => PH.includes(i)), phDone = phList.filter(i => scores[i.id] != null).length;
@@ -381,6 +483,10 @@ function build() {
   $("nm-items").innerHTML = NM.map(itemHTML).join("");
   $("ph-items").innerHTML = PH.map(itemHTML).join("");
   document.querySelectorAll(".opts input").forEach(r => r.addEventListener("change", e => { scores[e.target.name] = Number(e.target.value); update(); }));
+  document.querySelectorAll(".pic").forEach(f => f.addEventListener("click", () => {
+    const r = document.querySelector(`input[name="${f.dataset.item}"][value="${f.dataset.score}"]`);
+    r.checked = true; r.dispatchEvent(new Event("change"));
+  }));
   ["hours", "ob-w", "ob-d"].forEach(id => $(id).addEventListener("input", update));
   $("confounded").addEventListener("change", update);
   document.querySelectorAll('input[name="sex"]').forEach(r => r.addEventListener("change", update));
