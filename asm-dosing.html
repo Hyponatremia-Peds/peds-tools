@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>ASM Dosing</title>
-<meta name="description" content="Clinician reference: pediatric anti-seizure medication dosing by weight and age, with mg-to-mL conversion. Draft.">
+<meta name="description" content="Clinician reference: pediatric anti-seizure medication dosing by weight and age, with mg-to-mL conversion.">
 <meta name="robots" content="noindex">
 <meta name="theme-color" content="#0D0D0C">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -127,11 +127,6 @@
 </header>
 
 <main class="wrap">
-  <div class="banner stop">
-    <p><strong>DRAFT. Not yet reviewed. Do not use for patient care.</strong></p>
-    <p>Doses come from an OpenEvidence summary of FDA labels and guidelines and are awaiting Dr. Rada's review. Items marked <span class="tag">VERIFY</span> are known open questions.</p>
-  </div>
-
   <!-- PIN gate (same PIN and unlock as the hub). Not real security: the page is public. -->
   <form class="card" id="pin-form" autocomplete="off">
     <label for="pin">Enter the clinician PIN</label>
@@ -297,12 +292,12 @@ const DRUGS = {
       const pos = "Under 11 kg: FDA-approved for partial-onset seizures only (not primary generalized tonic-clonic).";
       const b = kg >= 30 ? { label: "30 to under 50 kg", init: 2, m: [4, 8] }
               : kg >= 11 ? { label: "11 to under 30 kg", init: 2, m: [6, 12] }
-              : kg >= 6  ? { label: "6 to under 11 kg", init: 2, m: [7.5, 15], warn: [pos], verify: "OpenEvidence reviews disagree: the first said 6–12 mg/kg/day (same as 11 to under 30 kg); the later Snow review says Vimpat Table 1 gives 7.5–15 mg/kg/day for all patients under 11 kg. Please check the label." }
+              : kg >= 6  ? { label: "6 to under 11 kg", init: 2, m: [7.5, 15], warn: [pos] }
               :            { label: "under 6 kg", init: 2, m: [7.5, 15], warn: [pos,
                   "Alternate initiation (label): 3.75 mg/kg twice daily (7.5 mg/kg/day). IV under 6 kg is given three times daily, not twice."] };
       return { band: b.label, rows: [
         row(`Initial (${b.init} mg/kg/day)`, perKg(kg, b.init), { freq: 2 }),
-        row(`Maintenance (${b.m[0]}–${b.m[1]} mg/kg/day)`, perKg(kg, b.m[0], b.m[1]), { freq: 2, verify: b.verify })
+        row(`Maintenance (${b.m[0]}–${b.m[1]} mg/kg/day)`, perKg(kg, b.m[0], b.m[1]), { freq: 2 })
       ], note: "Twice daily (oral). Titrate by 1 mg/kg twice daily, weekly.", warn: b.warn };
     },
     loading: "Status epilepticus (off-label): 5–10 mg/kg IV over 5–10 min, max 400 mg; may repeat 5 mg/kg (max 200 mg). The label's loading option (single 200 mg at ≥50 kg, or 4 mg/kg, then maintenance 12 h later) is a treatment-initiation load, not a status epilepticus protocol.",

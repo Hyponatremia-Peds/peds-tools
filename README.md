@@ -16,7 +16,7 @@ A home page for planners and calculators, with a section for families and a sect
 |---|---|---|
 | Constipation Cleanout Planner | Families | https://hyponatremia-peds.github.io/cleanout-planner/ |
 | Cleanout Planner dosing and rules | Clinicians | [Dosing tables](https://github.com/Hyponatremia-Peds/cleanout-planner#the-plan) |
-| Anti-Seizure Medication Dosing (**draft, under review**) | Clinicians | [asm-dosing.html](https://hyponatremia-peds.github.io/peds-tools/asm-dosing.html) |
+| Anti-Seizure Medication Dosing | Clinicians | [asm-dosing.html](https://hyponatremia-peds.github.io/peds-tools/asm-dosing.html) |
 
 More tools are coming.
 
