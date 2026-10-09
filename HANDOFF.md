@@ -1,0 +1,84 @@
+# Handoff: Pediatric Tools (for a new Claude Code session)
+
+Owner: Dr. Christian Rada, DO (GitHub: **Hyponatremia-Peds**). Written 2026-10-08 at the end of the first build session.
+
+Start a new session by asking Claude to read this file:
+`https://github.com/Hyponatremia-Peds/peds-tools/blob/main/HANDOFF.md`
+
+---
+
+## 1. What exists
+
+| Site | Live address | Repository | Main file |
+|---|---|---|---|
+| Hub (families + clinicians) | https://hyponatremia-peds.github.io/peds-tools/ | `Hyponatremia-Peds/peds-tools` | `index.html` |
+| ASM dosing (clinician, **draft**) | https://hyponatremia-peds.github.io/peds-tools/asm-dosing.html | `peds-tools` | `asm-dosing.html` |
+| Constipation Cleanout Planner (families) | https://hyponatremia-peds.github.io/cleanout-planner/ | `Hyponatremia-Peds/cleanout-planner` | `index.html` |
+
+- Everything is plain single-file HTML/CSS/JS. No build step, no server, no frameworks. GitHub Pages serves each repo from `main`, at the root.
+- Shared files in `peds-tools`: `pets.js`, `sprites/`, `favicon.svg`, `apple-touch-icon.png`, `og-image.png`. The planner loads `pets.js` from the hub by absolute URL.
+- The planner's QR code (`cleanout-planner/qr-code.png`) points at the planner address; never change that address.
+
+## 2. How to publish
+
+On a new computer: install Git and GitHub CLI, run `gh auth login` (the owner signs in through the browser), then
+`gh repo clone Hyponatremia-Peds/peds-tools` and `gh repo clone Hyponatremia-Peds/cleanout-planner`.
+Edit, commit, push to `main`. Pages rebuilds in about 1 minute. Check with
+`gh api repos/Hyponatremia-Peds/<repo>/pages/builds/latest --jq .status` (wait for `built`).
+After publishing, always open the live page and re-run the checks below.
+
+## 3. Rules the owner decided (keep unless told otherwise)
+
+**Cleanout planner dosing** (source: a published 3-day cleanout protocol; the owner does **not** want the source institution named anywhere):
+- Dose by weight only. Block under 10 kg / under 22 lb with "contact your provider" and no dose.
+- Pounds use the printed pound column. Exactly 55, 66, 88 and 110 lb move **up** to the next row.
+- Cleanout: Miralax 2×/day for 3 days, plus senna **or** bisacodyl at bedtime. Original protocol doses; don't change them.
+- Maintenance from day 4: same single Miralax dose once daily, **capped at 2 capfuls/day** (≥70 kg: cleanout 2½, maintenance 2 in 8–12 oz). Wording everywhere: "Do not give more than 2 capfuls a day for daily (maintenance) dosing unless your provider tells you to."
+- Bisacodyl from 15 kg / **33 lb** (the source printed 23 lb, a typo). ≥40 kg bisacodyl shows "1 to 2 tablets".
+- Parent must tick "Yes, this weight is correct" before medicines appear. Switching lb/kg clears the weight.
+- Stool goal: Bristol **Type 5–6** during maintenance; 6–7 expected during cleanout. The chart is **original inline SVG**: never add third-party chart images.
+- No FDA PEG neuropsychiatric note. English only.
+
+**Design** (all pages):
+- Light mode: TypeUI "Vertical" (page #F4F4F5, white panels, charcoal #232323, 4px corners, EB Garamond headings, Inter body, Geist Mono labels).
+- Dark mode (the **default**): warm "Claude" palette (page #141413, panels #1C1B19, ivory #FAF9F6, warm grays). Light/dark switch at top right. Printing is always black on white.
+- Minimal text: no filler lines, no small uppercase "eyebrow" labels above headings.
+- Warning boxes are soft red (#FEF2F2 / #FCA5A5 / #7F1D1D); the serious stop box uses #E40014 / #C10007.
+- Icon: Rod of Asclepius with one cute "baby snake" (`favicon.svg`; PNGs rendered from it).
+- Every page's footer ends with "Made with [red pixel heart] Claude" (Claude links to claude.com/claude-code), plus the sprite credit on pages that load `pets.js`.
+
+**Clinician section:**
+- A 4-digit PIN gate. Only a SHA-256 hash of `"cleanout-hub:" + PIN` is in the code; the owner knows the PIN. It's a convenience gate, **not security** (public site), so never put confidential content behind it.
+- The unlock is saved on the device (localStorage key `peds-tools-clinician`) until "Lock clinician section" is tapped.
+- To change the PIN, replace `PIN_HASH` in both `index.html` and `asm-dosing.html` with the new hash.
+- A second hashed code in the PIN box opens the **pet picker** (an easter egg; keep it out of READMEs).
+
+**Pets (`pets.js`):**
+- Neko (Web Neko black cat, loaded from webneko.net as its license requires), plus Eevee, Jolteon and Espeon (PMD Sprite Collab, CC BY-NC 4.0: Chunsoft; Jolteon also dmDash).
+- The choice is saved in localStorage `peds-tools-pet` and shows on every page.
+- Off on touch-only devices and with reduced motion.
+- Sheet format: Walk/Idle sheets have 8 direction rows (Down, DownRight, Right, UpRight, Up, UpLeft, Left, DownLeft); Sleep has 1 row; frame size and durations (1/60 s ticks) come from `AnimData.xml`.
+
+## 4. Open items
+
+**ASM dosing page: needs the owner's review before the DRAFT banner comes off.** All numbers came from an OpenEvidence summary the owner supplied; nothing was added from memory. Open questions (shown as VERIFY on the page):
+1. Lacosamide, 6–<11 kg: OpenEvidence gives the same maintenance range as 11–<30 kg (6–12 mg/kg/day). Check the Vimpat label. The <6 kg values also need checking.
+2. Phenytoin: OpenEvidence says "cap 300 mg/day", but the label describes 300 mg/day as the minimum adult dose older children may need. The cap is **not** applied; confirm.
+3. Oxcarbazepine: no maximum starting dose (mg/day) was given.
+4. Brivaracetam: dosing frequency not given, so per-dose amounts aren't shown.
+5. Gabapentin ≥12 years: no starting dose given.
+6. Fosphenytoin load: no maximum given.
+7. Not covered (no source data): levetiracetam <1 month and ≥16 years, oxcarbazepine <2 and ≥17, lamotrigine >12 years, clonazepam >10 years or >30 kg, ethosuximide and gabapentin <3 years.
+8. Rescue section: **first-line benzodiazepines are missing** (rectal/IN diazepam, IN/buccal/IM midazolam, IV lorazepam). Need doses, weight/age bands, maximum and repeat rules, and products/concentrations.
+9. Footer cites "AES review, Epilepsy Curr 2020" as given by OpenEvidence; the AES guideline is usually cited as 2016. Confirm.
+
+**Other:**
+- The owner should review the planner's "When to call your child's healthcare provider" list (Claude's wording).
+- Real-phone checks not yet done: iPhone "Copy link for Safari" from Brave; the Google Calendar buttons on Android.
+- The hub's "coming soon" cards are generic until the owner names the next tools.
+
+## 5. How to check after any change
+
+- **Planner:** run `computeDoses(weight, unit)` in the browser console at every boundary: 9.9/10/14.9/15/…/70 kg and 21.9/22/32.9/33/54.9/55/65.9/66/87.9/88/109.9/110/154/154.1 lb. Check `maintenanceDose()` caps at 2 capfuls.
+- **ASM:** loop every drug at several weights and ages; the page must never show NaN, undefined or Infinity; caps must apply.
+- **Live:** open the live page after Pages shows `built`.
