@@ -16,7 +16,7 @@
     document.documentElement.dataset.theme = (t === "light" || t === "dark") ? t : "dark";
   })();
 </script>
-<script src="pets.js?v=4" defer></script>
+<script src="pets.js?v=5" defer></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=EB+Garamond:wght@500;600&family=Geist+Mono:wght@400;500&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -218,7 +218,7 @@
 
 <footer class="band">
   <div class="band-inner">
-    <p>Doses compiled (via OpenEvidence) from FDA drug labels, the ILAE therapeutic-drug-monitoring position paper (Epilepsia 2008), the ESETT trial (NEJM 2019; pediatric age-group analysis Lancet 2020) and the AES status-epilepticus guideline (Epilepsy Curr 2016). This tool is clinical decision support and does not replace the current product label or institutional protocol.</p>
+    <p>Doses compiled and checked with OpenEvidence from FDA drug labels (EMA for buccal midazolam), the ILAE therapeutic-drug-monitoring position paper (Epilepsia 2008), the AES status-epilepticus guideline (Epilepsy Curr 2016), the ESETT (NEJM 2019; pediatric analysis Lancet 2020) and RAMPART trials, and for infantile spasms the AAN/CNS guideline, UKISS, ICISS and the US consensus (NISC). Each medication lists its own sources. This tool is clinical decision support and does not replace the current product label or institutional protocol.</p>
     <p class="credit">Made with
       <svg class="pixel-heart" viewBox="0 0 7 6" width="14" height="12" role="img" aria-label="love" shape-rendering="crispEdges">
         <path fill="#E5484D" d="M1 0h2v1h-2zM4 0h2v1h-2zM0 1h7v2h-7zM1 3h5v1h-5zM2 4h3v1h-3zM3 5h1v1h-1z"/>
@@ -231,10 +231,11 @@
 <script>
 "use strict";
 /* ======================================================================
-   DOSING DATA — every number below comes from the OpenEvidence summary the
-   user supplied (FDA labels, ILAE 2008, ESETT NEJM 2019 / Lancet 2020, AES 2016),
-   corrected by a second OpenEvidence label review (2026-10-09). Nothing was
-   added from memory. Open questions are marked verify: "...".
+   DOSING DATA — every number below comes from OpenEvidence summaries the
+   owner supplied or requested (FDA labels, EMA for Buccolam, ILAE 2008, AES 2016,
+   ESETT, RAMPART, ICISS/UKISS/NISC), checked by several OpenEvidence Snow reviews
+   (2026-10-09). Nothing was added from memory. Mark any open question with
+   verify: "..." on a row (or a note starting "VERIFY:"); it shows a VERIFY tag.
    Each compute(kg, ageY, opts) returns either
      { notCovered: "why" } or { needAge: true } or
      { rows: [ { stage, lo, hi, unit: "day"|"dose", freq, fixed, cap } ], note, warn: [] }
@@ -328,7 +329,7 @@ const DRUGS = {
       if (age < 4) rows.push(row("Maximum, age 2 to under 4 (60 mg/kg/day)", perKg(kg, 60), { freq: 2 }));
       else if (kg >= 20) {
         const t = kg <= 29 ? 900 : kg <= 39 ? 1200 : 1800;
-        rows.push(row(`Target, adjunct (weight ${kg <= 29 ? "20–29" : kg <= 39 ? "29–39" : "over 39"} kg)`, fixed(t), { freq: 2 }));
+        rows.push(row(`Target, adjunct (weight ${kg <= 29 ? "20–29" : kg <= 39 ? "over 29 to 39" : "over 39"} kg)`, fixed(t), { freq: 2 }));
       }
       return { band: age < 4 ? "2 to under 4 years" : "4 to 16 years", rows,
         note: "Twice daily. Adjunct (4–16 yr): titrate over 2 weeks to the weight target. Monotherapy: increase 5 mg/kg/day every 3 days." + (age >= 4 && kg < 20 ? " Under 20 kg: the source data give no weight target." : "") + (age < 4 && kg < 20 ? " Under 20 kg: a higher start of 16–20 mg/kg/day may be needed (still up to 600 mg/day)." : "") };
@@ -355,11 +356,11 @@ const DRUGS = {
     caveats: ["Suspension gives higher peaks and lower troughs than tablets, so use smaller, more frequent doses.", "Don't give the suspension at the same time as other liquid medicines (precipitate).", "Autoinduction: clearance rises over 2–4 weeks.", "Check HLA-B*1502 in at-risk ancestry."],
     source: "FDA Tegretol label; ILAE TDM 2008." },
 
-  valproic: { name: "Valproic acid / divalproex", brand: "Depakene / Depakote", conc: 50, form: "oral solution 50 mg/mL (250 mg/5 mL), Depakene; Depakote has no liquid",
+  valproic: { name: "Valproic acid / divalproex", brand: "Depakene / Depakote", conc: 50, form: "oral solution 50 mg/mL (250 mg/5 mL), Depakene; Depakote has no liquid", needsAge: true,
     compute(kg, age) {
       return { rows: [row("Initial (10–15 mg/kg/day)", perKg(kg, 10, 15)), row("Maximum (60 mg/kg/day)", perKg(kg, 60))],
         note: "Titrate by 5–10 mg/kg/day weekly. Divide the dose if over 250 mg/day.",
-        warn: age != null && age < 2 ? ["Under 2 years: highest risk of fatal hepatotoxicity. Avoid if possible; if used, sole agent only."] : [] };
+        warn: age < 2 ? ["Under 2 years: highest risk of fatal hepatotoxicity. Avoid if possible; if used, sole agent only."] : [] };
     },
     loading: "Status epilepticus (off-label): 20–40 mg/kg IV over 5–10 min (ESETT 40 mg/kg, max 3,000 mg), then about 5 mg/kg/h or 10–15 mg/kg/day divided.",
     renal: "No adjustment; monitor FREE levels (protein binding reduced).",
@@ -515,7 +516,7 @@ const DRUGS = {
       if (kg < 10) return { notCovered: "2 years and older but under 10 kg: no weight band in the label." };
       if (kg > 60) return { band: "over 60 kg (adult dosing)", rows: [row("Start", fixed(1000), { freq: 2 }), row("Target", fixed(3000), { freq: 2 })],
         note: "Refractory complex partial seizures, adjunct. Twice daily, titrated weekly. Stop if no benefit within 3 months (taper by a third weekly over 3 weeks)." };
-      const b = kg < 15 ? ["10 to under 15 kg", 350, 1050] : kg < 20 ? ["15 to under 20 kg", 450, 1300] : kg < 25 ? ["20 to under 25 kg", 500, 1500] : ["25 to 60 kg", 500, 2000];
+      const b = kg <= 15 ? ["10 to 15 kg", 350, 1050] : kg <= 20 ? ["over 15 to 20 kg", 450, 1300] : kg <= 25 ? ["over 20 to 25 kg", 500, 1500] : ["over 25 to 60 kg", 500, 2000];
       return { band: b[0] + ", refractory complex partial seizures", rows: [row("Start", fixed(b[1]), { freq: 2 }), row("Maintenance", fixed(b[2]), { freq: 2 })],
         note: "Adjunct, not first-line. Twice daily, titrated weekly. Stop if no benefit within 3 months (taper by a third weekly over 3 weeks)." };
     },
@@ -683,7 +684,7 @@ function patient() {
   const kg = w == null || !isFinite(w) ? null : (unit === "kg" ? w : w / LB_PER_KG);
   const y = $("age-y").value.trim(), m = $("age-m").value.trim();
   const age = y === "" && m === "" ? null : (Number(y || 0) + Number(m || 0) / 12);
-  return { kg, w, unit, age, ageOk: age == null || (isFinite(age) && age >= 0 && age < 30 && Number(m || 0) < 12) };
+  return { kg, w, unit, age, ageOk: age == null || (isFinite(age) && age >= 0 && age < 30 && Number(y || 0) >= 0 && Number(m || 0) >= 0 && Number(m || 0) < 12) };
 }
 
 function doseTable(rows, conc, unitLabel = "mg") {

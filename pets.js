@@ -203,7 +203,8 @@
       const sel = document.createElement("select");
       sel.id = "pet-select";
       sel.style.cssText = "font:inherit;padding:8px 10px;min-height:44px;border-radius:4px;border:1px solid currentColor;background:transparent;color:inherit";
-      ["none", "neko", ...PMD].forEach(v => { const o = document.createElement("option"); o.value = v; o.textContent = LABELS[v]; sel.appendChild(o); });
+      // Options get explicit colors: they'd otherwise inherit light text onto the browser's white list in dark mode.
+      ["none", "neko", ...PMD].forEach(v => { const o = document.createElement("option"); o.value = v; o.textContent = LABELS[v]; o.style.cssText = "color:#18181B;background:#FFFFFF"; sel.appendChild(o); });
       sel.value = chosen();
       const saved = document.createElement("span");
       saved.setAttribute("role", "status");
@@ -251,7 +252,7 @@
 
   function start() {
     // Already unlocked on this device: show the picker in the footer of every page.
-    if (isUnlocked()) showPicker(document.querySelector(".sprite-credit") || document.querySelector("footer"));
+    if (isUnlocked()) showPicker(document.querySelector(".sprite-credit") || document.querySelector("footer .band-inner > p:last-of-type") || document.querySelector("footer"));
     switchTo(chosen());
   }
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", start); else start();
