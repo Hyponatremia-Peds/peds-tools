@@ -66,7 +66,24 @@
     document.write = html => document.head.insertAdjacentHTML("beforeend", html);
     const s = document.createElement("script");
     s.src = "https://webneko.net/n20171213.js";   // license: link it from webneko.net, don't copy it
-    s.onload = () => { document.write = realWrite; if (typeof window.startANeko === "function") window.startANeko(); };
+    s.onload = () => {
+      document.write = realWrite;
+      if (typeof window.startANeko !== "function") return;
+      window.startANeko();
+      // Web Neko only chases after it's clicked and only listens to the mouse. On touch devices,
+      // start it chasing and pass taps and finger drags to its mouse handler.
+      if (touchOnly() && window.aNekos && window.aNekos.length) {
+        // Its target starts at (0, 0); aim it at its own start so it waits there for a tap.
+        if (window.mouse) { window.mouse.x = window.startNekoX; window.mouse.y = window.startNekoY; }
+        window.aNekos[window.aNekos.length - 1].active = true;
+        const onTouch = e => {
+          const t = e.touches[0];
+          if (t && typeof document.onmousemove === "function") document.onmousemove({ pageX: t.pageX, pageY: t.pageY });
+        };
+        window.addEventListener("touchstart", onTouch, { passive: true });
+        window.addEventListener("touchmove", onTouch, { passive: true });
+      }
+    };
     s.onerror = () => { document.write = realWrite; };
     document.head.appendChild(s);
   }
