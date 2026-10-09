@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <!-- Rod of Asclepius: one baby snake wound around a staff -->
+  <defs>
+    <path id="snake" d="M36 54.5 C30 54 26 50.5 32 48 C40.5 45.5 41.5 41 32 39 C22.5 37 22.5 31 32 29 C40.5 27 41.5 22 35.5 19 C33.5 18 33.5 15 37 14"/>
+  </defs>
+  <rect width="64" height="64" rx="12" fill="#141413"/>
+  <!-- whole body, behind the staff -->
+  <g fill="none" stroke-linecap="round" stroke-linejoin="round">
+    <use href="#snake" stroke="#141413" stroke-width="8.2"/>
+    <use href="#snake" stroke="#FAF9F6" stroke-width="5.2"/>
+  </g>
+  <!-- staff with a knob and a pointed end -->
+  <circle cx="32" cy="7" r="3" fill="#FAF9F6"/>
+  <path d="M30.3 9 H33.7 V52 L32 60 L30.3 52 Z" fill="#FAF9F6"/>
+  <!-- the stretches that pass in front of the staff (two crossings and the neck) -->
+  <!-- dark edges are a little shorter and the body a little longer, so the joins don't show a seam -->
+  <g fill="none" stroke-linecap="butt" stroke-linejoin="round">
+    <use href="#snake" stroke="#141413" stroke-width="8.2" stroke-dasharray="0 8.75 8 28 8 10.25 9.51 40"/>
+    <use href="#snake" stroke="#FAF9F6" stroke-width="5.2" stroke-dasharray="0 7.25 11 25 11 7.25 11.01 40"/>
+  </g>
+  <!-- big round baby head, facing right -->
+  <ellipse cx="41" cy="13" rx="5.6" ry="4.6" transform="rotate(-6 41 13)" fill="#FAF9F6" stroke="#141413" stroke-width="1.2"/>
+  <circle cx="43.2" cy="11.9" r="1.7" fill="#141413"/>
+  <circle cx="43.7" cy="11.3" r=".55" fill="#FAF9F6"/>
+  <path d="M43 15.4 Q44.6 16.3 46 15.1" fill="none" stroke="#141413" stroke-width=".8" stroke-linecap="round"/>
+</svg>
