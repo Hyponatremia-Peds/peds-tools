@@ -213,7 +213,7 @@
         <h3>Monitoring</h3>
         <div class="caveat"><b>Hormonal therapy:</b> blood pressure, infection (the most common serious side effect in ICISS), electrolytes and glucose, irritability, Cushingoid changes, cardiac hypertrophy, and adrenal insufficiency after the course.</div>
         <div class="caveat"><b>Vigabatrin:</b> vision testing per the boxed warning (by 4 weeks, every 3 months, and 3–6 months after stopping; ERG in infants); reversible MRI changes; REMS only.</div>
-        <p class="src">Sources: AAN/CNS practice parameter (Go 2012, since retired); ICISS (O'Callaghan, Lancet Neurol 2017; 18-month outcomes 2018); UKISS; NISC (Pellock 2010; Knupp 2016); Baram 1996; FDA Acthar Gel and Sabril labels.</p>
+        <p class="src">Sources: AAN/CNS practice parameter (Go 2012, since retired); ICISS (O'Callaghan, Lancet Neurol 2017; 18-month outcomes, Lancet Child Adolesc Health 2018); UKISS; NISC (Pellock 2010; Knupp 2016); Baram 1996; FDA Acthar Gel and Sabril labels.</p>
       </div>
     </details>
 
@@ -297,12 +297,12 @@ const DRUGS = {
       const pos = "Under 11 kg: FDA-approved for partial-onset seizures only (not primary generalized tonic-clonic).";
       const b = kg >= 30 ? { label: "30 to under 50 kg", init: 2, m: [4, 8] }
               : kg >= 11 ? { label: "11 to under 30 kg", init: 2, m: [6, 12] }
-              : kg >= 6  ? { label: "6 to under 11 kg", init: 2, m: [6, 12], warn: [pos] }
+              : kg >= 6  ? { label: "6 to under 11 kg", init: 2, m: [7.5, 15], warn: [pos], verify: "OpenEvidence reviews disagree: the first said 6–12 mg/kg/day (same as 11 to under 30 kg); the later Snow review says Vimpat Table 1 gives 7.5–15 mg/kg/day for all patients under 11 kg. Please check the label." }
               :            { label: "under 6 kg", init: 2, m: [7.5, 15], warn: [pos,
                   "Alternate initiation (label): 3.75 mg/kg twice daily (7.5 mg/kg/day). IV under 6 kg is given three times daily, not twice."] };
       return { band: b.label, rows: [
         row(`Initial (${b.init} mg/kg/day)`, perKg(kg, b.init), { freq: 2 }),
-        row(`Maintenance (${b.m[0]}–${b.m[1]} mg/kg/day)`, perKg(kg, b.m[0], b.m[1]), { freq: 2 })
+        row(`Maintenance (${b.m[0]}–${b.m[1]} mg/kg/day)`, perKg(kg, b.m[0], b.m[1]), { freq: 2, verify: b.verify })
       ], note: "Twice daily (oral). Titrate by 1 mg/kg twice daily, weekly.", warn: b.warn };
     },
     loading: "Status epilepticus (off-label): 5–10 mg/kg IV over 5–10 min, max 400 mg; may repeat 5 mg/kg (max 200 mg). The label's loading option (single 200 mg at ≥50 kg, or 4 mg/kg, then maintenance 12 h later) is a treatment-initiation load, not a status epilepticus protocol.",
@@ -320,7 +320,7 @@ const DRUGS = {
       ], note: "Twice daily. No titration required." };
     },
     loading: "IV dose = oral dose, over 2–15 min. Status epilepticus use is off-label; no pediatric SE dosing established (adult registries: median 100 mg, about 2 mg/kg).",
-    renal: "No adjustment; not recommended in ESRD on dialysis.", hepatic: "All Child-Pugh grades: halve the starting dose; maximum about 25% lower (adults 150 mg/day; 20 to under 50 kg, 3 instead of 4 mg/kg/day).",
+    renal: "No adjustment; not recommended in ESRD on dialysis.", hepatic: "Same reduction at every Child-Pugh grade: maximum maintenance about 20–25% lower (11 to under 20 kg: 4 instead of 5 mg/kg/day; 20 to under 50 kg: 3 instead of 4; adults 150 mg/day). Adults also halve the starting dose (25 mg twice daily).",
     target: "0.2–2 mg/L (not routinely monitored).", caveats: [], source: "FDA Briviact label; Santamarina, Epilepsia 2019; Aicua-Rapun, Epilepsy Res 2019." },
 
   oxcarbazepine: { name: "Oxcarbazepine", brand: "Trileptal", conc: 60, form: "oral suspension 60 mg/mL (300 mg/5 mL)", needsAge: true,
@@ -463,13 +463,13 @@ const DRUGS = {
     options: `<label for="pb-conc" style="margin-top:12px">Elixir strength you stock</label>
       <select id="pb-conc"><option value="">Select…</option><option value="4">4 mg/mL (20 mg/5 mL)</option><option value="3">3 mg/mL</option></select>`,
     compute(kg) {
-      return { rows: [row("Children (3–6 mg/kg/day)", perKg(kg, 3, 6), { verify: "OpenEvidence's two reviews disagree: one suggested 4–8 mg/kg/day, the later Snow review 3–6 mg/kg/day (Moffett 2018 range 3–8; 8 is the extreme top). Please choose." })],
-        note: "Given in 1–2 doses a day. Up to 8 mg/kg/day at most; infants up to about 5–6. Neonates: 4.5 mg/kg/day (Sezaby label)." };
+      return { rows: [row("Children (3–6 mg/kg/day)", perKg(kg, 3, 6))],
+        note: "Given in 1–2 doses a day. Infants and children usually need about 6 mg/kg/day, adolescents about 5. Neonates: 4–5 mg/kg/day (Sezaby label 4.5). Higher doses only with level monitoring." };
     },
     loading: "Status epilepticus: 20 mg/kg IV over 15 min; may repeat 10–20 mg/kg; maximum total about 40 mg/kg.",
     renal: "About 25% renal; reduce or extend the interval if GFR <10.", hepatic: "Severe (Child-Pugh >8): consider a 25–50% reduction.",
     target: "10–40 mcg/mL (neonatal seizures 20–40).", caveats: ["Respiratory depression and sedation; long half-life."],
-    source: "FDA labels (incl. Sezaby); Moffett 2018; ILAE TDM 2008." },
+    source: "Pellock, Neurology 2004; Moffett, Epilepsia 2018; FDA Sezaby label; ILAE TDM 2008." },
 
   phenytoin: { name: "Phenytoin", brand: "Dilantin", conc: 25, form: "oral suspension 25 mg/mL (125 mg/5 mL, free acid)",
     compute(kg) {
@@ -508,7 +508,7 @@ const DRUGS = {
     },
     loading: "No IV form.", renal: "No adjustment; hemodialysis lowers levels about 30% (consider a supplement).",
     hepatic: "Mild–moderate: caution. Severe: not recommended.", target: "Not FDA-defined; about 15–30 mg/L reported (side effects rise above 20).",
-    caveats: ["Contraindicated in familial short QT syndrome; avoid other QT-shortening drugs."],
+    caveats: ["DRESS / multi-organ hypersensitivity: in trials all cases were in children under 12, within 4 weeks of starting. Stop if suspected.", "Contraindicated in familial short QT syndrome; avoid other QT-shortening drugs."],
     source: "FDA Banzel label; Perucca 2008; Yamamoto 2022." },
 
   vigabatrin: { name: "Vigabatrin", brand: "Sabril / Vigafyde", conc: 50, form: "Sabril powder 500 mg packet in 10 mL water = 50 mg/mL (Vigafyde ready-made 100 mg/mL, infantile spasms only)", needsAge: true,
