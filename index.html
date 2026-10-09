@@ -246,7 +246,7 @@
       e.preventDefault();
       const entered = await hash("cleanout-hub:" + input.value.trim());
       if (entered === PET_HASH) {
-        msg.textContent = "Meow! Pick a pet. It follows your mouse.";
+        msg.textContent = "Meow! Pick a pet. It follows your mouse or finger.";
         input.value = "";
         if (window.PedsPets) window.PedsPets.showPicker(form.querySelector(".pin-row"));
         return;

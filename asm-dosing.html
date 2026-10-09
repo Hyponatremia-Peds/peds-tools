@@ -605,7 +605,7 @@ document.querySelectorAll('input[name="u"]').forEach(r => r.addEventListener("ch
   form.addEventListener("submit", async e => {
     e.preventDefault();
     const h = await hash("cleanout-hub:" + input.value.trim());
-    if (h === PET_HASH) { msg.textContent = "Meow! Pick a pet. It follows your mouse."; input.value = ""; if (window.PedsPets) window.PedsPets.showPicker(form.querySelector(".pin-row")); return; }
+    if (h === PET_HASH) { msg.textContent = "Meow! Pick a pet. It follows your mouse or finger."; input.value = ""; if (window.PedsPets) window.PedsPets.showPicker(form.querySelector(".pin-row")); return; }
     if (h === PIN_HASH) { try { localStorage.setItem(KEY, "1"); } catch (e2) {} msg.textContent = ""; input.value = ""; show(true); }
     else { msg.textContent = "That PIN is not correct."; input.select(); }
   });

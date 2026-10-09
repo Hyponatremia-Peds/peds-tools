@@ -19,8 +19,9 @@
  * Entering the secret code saves "peds-tools-pet-unlocked" in localStorage; after that the picker
  * shows in the footer of every page on that device.
  *
- * Off on touch-only devices (there's no cursor to follow). It does run with reduced motion
- * turned on: it's an opt-in easter egg that only appears when the visitor picks it.
+ * On phones and tablets the pet walks to wherever the screen is tapped or a finger is dragged.
+ * It does run with reduced motion turned on: it's an opt-in easter egg that only appears when
+ * the visitor picks it.
  */
 (function () {
   "use strict";
@@ -34,11 +35,11 @@
   const SCALE = 2;            // 2x pixel scale
   const SLOW = 1.5;           // play animations about 33% slower than AnimData.xml's timing
   const SPEED = 2.4 / SLOW;   // px per 1/60 s while walking, slowed to match the animation
-  const ARRIVE = 18;          // stop this close to the cursor (px)
-  const SLEEP_AFTER = 10000;  // ms without mouse movement before sleeping
+  const ARRIVE = 18;          // stop this close to the cursor or finger (px)
+  const SLEEP_AFTER = 10000;  // ms without mouse or touch movement before sleeping
 
   const touchOnly = () => window.matchMedia("(hover: none) and (pointer: coarse)").matches;
-  const canRun = () => !touchOnly();
+  let running = null;         // { name, stop } for the pet on screen
 
   function read() { try { return localStorage.getItem(STORE); } catch (e) { return null; } }
   function write(v) { try { v ? localStorage.setItem(STORE, v) : localStorage.removeItem(STORE); } catch (e) {} }
@@ -88,9 +89,9 @@
     for (const n of ["Walk", "Idle", "Sleep"]) {
       const a = resolve(n);
       if (!a || !a.w || !a.h || !a.durations.length) throw new Error("missing " + n);
+      // Wait for onload rather than img.decode(): decode() is unreliable on older iPhones.
       const img = new Image();
-      img.src = new URL(name + "/" + a.sheet + "-Anim.png", base).href;
-      await img.decode();
+      await new Promise((ok, fail) => { img.onload = ok; img.onerror = fail; img.src = new URL(name + "/" + a.sheet + "-Anim.png", base).href; });
       a.img = img; a.rows = Math.round(img.naturalHeight / a.h); a.cols = a.durations.length;
       out[n] = a;
     }
@@ -114,7 +115,21 @@
 
     const pet = { x: window.innerWidth / 2, y: 120, row: 0, state: "Idle", frame: 0, acc: 0 };
     const mouse = { x: pet.x, y: pet.y, moved: performance.now() };
-    window.addEventListener("mousemove", e => { mouse.x = e.clientX; mouse.y = e.clientY; mouse.moved = performance.now(); }, { passive: true });
+    // Mouse: follow the pointer. Touch: walk to where the screen is tapped or a finger drags.
+    const aim = (x, y) => { mouse.x = x; mouse.y = y; mouse.moved = performance.now(); };
+    const onMouse = e => aim(e.clientX, e.clientY);
+    const onTouch = e => { const t = e.touches[0]; if (t) aim(t.clientX, t.clientY); };
+    const opts = { passive: true };
+    window.addEventListener("mousemove", onMouse, opts);
+    window.addEventListener("touchstart", onTouch, opts);
+    window.addEventListener("touchmove", onTouch, opts);
+    let stopped = false;
+    const stop = () => {
+      stopped = true; el.remove();
+      window.removeEventListener("mousemove", onMouse, opts);
+      window.removeEventListener("touchstart", onTouch, opts);
+      window.removeEventListener("touchmove", onTouch, opts);
+    };
 
     function setState(s) { if (pet.state !== s) { pet.state = s; pet.frame = 0; pet.acc = 0; } }
     function draw() {
@@ -131,6 +146,7 @@
 
     let last = performance.now();
     function tick(now) {
+      if (stopped) return;
       const dt = Math.min(100, now - last); last = now;
       const dx = mouse.x - pet.x, dy = mouse.y - pet.y, dist = Math.hypot(dx, dy);
       if (now - mouse.moved > SLEEP_AFTER && dist <= ARRIVE * 2) setState("Sleep");
@@ -150,6 +166,7 @@
     }
     draw();
     requestAnimationFrame(tick);
+    return stop;
   }
 
   /* ---------------- picker (shown by the secret code) ---------------- */
@@ -170,22 +187,14 @@
       const saved = document.createElement("span");
       saved.setAttribute("role", "status");
       saved.style.cssText = "font-size:14px";
-      // Switching pets reloads the page so the old pet is cleanly removed. Not on touch-only
-      // devices: no pet runs there, and reloading while the phone's own select menu is still
-      // closing crashed some phone browsers. There we just save the choice.
+      // Switch pets in place: reloading the page while a phone's own select menu was still
+      // closing crashed some phone browsers.
       sel.addEventListener("change", () => {
         sel.blur();
         write(sel.value === "none" ? "" : sel.value);
-        if (canRun()) setTimeout(() => location.reload(), 50);
-        else saved.textContent = "Saved.";
+        saved.textContent = switchTo(sel.value) ? "" : "Saved.";
       });
       box.append(label, sel, saved);
-      if (!canRun()) {
-        const note = document.createElement("p");
-        note.style.cssText = "margin:4px 0 0;width:100%;font-size:14px";
-        note.textContent = "Pets follow a mouse pointer, so they don't appear on touch-only devices.";
-        box.appendChild(note);
-      }
       if (anchor) anchor.insertAdjacentElement("afterend", box);
       else document.body.appendChild(box);
     }
@@ -197,18 +206,29 @@
     unlock();
     const box = showPicker(anchor);
     // Focusing a select on a phone pops its menu open by itself, so only do it with a mouse.
-    if (canRun()) box.querySelector("select").focus();
+    if (!touchOnly()) box.querySelector("select").focus();
   }
 
-  window.PedsPets = { showPicker: openPicker, current: chosen, set: v => { write(v === "none" ? "" : v); location.reload(); } };
+  window.PedsPets = { showPicker: openPicker, current: chosen, set: v => { write(v === "none" ? "" : v); switchTo(v); } };
+
+  // Show pet `name` now. Web Neko can't be removed once started, so leaving it needs a reload
+  // (deferred so a phone's select menu has closed first). Returns false if a reload is coming.
+  function switchTo(name) {
+    if (running && running.name === name) return true;
+    if (running && running.name === "neko") { setTimeout(() => location.reload(), 400); return false; }
+    if (running) { running.stop(); running = null; }
+    if (name === "neko") { startNeko(); running = { name, stop: null }; }
+    else if (PMD.includes(name)) {
+      const r = running = { name, stop: () => { r.cancelled = true; } };
+      startPmd(name).then(stop => { if (!stop) return; if (r.cancelled) stop(); else r.stop = stop; });
+    }
+    return true;
+  }
 
   function start() {
     // Already unlocked on this device: show the picker in the footer of every page.
     if (isUnlocked()) showPicker(document.querySelector(".sprite-credit") || document.querySelector("footer"));
-    if (!canRun()) return;
-    const p = chosen();
-    if (p === "neko") startNeko();
-    else if (PMD.includes(p)) startPmd(p);
+    switchTo(chosen());
   }
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", start); else start();
 })();
