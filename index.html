@@ -216,21 +216,21 @@
       const buf = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(text));
       return [...new Uint8Array(buf)].map(b => b.toString(16).padStart(2, "0")).join("");
     }
-    // Stays unlocked until this browser tab is closed.
+    // Stays unlocked on this device until "Lock clinician section" is tapped.
     let unlocked = false;
-    try { unlocked = sessionStorage.getItem(KEY) === "1"; } catch (e) {}
+    try { unlocked = localStorage.getItem(KEY) === "1"; } catch (e) {}
     show(unlocked);
     form.addEventListener("submit", async e => {
       e.preventDefault();
       if ((await hash("cleanout-hub:" + input.value.trim())) === PIN_HASH) {
-        try { sessionStorage.setItem(KEY, "1"); } catch (e2) {}
+        try { localStorage.setItem(KEY, "1"); } catch (e2) {}
         msg.textContent = ""; input.value = ""; show(true);
       } else {
         msg.textContent = "That PIN is not correct."; input.select();
       }
     });
     document.getElementById("lock-btn").addEventListener("click", () => {
-      try { sessionStorage.removeItem(KEY); } catch (e) {}
+      try { localStorage.removeItem(KEY); } catch (e) {}
       show(false);
     });
   })();
