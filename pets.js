@@ -28,7 +28,8 @@
   const script = document.currentScript;
   const base = new URL("sprites/", script ? script.src : location.href);
   const SCALE = 2;            // 2x pixel scale
-  const SPEED = 2.4;          // px per 1/60 s while walking
+  const SLOW = 1.5;           // play animations about 33% slower than AnimData.xml's timing
+  const SPEED = 2.4 / SLOW;   // px per 1/60 s while walking, slowed to match the animation
   const ARRIVE = 18;          // stop this close to the cursor (px)
   const SLEEP_AFTER = 10000;  // ms without mouse movement before sleeping
 
@@ -132,10 +133,11 @@
         const step = Math.min(dist - ARRIVE / 2, SPEED * dt / (1000 / 60));
         pet.x += dx / dist * step; pet.y += dy / dist * step;
       } else setState("Idle");
-      // advance frames using the durations from AnimData.xml (1 tick = 1/60 s)
+      // advance frames using the durations from AnimData.xml (1 tick = 1/60 s), stretched by SLOW
       const a = anims[pet.state];
+      const ms = i => a.durations[i] * 1000 / 60 * SLOW;
       pet.acc += dt;
-      while (pet.acc >= a.durations[pet.frame] * 1000 / 60) { pet.acc -= a.durations[pet.frame] * 1000 / 60; pet.frame = (pet.frame + 1) % a.cols; }
+      while (pet.acc >= ms(pet.frame)) { pet.acc -= ms(pet.frame); pet.frame = (pet.frame + 1) % a.cols; }
       draw();
       requestAnimationFrame(tick);
     }
