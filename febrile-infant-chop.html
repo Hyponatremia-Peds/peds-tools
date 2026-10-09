@@ -1,0 +1,451 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Febrile Infant (CHOP)</title>
+<meta name="description" content="Clinician tool: evaluation and treatment of well-appearing febrile infants 56 days and younger, based on the CHOP pathway.">
+<meta name="robots" content="noindex">
+<meta name="theme-color" content="#0D0D0C">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<script>
+  (function () {
+    let t = null;
+    try { t = localStorage.getItem("peds-tools-theme"); } catch (e) {}
+    document.documentElement.dataset.theme = (t === "light" || t === "dark") ? t : "dark";
+  })();
+</script>
+<script src="pets.js?v=5" defer></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:wght@500;600&family=Geist+Mono:wght@400;500&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  /* Same tokens as the hub and the other tools. */
+  :root {
+    --page: #F4F4F5; --panel: #FFFFFF; --soft: #FAFAFA;
+    --brand: #232323; --brand-text: #FFFFFF;
+    --band: #232323; --band-text: #FFFFFF; --band-muted: #A1A1AA;
+    --heading: #18181B; --body: #52525B; --border: #E4E4E7; --subtle: #F2F2F2;
+    --warn-bg: #FEF2F2; --warn-border: #FCA5A5; --warn-text: #7F1D1D;
+    --focus: #161616; --radius: 4px;
+    --serif: "EB Garamond", "Adobe Jenson Pro", Garamond, Georgia, serif;
+    --sans: Inter, system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    --mono: "Geist Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --page: #141413; --panel: #1C1B19; --soft: #242320; --brand: #FAF9F6; --brand-text: #141413;
+      --band: #0D0D0C; --band-text: #FAF9F6; --band-muted: #A8A49B; --heading: #FAF9F6; --body: #C2BEB5;
+      --border: #3A3833; --subtle: #2C2B27; --warn-bg: #2A1A17; --warn-border: #7A2E26; --warn-text: #F3CFC6; --focus: #FAF9F6;
+    }
+  }
+  :root[data-theme="dark"] {
+    --page: #141413; --panel: #1C1B19; --soft: #242320; --brand: #FAF9F6; --brand-text: #141413;
+    --band: #0D0D0C; --band-text: #FAF9F6; --band-muted: #A8A49B; --heading: #FAF9F6; --body: #C2BEB5;
+    --border: #3A3833; --subtle: #2C2B27; --warn-bg: #2A1A17; --warn-border: #7A2E26; --warn-text: #F3CFC6; --focus: #FAF9F6;
+  }
+  * { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
+  body { margin: 0; background: var(--page); color: var(--body); font: 16px/1.55 var(--sans); }
+  strong, b { color: var(--heading); font-weight: 600; }
+  a { color: var(--heading); }
+  .band { background: var(--band); color: var(--band-text); }
+  .band-inner { max-width: 900px; margin: 0 auto; padding: 40px 16px 32px; position: relative; }
+  header.band .band-inner { padding-top: 64px; }
+  .band h1 { font-family: var(--serif); font-weight: 500; letter-spacing: -0.02em; font-size: clamp(1.9rem, 6vw, 2.6rem); line-height: 1.08; margin: 0 0 10px; color: var(--band-text); }
+  .band .by { margin: 0; color: var(--band-muted); }
+  .back { position: absolute; top: 18px; left: 16px; color: var(--band-muted); font-size: 14px; }
+  .theme-toggle { position: absolute; top: 12px; right: 16px; min-height: 40px; padding: 6px 12px; font-family: var(--mono); font-size: 12px; font-weight: 500;
+    letter-spacing: .06em; text-transform: uppercase; color: var(--band-text); background: transparent; border: 1px solid var(--band-muted); border-radius: var(--radius); cursor: pointer; }
+  footer.band .band-inner { padding: 28px 16px 36px; font-size: 13px; }
+  footer.band p { margin: 0 0 8px; color: var(--band-muted); }
+  footer.band a { color: inherit; text-underline-offset: 2px; }
+  footer.band .credit { margin-top: 14px; font-size: 14px; }
+  footer.band .sprite-credit { font-size: 12px; opacity: .8; }
+  .pixel-heart { vertical-align: -2px; margin: 0 2px; }
+
+  .wrap { max-width: 900px; margin: 0 auto; padding: 24px 16px 40px; border-left: 1px solid var(--border); border-right: 1px solid var(--border); }
+  h2 { font-family: var(--serif); font-weight: 500; font-size: 1.5rem; color: var(--heading); margin: 0 0 10px; letter-spacing: -0.01em; }
+  h3 { font-family: var(--mono); font-size: 12px; font-weight: 500; letter-spacing: .07em; text-transform: uppercase; color: var(--body); margin: 18px 0 8px; }
+  .card { background: var(--panel); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px; margin-bottom: 16px; }
+  .banner { border-radius: var(--radius); padding: 12px 14px; margin: 0 0 12px; border: 1px solid; background: var(--warn-bg); border-color: var(--warn-border); color: var(--warn-text); }
+  .banner p { margin: 0; } .banner p + p { margin-top: 6px; } .banner strong { color: inherit; }
+  label { display: block; font-weight: 600; color: var(--heading); margin-bottom: 6px; font-size: 15px; }
+  input[type=number], input[type=password], select { font: inherit; font-size: 16px; color: var(--heading); background: var(--soft);
+    border: 1px solid var(--border); border-radius: var(--radius); padding: 10px 12px; min-height: 48px; width: 100%; }
+  input:focus-visible, select:focus-visible, button:focus-visible, summary:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; align-items: end; }
+  .seg { display: inline-flex; border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; height: 48px; }
+  .seg input { position: absolute; opacity: 0; pointer-events: none; }
+  .seg label { margin: 0; padding: 0 16px; display: flex; align-items: center; cursor: pointer; background: var(--soft); font-size: 15px; }
+  .seg label + input + label { border-left: 1px solid var(--border); }
+  .seg input:checked + label { background: var(--brand); color: var(--brand-text); }
+  .seg input:focus-visible + label { outline: 2px solid var(--focus); outline-offset: -4px; }
+  .hint { font-size: 14px; margin: 6px 0 0; }
+  .check { display: flex; gap: 10px; align-items: flex-start; font-weight: 400; color: var(--body); margin-top: 14px; cursor: pointer; }
+  .check input { width: 22px; height: 22px; flex: none; margin: 1px 0 0; accent-color: var(--brand); }
+  .btn { font: inherit; font-weight: 600; font-size: 15px; border-radius: var(--radius); padding: 10px 18px; min-height: 48px; border: 1px solid var(--brand);
+    background: var(--brand); color: var(--brand-text); cursor: pointer; }
+  .btn.secondary { background: var(--panel); color: var(--heading); border-color: var(--border); }
+  .btns { display: flex; flex-wrap: wrap; gap: 10px; }
+  .pin-row { display: flex; gap: 10px; flex-wrap: wrap; }
+  .pin-row input { width: 7.5em; font-family: var(--mono); font-size: 22px; letter-spacing: .3em; }
+  .pin-msg { margin: 8px 0 0; min-height: 1.2em; color: var(--warn-text); font-weight: 600; }
+  .caveat { border-left: 3px solid var(--warn-border); padding: 6px 10px; margin: 6px 0; font-size: 14.5px; }
+  .src { font-size: 13px; margin-top: 14px; }
+  [hidden] { display: none !important; }
+
+  /* scoring items */
+  fieldset.item { border: 0; border-top: 1px solid var(--border); margin: 0; padding: 16px 0 6px; min-width: 0; }
+  fieldset.item:first-of-type { border-top: 0; padding-top: 4px; }
+  fieldset.item legend { font-weight: 600; color: var(--heading); font-size: 16px; padding: 0; float: left; width: 100%; margin-bottom: 8px; }
+  fieldset.item legend .pts { float: right; font-family: var(--mono); font-weight: 500; font-size: 13px; color: var(--body); }
+  .opts { clear: both; display: grid; grid-template-columns: repeat(auto-fill, minmax(118px, 1fr)); gap: 6px; }
+  .opt { position: relative; margin: 0; font-weight: 400; font-size: 14px; color: var(--body); cursor: pointer; }
+  .opt input { position: absolute; opacity: 0; pointer-events: none; }
+  .opt span { display: block; height: 100%; padding: 8px 10px; border: 1px solid var(--border); border-radius: var(--radius); background: var(--soft); line-height: 1.35; }
+  .opt b { display: block; font-family: var(--mono); font-weight: 500; font-size: 13px; color: var(--heading); margin-bottom: 2px; }
+  .opt input:checked + span { background: var(--brand); border-color: var(--brand); color: var(--brand-text); }
+  .opt input:checked + span b { color: var(--brand-text); }
+  .opt input:focus-visible + span { outline: 2px solid var(--focus); outline-offset: 2px; }
+  details.how { clear: both; margin: 8px 0 0; font-size: 14px; }
+  details.how summary { cursor: pointer; color: var(--heading); font-weight: 500; }
+  details.how p { margin: 6px 0 0; }
+  .pics { display: grid; grid-template-columns: repeat(auto-fill, minmax(104px, 1fr)); gap: 6px; margin-top: 8px; }
+  .pic { margin: 0; padding: 6px; border: 1px solid var(--border); border-radius: var(--radius); background: var(--soft); text-align: center; cursor: pointer; color: var(--heading); }
+  .pic svg { display: block; width: 100%; height: auto; }
+  .pic figcaption { font-family: var(--mono); font-size: 12px; margin-top: 2px; }
+  .pic figcaption span { display: block; font-family: var(--sans); font-size: 11.5px; color: var(--body); line-height: 1.3; }
+  .pic.on { border-color: var(--brand); box-shadow: inset 0 0 0 1px var(--brand); }
+  .pics-note { font-size: 12.5px; margin: 6px 0 0; }
+
+  /* result */
+  .result-big { font-family: var(--serif); font-size: 2.1rem; line-height: 1.1; color: var(--heading); margin: 0 0 4px; }
+  .subs { font-family: var(--mono); font-size: 13px; letter-spacing: .03em; }
+  .sticky { position: fixed; left: 0; right: 0; bottom: 0; z-index: 10; background: var(--band); color: var(--band-text); border-top: 1px solid var(--border); }
+  .sticky .in { max-width: 900px; margin: 0 auto; padding: 10px 16px; display: flex; gap: 12px; align-items: center; justify-content: space-between; font-family: var(--mono); font-size: 14px; }
+  .sticky a { color: var(--band-text); }
+  table { width: 100%; border-collapse: collapse; font-size: 14px; }
+  th, td { text-align: left; padding: 6px 8px; border-bottom: 1px solid var(--border); }
+  th { font-family: var(--mono); font-size: 11px; font-weight: 500; text-transform: uppercase; letter-spacing: .05em; }
+  td { font-family: var(--mono); color: var(--heading); }
+  tr.hit td { background: var(--subtle); font-weight: 600; }
+
+  @media print {
+    :root, :root[data-theme="dark"], :root[data-theme="light"], :root:not([data-theme="light"]) {
+      --page:#FFF; --panel:#FFF; --soft:#FFF; --subtle:#EEE; --heading:#000; --body:#222; --border:#999; --band:#FFF; --band-text:#000; --band-muted:#333;
+      --brand:#000; --brand-text:#FFF; --warn-bg:#FFF; --warn-border:#999; --warn-text:#000;
+    }
+    body { padding-bottom: 0; }
+    .theme-toggle, .back, #pin-form, .sticky, .noprint, details.how { display: none !important; }
+  }
+
+  .lbl { display:block; font-weight:600; color:var(--heading); margin:0 0 6px; font-size:15px; }
+  .result-line { margin: 6px 0; font-size: 16px; }
+  ul li { margin: 3px 0; }
+</style>
+</head>
+<body>
+<header class="band">
+  <div class="band-inner">
+    <a class="back" href="./">← Pediatric Tools</a>
+    <button type="button" class="theme-toggle" id="theme-toggle" aria-label="Switch between light and dark mode"></button>
+    <h1>Febrile Infant ≤ 56 Days (CHOP)</h1>
+    <p class="by">By Dr. Christian Rada, DO · Clinician tool</p>
+  </div>
+</header>
+
+<main class="wrap">
+  <!-- PIN gate (same PIN and unlock as the hub). Not real security: the page is public. -->
+  <form class="card" id="pin-form" autocomplete="off">
+    <label for="pin">Enter the clinician PIN</label>
+    <div class="pin-row">
+      <input id="pin" type="password" inputmode="numeric" pattern="[0-9]*" maxlength="4" aria-describedby="pin-msg">
+      <button class="btn" type="submit">Unlock</button>
+    </div>
+    <p class="pin-msg" id="pin-msg" role="alert"></p>
+  </form>
+
+  <div id="tool" hidden>
+    <div class="banner">
+      <p><strong>Well-appearing infants ≤ 56 days with community-onset fever</strong> (rectal temperature ≥ 38.0°C / 100.4°F in the past 24 hours). Based on the CHOP Febrile Infant clinical pathway (ED and inpatient, adapted from the AAP 2021 guideline). Nothing entered here is saved or sent. <a href="febrile-infant.html">AAP guideline version</a></p>
+    </div>
+
+    <section class="card" aria-labelledby="pt-h">
+      <h2 id="pt-h">Infant</h2>
+      <div class="grid">
+        <div><label for="age">Age (days)</label><input id="age" type="number" inputmode="numeric" min="0" max="120" step="1"></div>
+        <div><label for="wt">Weight (kg), for doses</label><input id="wt" type="number" inputmode="decimal" min="0.3" max="10" step="0.01"></div>
+        <div><label for="ga">Gestational age at birth (weeks)</label><input id="ga" type="number" inputmode="numeric" min="22" max="44" step="1"></div>
+      </div>
+      <h3>Appearance and history</h3>
+      <div class="opts" style="grid-template-columns:repeat(auto-fill,minmax(160px,1fr))">
+        <label class="opt"><input type="radio" name="appear" value="well"><span><b>Well-appearing</b>Pathway applies</span></label>
+        <label class="opt"><input type="radio" name="appear" value="ill"><span><b>Ill-appearing</b>Use the sepsis pathway</span></label>
+      </div>
+      <details class="how"><summary>Signs of an ill-appearing infant</summary>
+        <p>Tachypnea, apnea or grunting; pale, gray, cyanotic or mottled color, poor perfusion; poor tone, limp, weak cry; bulging fontanelle; irritability, inconsolability, decreased alertness, listlessness or lethargy.</p></details>
+      <label class="check"><input type="checkbox" id="risk"><span>Higher risk: born &lt; 37 weeks, prolonged NICU stay, or complex medical history (immune compromise, abnormal neonatal course, congenital or chromosomal abnormality, dependent on advanced technology)</span></label>
+      <label class="check"><input type="checkbox" id="focal"><span>Exam suggests a focal bacterial infection (omphalitis, mastitis, septic arthritis, osteomyelitis, cellulitis)</span></label>
+      <label class="check"><input type="checkbox" id="viral"><span>Bronchiolitis, influenza or COVID-19</span></label>
+      <label class="check"><input type="checkbox" id="hsvrisk"><span>HSV risk factor (see list)</span></label>
+      <details class="how"><summary>HSV risk factors</summary>
+        <p>Maternal vesicles and/or fever within 48 hours before or after delivery; postnatal oral HSV exposure; vesicles or mucous membrane ulcers; abnormal mental status or seizure; hypothermia; CSF pleocytosis or RBCs; leukopenia; thrombocytopenia.</p></details>
+    </section>
+
+    <section class="card" aria-labelledby="w-h">
+      <h2 id="w-h">Work-up</h2>
+      <div id="workup"><p class="hint" style="margin:0">Enter the age to see the work-up.</p></div>
+    </section>
+
+    <section class="card" aria-labelledby="r-h">
+      <h2 id="r-h">Results</h2>
+      <span class="lbl">Procalcitonin available?</span>
+      <div class="seg" role="radiogroup" aria-label="Procalcitonin available">
+        <input type="radio" name="pctavail" id="pct-y" value="y" checked><label for="pct-y">Yes</label>
+        <input type="radio" name="pctavail" id="pct-n" value="n"><label for="pct-n">No</label>
+      </div>
+      <div class="grid" style="margin-top:12px">
+        <div id="pct-box"><label for="pct">Procalcitonin (ng/mL)</label><input id="pct" type="number" inputmode="decimal" min="0" step="0.01"></div>
+        <div><label for="anc">ANC (neutrophils/µL)</label><input id="anc" type="number" inputmode="numeric" min="0" step="1"></div>
+        <div id="crp-box" hidden><label for="crp">CRP (mg/dL)</label><input id="crp" type="number" inputmode="decimal" min="0" step="0.1"></div>
+        <div id="tmax-box" hidden><label for="tmax">Highest temperature (°C)</label><input id="tmax" type="number" inputmode="decimal" min="35" max="43" step="0.1"></div>
+      </div>
+      <h3>Urinalysis (catheter specimen)</h3>
+      <div class="opts" style="grid-template-columns:repeat(auto-fill,minmax(160px,1fr))">
+        <label class="opt"><input type="radio" name="ua" value="normal"><span><b>Normal</b>No LE, ≤ 5 WBC/hpf</span></label>
+        <label class="opt"><input type="radio" name="ua" value="abnormal"><span><b>Abnormal</b>Any leukocyte esterase or &gt; 5 WBC/hpf</span></label>
+      </div>
+      <div id="csf-wrap" hidden>
+        <h3>CSF (if LP done)</h3>
+        <div class="grid"><div><label for="csf">CSF WBC (cells/µL)</label><input id="csf" type="number" inputmode="numeric" min="0" step="1"></div></div>
+        <label class="check"><input type="checkbox" id="gnr"><span>CSF Gram stain shows Gram-negative rods</span></label>
+      </div>
+    </section>
+
+    <section class="card" id="plan" aria-labelledby="p-h" aria-live="polite">
+      <h2 id="p-h">Plan</h2>
+      <div id="plan-body"><p class="hint" style="margin:0">Enter the age and appearance to start.</p></div>
+    </section>
+
+    <section class="card" aria-labelledby="after-h">
+      <h2 id="after-h">After admission</h2>
+      <details class="how" open><summary>Discharge criteria (negative cultures)</summary>
+        <p>Well-appearing and feeding well; blood, urine and CSF cultures (if obtained) negative for at least 24–36 hours, per local lab reporting (confirm with the lab if the record isn't updated); HSV studies negative if sent; PCP notified with follow-up within 72 hours.</p>
+        <p><b>Low-risk 22–28 days:</b> admit and observe. If the baby becomes ill-appearing or the blood culture turns positive, do an LP and start antibiotics. If only the urine culture turns positive with a negative UA and the baby is well, an LP can be deferred and empiric antibiotics started. Inflammatory markers can be normal early: if still febrile and first seen less than 6 hours after fever onset, consider repeating them.</p></details>
+      <details class="how"><summary>Any positive culture or HSV PCR</summary>
+        <p>HSV PCR positive: consult ID. Positive cultures: target antibiotics to speciation and sensitivities; repeat the blood culture (before changing antibiotics) for bacteremia; ID consult and meningitic dosing for CSF growth; renal and bladder ultrasound (consider urology) for UTI. If no LP was done, perform one promptly (before antibiotics if not started). After failed attempts, consider point-of-care ultrasound for hematoma or referral to IR.</p></details>
+      <details class="how"><summary>LP indicated but no CSF obtained</summary>
+        <p>Inpatient LP is preferred for most. Weigh age, inflammatory markers (22–56 days) and initial appearance; use shared decision-making; consider ID consultation.</p></details>
+      <details class="how"><summary>Other tests</summary>
+        <p>CSF: Gram stain and culture, protein, glucose, cell count and differential, and save a specimen. CSF enterovirus PCR if pleocytosis (consider blood enterovirus PCR too). Stool bacterial panel or culture if mucus or blood in the stool; consider a GI virus panel. Chest X-ray as indicated. ANC under 1,000 should be interpreted in clinical context.</p></details>
+    </section>
+
+    <div style="margin-top:8px"><button type="button" class="btn secondary" id="lock-btn">Lock clinician section</button></div>
+  </div>
+</main>
+
+<footer class="band">
+  <div class="band-inner">
+    <p>Based on the Children's Hospital of Philadelphia (CHOP) <a href="https://www.chop.edu/clinical-pathway/febrile-infant-emergent-evaluation-clinical-pathway">Febrile Infant Clinical Pathway, Emergency Department and Inpatient</a> (adapted from the AAP 2021 guideline, Pantell RH et al., Pediatrics 2021; last revised August 2026), summarized in our own words. Check the current CHOP pathway and your institution's protocol. This tool is clinical decision support and does not replace clinical judgment.</p>
+    <p class="credit">Made with
+      <svg class="pixel-heart" viewBox="0 0 7 6" width="14" height="12" role="img" aria-label="love" shape-rendering="crispEdges">
+        <path fill="#E5484D" d="M1 0h2v1h-2zM4 0h2v1h-2zM0 1h7v2h-7zM1 3h5v1h-5zM2 4h3v1h-3zM3 5h1v1h-1z"/>
+      </svg>
+      <a href="https://claude.com/claude-code">Claude</a></p>
+    <p class="sprite-credit"><a href="credits.html">Credits</a><span class="gh-link" hidden> · <a href="https://github.com/Hyponatremia-Peds/peds-tools">Source code on GitHub</a></span></p>
+  </div>
+</footer>
+
+<script>
+"use strict";
+/* ======================================================================
+   FEBRILE INFANT ≤ 56 DAYS — logic and doses from the CHOP Febrile Infant clinical
+   pathway, ED and inpatient (adapted from AAP 2021; last revised August 2026), read
+   from chop.edu on 2026-10-09: main flowchart, IV/lab studies, LP guidance, HSV
+   testing, oral antibiotic criteria, antimicrobial table, discharge and positive-
+   culture pages. Nothing was added from memory.
+   ====================================================================== */
+const $ = id => document.getElementById(id);
+const esc = s => String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+const fmt = n => n >= 100 ? String(Math.round(n)) : n >= 10 ? String(Math.round(n * 10) / 10) : String(Math.round(n * 100) / 100);
+const val = id => { const v = $(id).value.trim(); return v === "" ? null : Number(v); };
+const radio = n => { const r = document.querySelector(`input[name="${n}"]:checked`); return r ? r.value : null; };
+
+// Abnormal thresholds (CHOP table)
+const PCT_ABN = 0.5, ANC_ABN = 4000, CRP_ABN = 2, TEMP_ABN = 38.5;
+const csfLimit = age => age <= 28 ? 15 : 9;          // ≥ 15 (0–28 d) or ≥ 9 (29–56 d) WBC/µL is pleocytosis
+
+/* Doses (CHOP antimicrobial dosing table). Each returns { mg, every, note } for a weight in kg. */
+function dose(drug, age, kg, ga, ill) {
+  const d = (mgkg, q, extra) => ({ text: `${fmt(mgkg * kg)} mg (${mgkg} mg/kg/dose) every ${q} h`, extra });
+  switch (drug) {
+    case "ampicillin":  return age <= 7 ? d(100, 8, "meningitic dosing") : age <= 28 ? d(75, 6, "meningitic dosing") : d(50, 6, "UTI dosing");
+    case "ceftazidime": return age <= 7 ? d(50, 12) : d(50, 8);
+    case "acyclovir":   return d(20, 8);
+    case "cefepime":    return age <= 28 ? d(50, 12, "neonate") : d(50, 8, "infant");
+    case "ceftriaxone": return ill ? d(50, 12, "ill-appearing and/or CSF pleocytosis") : d(50, 24, "well-appearing, no CSF pleocytosis");
+    case "meropenem":   return ga != null && ga < 32 && age <= 13 ? d(40, 12) : d(40, 8);
+    case "cephalexin": {
+      const perDose = Math.min(50 * kg / 3, 500);
+      return { text: `${fmt(perDose)} mg every 8 h (50 mg/kg/day divided every 8 h${50 * kg / 3 > 500 ? "; capped at 500 mg/dose" : ""})` };
+    }
+    case "vancomycin": {
+      const g = kg * 1000;
+      const q = age < 7 ? (g < 1000 ? 24 : g <= 2000 ? 18 : 12) : age <= 28 ? (g < 1000 ? 18 : g <= 2000 ? 12 : 8) : 6;
+      return d(15, q);
+    }
+  }
+}
+const NAMES = { ampicillin: "Ampicillin IV", ceftazidime: "Ceftazidime IV", acyclovir: "Acyclovir IV", cefepime: "Cefepime IV",
+  ceftriaxone: "Ceftriaxone IV", meropenem: "Meropenem IV", cephalexin: "Cephalexin PO", vancomycin: "Vancomycin IV" };
+
+function regimen(age, ctx) {
+  // ctx: { pleo, gnr, hsv, oral, ill }
+  let list, acyclovir;
+  if (age <= 21) {
+    list = ctx.pleo ? ["cefepime", "vancomycin"] : ["ceftazidime", "ampicillin"]; acyclovir = "yes";
+  } else if (age <= 28) {
+    list = ctx.pleo ? ["cefepime", "vancomycin"] : ["ceftazidime", "ampicillin"]; acyclovir = "consider";
+  } else {
+    list = ctx.pleo ? ["ceftriaxone", "vancomycin"] : ctx.oral ? ["cephalexin"] : ["ceftriaxone"]; acyclovir = "consider";
+  }
+  if (ctx.gnr) list = list.map(x => (x === "cefepime" || x === "ceftriaxone") ? "meropenem" : x);
+  if (acyclovir === "yes" || (acyclovir === "consider" && ctx.hsv)) list.push("acyclovir");
+  return { list, acyclovirNote: acyclovir === "consider" && !ctx.hsv ? "Consider acyclovir if HSV risk factors are present." : "" };
+}
+
+function abnIMs(age) {
+  // Returns { known, abnormal, details[] }
+  const avail = radio("pctavail") === "y";
+  const pct = val("pct"), anc = val("anc"), crp = val("crp"), tmax = val("tmax");
+  const marks = [];
+  let known = false, abnormal = false;
+  const chk = (v, lim, label, unit) => { if (v == null) return; known = true; if (v > lim) { abnormal = true; marks.push(`${label} ${v}${unit} (> ${lim})`); } };
+  if (avail) { chk(pct, PCT_ABN, "Procalcitonin", " ng/mL"); chk(anc, ANC_ABN, "ANC", "/µL"); known = pct != null && anc != null || abnormal; }
+  else { chk(anc, ANC_ABN, "ANC", "/µL"); chk(crp, CRP_ABN, "CRP", " mg/dL"); chk(tmax, TEMP_ABN, "Temperature", "°C"); known = (anc != null && crp != null && tmax != null) || abnormal; }
+  return { known, abnormal, marks };
+}
+
+function li(items) { return `<ul style="margin:6px 0 0;padding-left:1.2em">${items.map(i => `<li>${i}</li>`).join("")}</ul>`; }
+function box(cls, html) { return `<div class="${cls}">${html}</div>`; }
+
+function render() {
+  const age = val("age"), kg = val("wt"), ga = val("ga");
+  const appear = radio("appear");
+  $("pct-box").hidden = radio("pctavail") !== "y";
+  $("crp-box").hidden = $("tmax-box").hidden = radio("pctavail") === "y";
+
+  // Work-up by age
+  let w = "";
+  if (age == null) w = `<p class="hint" style="margin:0">Enter the age to see the work-up.</p>`;
+  else if (!(age >= 0 && age <= 56) || !Number.isInteger(age)) w = box("banner", `<p>${age > 56 ? "Over 56 days: outside this pathway." : "Please check the age."}</p>`);
+  else if (age <= 21) w = `<p><b>0–21 days:</b></p>` + li(["CBC, blood culture", "Inflammatory markers: procalcitonin, ANC", "Catheter UA and urine culture", "HSV testing: CSF and serum HSV PCR; unroof vesicles for PCR if present", "<b>LP</b> (numbing cream to the site, tray at the bedside)"]);
+  else w = `<p><b>${age <= 28 ? "22–28" : "29–56"} days:</b></p>` + li(["CBC, blood culture", "Inflammatory markers: procalcitonin, ANC", "Catheter UA and urine culture", "Consider HSV testing (CSF and serum PCR) if risk factors", "LP depends on the UA and inflammatory markers (below)"]);
+  if (age != null && age >= 0 && age <= 56) w += `<p class="hint">Point-of-care glucose as needed. BMP or CMP as indicated.</p>`;
+  $("workup").innerHTML = w;
+
+  // CSF entry is relevant once an LP is (or may be) done
+  $("csf-wrap").hidden = !(age != null && age >= 0 && age <= 56);
+
+  const out = [];
+  if (age == null || !appear) { $("plan-body").innerHTML = `<p class="hint" style="margin:0">Enter the age and appearance to start.</p>`; return; }
+  if (!(age >= 0 && age <= 56) || !Number.isInteger(age)) { $("plan-body").innerHTML = box("banner", `<p>This pathway covers infants 0–56 days old.</p>`); return; }
+  if (appear === "ill") {
+    $("plan-body").innerHTML = box("banner", `<p><strong>Ill-appearing: sepsis huddle and the sepsis pathway (NICU/IICU or ED/inpatient/PICU).</strong> Full evaluation including LP; antibiotics for ill-appearing infants are below once a weight is entered.</p>`) +
+      dosesHTML(age, kg, ga, { pleo: true, gnr: $("gnr").checked, hsv: $("hsvrisk").checked, ill: true }, "Ill-appearing");
+    return;
+  }
+
+  const ua = radio("ua"), im = abnIMs(age);
+  const csf = val("csf"), pleo = csf != null && csf >= csfLimit(age);
+  const hsv = $("hsvrisk").checked;
+  if ($("risk").checked) out.push(box("caveat", "Higher-risk history: consider additional evaluation and treatment. Inflammatory markers alone should not be used to risk-stratify."));
+  if ($("focal").checked) out.push(box("caveat", "Focal bacterial infection on exam: consider additional evaluation and treatment."));
+  if (im.marks.length) out.push(`<p class="hint">Abnormal: ${esc(im.marks.join("; "))}.</p>`);
+  if (csf != null) out.push(`<p class="hint">CSF WBC ${csf}/µL: ${pleo ? `pleocytosis (≥ ${csfLimit(age)} for ${age <= 28 ? "0–28" : "29–56"} days)` : `no pleocytosis (< ${csfLimit(age)})`}.</p>`);
+
+  let lp, abx, dispo, oral = false;
+  if (age <= 21) {
+    lp = "Perform LP."; abx = true; dispo = "Admit.";
+  } else if (age <= 28) {
+    if (!ua || !im.known) { lp = null; }
+    else if (ua === "abnormal" || im.abnormal) { lp = "Perform LP."; abx = true; dispo = "Admit."; }
+    else { lp = "No LP."; abx = false; dispo = "Admit without antibiotics and observe (see low-risk 22–28 days below)."; }
+  } else {
+    if (!ua || !im.known) { lp = null; }
+    else if (ua === "normal" && im.abnormal) { lp = "Perform LP."; abx = true; dispo = "Admit."; }
+    else if (ua === "abnormal" && im.abnormal) { lp = "LP guidance: obtaining CSF when any marker is abnormal is a weak AAP recommendation; in the second month of life meningitis is no more common with pyelonephritis (0/697 with abnormal UA in one study, including 0/90 with both ANC and procalcitonin elevated). Weigh very high values or several abnormal markers."; abx = true; dispo = "Admit."; }
+    else if (ua === "abnormal") {
+      lp = "No LP."; abx = true; dispo = "Admit.";
+      oral = !$("risk").checked;   // oral criteria: normal IMs, well-appearing, no complex history or prematurity, tolerating PO
+    }
+    else { lp = "No LP."; abx = false; dispo = "Discharge home with follow-up, or admit without antibiotics if indicated for other causes (not serious bacterial infection)."; }
+  }
+
+  if (lp == null) {
+    out.push(box("banner", `<p>Enter the UA result and the inflammatory markers (${radio("pctavail") === "y" ? "procalcitonin and ANC" : "ANC, CRP and highest temperature"}) to see the LP and antibiotic plan.</p>`));
+  } else {
+    out.push(`<p class="result-line"><b>LP:</b> ${esc(lp)}</p>`);
+    out.push(`<p class="result-line"><b>Antibiotics:</b> ${abx ? "Yes" : "No"}</p>`);
+    out.push(`<p class="result-line"><b>Disposition:</b> ${esc(dispo)}</p>`);
+    if (age > 28 && $("viral").checked) out.push(box("caveat", "Bronchiolitis, influenza or COVID-19: a well-appearing infant may not need an LP or antibiotics. Decide individually (appearance, how many markers are elevated and by how much). Admit as indicated for dehydration or respiratory distress."));
+    if (oral) out.push(box("caveat", "Oral cephalexin is possible only if all oral antibiotic criteria are met: normal inflammatory markers, well-appearing, no complex medical history or prematurity, and tolerating feeds by mouth. Otherwise ceftriaxone."));
+    if (abx) out.push(dosesHTML(age, kg, ga, { pleo, gnr: $("gnr").checked, hsv, oral, ill: false }, ""));
+  }
+  $("plan-body").innerHTML = out.join("");
+}
+
+function dosesHTML(age, kg, ga, ctx, title) {
+  const r = regimen(age, ctx);
+  let h = `<h3>Antibiotics, in order of administration${title ? " · " + esc(title) : ""}</h3>`;
+  if (age <= 28 && r.list.includes("ceftriaxone")) r.list = r.list.filter(x => x !== "ceftriaxone");   // never IV ceftriaxone ≤ 28 days
+  if (kg == null || !(kg >= 0.3 && kg <= 10)) {
+    h += li(r.list.map(x => esc(NAMES[x]))) + `<p class="hint">Enter a weight (kg) to calculate doses.</p>`;
+  } else {
+    h += li(r.list.map(x => { const d = dose(x, age, kg, ga, ctx.ill || ctx.pleo); return `<b>${esc(NAMES[x])}</b>: ${esc(d.text)}${d.extra ? ` <span class="hint">(${esc(d.extra)})</span>` : ""}`; }));
+    if (r.list.includes("meropenem") && ga == null) h += `<p class="hint">Meropenem interval depends on gestational age at birth: enter it above.</p>`;
+  }
+  if (ctx.gnr) h += `<p class="hint">Gram-negative rods on CSF Gram stain: meropenem replaces cefepime or ceftriaxone.</p>`;
+  if (r.acyclovirNote) h += `<p class="hint">${esc(r.acyclovirNote)}</p>`;
+  if (ctx.pleo) h += `<p class="hint">CSF pleocytosis or ill-appearing: consider the sepsis pathway; consult ID for bacterial meningitis.</p>`;
+  if (age <= 28) h += `<p class="hint">IV ceftriaxone is not used at 28 days or younger (bilirubin displacement; risk with calcium-containing fluids).</p>`;
+  return h;
+}
+
+["age", "wt", "ga", "pct", "anc", "crp", "tmax", "csf"].forEach(id => $(id).addEventListener("input", render));
+document.querySelectorAll('input[name="appear"], input[name="ua"], input[name="pctavail"]').forEach(r => r.addEventListener("change", render));
+["risk", "focal", "viral", "hsvrisk", "gnr"].forEach(id => $(id).addEventListener("change", render));
+render();
+
+/* ---- PIN gate: same PIN, same saved unlock as the hub; second code opens the pet picker ---- */
+(function () {
+  const PIN_HASH = "e4dfbbc00eabfea05b32abab544a223787749f77442a0180ec384fe65847bdde";
+  const PET_HASH = "6747081bf1c609a055b764f2db8acb47ca1a270da2771465845c66cc8d9e24e2";
+  const KEY = "peds-tools-clinician";
+  const form = $("pin-form"), input = $("pin"), msg = $("pin-msg");
+  const show = on => { $("tool").hidden = !on; form.hidden = on; document.querySelectorAll(".gh-link").forEach(e => e.hidden = !on); };
+  async function hash(t) { const b = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(t)); return [...new Uint8Array(b)].map(x => x.toString(16).padStart(2, "0")).join(""); }
+  let on = false; try { on = localStorage.getItem(KEY) === "1"; } catch (e) {}
+  show(on);
+  form.addEventListener("submit", async e => {
+    e.preventDefault();
+    const h = await hash("cleanout-hub:" + input.value.trim());
+    if (h === PET_HASH) { msg.textContent = "Meow! Pick a pet. It follows your mouse or finger."; input.value = ""; if (window.PedsPets) window.PedsPets.showPicker(form.querySelector(".pin-row")); return; }
+    if (h === PIN_HASH) { try { localStorage.setItem(KEY, "1"); } catch (e2) {} msg.textContent = ""; input.value = ""; show(true); }
+    else { msg.textContent = "That PIN is not correct."; input.select(); }
+  });
+  $("lock-btn").addEventListener("click", () => { try { localStorage.removeItem(KEY); } catch (e) {} show(false); });
+})();
+
+/* ---- light/dark switch (shared setting with the hub) ---- */
+(function () {
+  const btn = $("theme-toggle"), isDark = () => document.documentElement.dataset.theme === "dark";
+  const label = () => { btn.textContent = isDark() ? "☀ Light" : "☾ Dark"; document.querySelector('meta[name="theme-color"]').setAttribute("content", isDark() ? "#0D0D0C" : "#232323"); };
+  btn.addEventListener("click", () => { const n = isDark() ? "light" : "dark"; document.documentElement.dataset.theme = n; try { localStorage.setItem("peds-tools-theme", n); } catch (e) {} label(); });
+  label();
+})();
+</script>
+</body>
+</html>

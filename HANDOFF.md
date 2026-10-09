@@ -14,7 +14,8 @@ Start a new session by asking Claude to read this file:
 | Hub (families + clinicians) | https://hyponatremia-peds.github.io/peds-tools/ | `Hyponatremia-Peds/peds-tools` | `index.html` |
 | ASM dosing (clinician) | https://hyponatremia-peds.github.io/peds-tools/asm-dosing.html | `peds-tools` | `asm-dosing.html` |
 | Ballard Score (clinician) | https://hyponatremia-peds.github.io/peds-tools/ballard.html | `peds-tools` | `ballard.html` |
-| Febrile infant pathway (clinician) | https://hyponatremia-peds.github.io/peds-tools/febrile-infant.html | `peds-tools` | `febrile-infant.html` |
+| Febrile infant, AAP 2021 (clinician) | https://hyponatremia-peds.github.io/peds-tools/febrile-infant.html | `peds-tools` | `febrile-infant.html` |
+| Febrile infant, CHOP version | https://hyponatremia-peds.github.io/peds-tools/febrile-infant-chop.html | `peds-tools` | `febrile-infant-chop.html` |
 | Kawasaki pathway (clinician) | https://hyponatremia-peds.github.io/peds-tools/kawasaki.html | `peds-tools` | `kawasaki.html` |
 | IV fluids and sodium (clinician) | https://hyponatremia-peds.github.io/peds-tools/fluids.html | `peds-tools` | `fluids.html` |
 | Constipation Cleanout Planner (families) | https://hyponatremia-peds.github.io/cleanout-planner/ | `Hyponatremia-Peds/cleanout-planner` | `index.html` |
@@ -83,6 +84,8 @@ Lacosamide 6 to <11 kg was settled by a follow-up Snow check of the Vimpat label
 **IV fluids and sodium (added 2026-10-09):** every rule from an OpenEvidence Snow answer (AAP 2018 maintenance IV fluids; Holliday-Segar/4-2-1; dehydration per Powers 2015, IDSA 2017, RCH handbook; Na correction limits 10/24 h and 18/48 h, 8/24 h if high ODS risk, optional 6; 3% saline 2 mL/kg max 100 mL x up to 3; hypernatremia 0.5 mmol/L/h, about 10/24 h; Adrogue-Madias; TBW fractions by age/sex). The 100 mL/h maintenance cap is optional and labeled institutional. Dehydration buttons use 4%, 7.5% and 10% unless an exact % or pre-illness weight is entered.
 
 **Clonazepam bridge section (added 2026-10-09, before Infantile spasms on the ASM page):** definition, uses, dose calculator (FDA Klonopin seizure dosing: 0.01-0.03 mg/kg/day start, never above 0.05; 1.5 mg/day if over 10 y and over 30 kg, same rule as the clonazepam entry), duration and taper, boxed warnings and cautions, clobazam alternative. From OpenEvidence Snow.
+
+**Febrile infant now follows the AAP 2021 guideline (2026-10-09):** febrile-infant.html is built from an OpenEvidence Snow summary of Pantell 2021 (still the current AAP guidance; post-erratum "PCT with ANC" wording), the AAP PPI flowcharts (Lehmann 2024) for edge cases, and Table 3 doses (each confirmed; 29-60 d meningitis ceftazidime is q6h). Keeps should/may/need-not and KAS grades. CSF pleocytosis has no guideline cutoff: the page shows the literature values (16 for <=28 d, 10 for 29-60 d) as a hint only. The CHOP-based page moved to febrile-infant-chop.html; the two link to each other. The AAP full text was behind a bot check, so it could not be read directly.
 
 **Other:**
 - The owner should review the planner's "When to call your child's healthcare provider" list (Claude's wording).

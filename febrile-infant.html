@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Febrile Infant</title>
-<meta name="description" content="Clinician tool: evaluation and treatment of well-appearing febrile infants 56 days and younger, based on the CHOP pathway.">
+<meta name="description" content="Clinician tool: evaluation and management of well-appearing febrile infants 8 to 60 days old, following the AAP 2021 guideline.">
 <meta name="robots" content="noindex">
 <meta name="theme-color" content="#0D0D0C">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -151,7 +151,7 @@
   <div class="band-inner">
     <a class="back" href="./">← Pediatric Tools</a>
     <button type="button" class="theme-toggle" id="theme-toggle" aria-label="Switch between light and dark mode"></button>
-    <h1>Febrile Infant ≤ 56 Days</h1>
+    <h1>Febrile Infant 8–60 Days</h1>
     <p class="by">By Dr. Christian Rada, DO · Clinician tool</p>
   </div>
 </header>
@@ -169,77 +169,64 @@
 
   <div id="tool" hidden>
     <div class="banner">
-      <p><strong>Well-appearing infants ≤ 56 days with community-onset fever</strong> (rectal temperature ≥ 38.0°C / 100.4°F in the past 24 hours). Based on the CHOP Febrile Infant clinical pathway (ED and inpatient, adapted from the AAP 2021 guideline). Nothing entered here is saved or sent.</p>
+      <p><strong>AAP 2021 guideline: well-appearing febrile infants 8–60 days old</strong> (Pantell RH et al., Pediatrics 2021; still the current AAP guidance as of 2026). If you are not confident the infant is well-appearing, the guideline does not apply. Nothing entered here is saved or sent. <a href="febrile-infant-chop.html">CHOP pathway version</a></p>
     </div>
 
     <section class="card" aria-labelledby="pt-h">
       <h2 id="pt-h">Infant</h2>
       <div class="grid">
         <div><label for="age">Age (days)</label><input id="age" type="number" inputmode="numeric" min="0" max="120" step="1"></div>
-        <div><label for="wt">Weight (kg), for doses</label><input id="wt" type="number" inputmode="decimal" min="0.3" max="10" step="0.01"></div>
-        <div><label for="ga">Gestational age at birth (weeks)</label><input id="ga" type="number" inputmode="numeric" min="22" max="44" step="1"></div>
+        <div><label for="wt">Weight (kg), for doses</label><input id="wt" type="number" inputmode="decimal" min="1" max="10" step="0.01"></div>
       </div>
-      <h3>Appearance and history</h3>
-      <div class="opts" style="grid-template-columns:repeat(auto-fill,minmax(160px,1fr))">
-        <label class="opt"><input type="radio" name="appear" value="well"><span><b>Well-appearing</b>Pathway applies</span></label>
-        <label class="opt"><input type="radio" name="appear" value="ill"><span><b>Ill-appearing</b>Use the sepsis pathway</span></label>
-      </div>
-      <details class="how"><summary>Signs of an ill-appearing infant</summary>
-        <p>Tachypnea, apnea or grunting; pale, gray, cyanotic or mottled color, poor perfusion; poor tone, limp, weak cry; bulging fontanelle; irritability, inconsolability, decreased alertness, listlessness or lethargy.</p></details>
-      <label class="check"><input type="checkbox" id="risk"><span>Higher risk: born &lt; 37 weeks, prolonged NICU stay, or complex medical history (immune compromise, abnormal neonatal course, congenital or chromosomal abnormality, dependent on advanced technology)</span></label>
-      <label class="check"><input type="checkbox" id="focal"><span>Exam suggests a focal bacterial infection (omphalitis, mastitis, septic arthritis, osteomyelitis, cellulitis)</span></label>
-      <label class="check"><input type="checkbox" id="viral"><span>Bronchiolitis, influenza or COVID-19</span></label>
-      <label class="check"><input type="checkbox" id="hsvrisk"><span>HSV risk factor (see list)</span></label>
-      <details class="how"><summary>HSV risk factors</summary>
-        <p>Maternal vesicles and/or fever within 48 hours before or after delivery; postnatal oral HSV exposure; vesicles or mucous membrane ulcers; abnormal mental status or seizure; hypothermia; CSF pleocytosis or RBCs; leukopenia; thrombocytopenia.</p></details>
+      <h3>Does the guideline apply?</h3>
+      <p class="hint" style="margin:0 0 4px">All must be true:</p>
+      <label class="check"><input type="checkbox" id="in-well"><span>Well-appearing (clinician confident)</span></label>
+      <label class="check"><input type="checkbox" id="in-temp"><span>Temperature ≥ 38.0°C (100.4°F), rectal, at home in the past 24 hours or in clinic (needn't be febrile now)</span></label>
+      <label class="check"><input type="checkbox" id="in-term"><span>Born at 37 to under 42 weeks</span></label>
+      <details class="how"><summary>Exclusions: tick any that apply</summary>
+        <div id="excl"></div></details>
+      <label class="check"><input type="checkbox" id="circ"><span>Circumcised boy (29–60 days: UTI risk under 1%, may skip the UA)</span></label>
     </section>
 
-    <section class="card" aria-labelledby="w-h">
-      <h2 id="w-h">Work-up</h2>
-      <div id="workup"><p class="hint" style="margin:0">Enter the age to see the work-up.</p></div>
+    <section class="card" aria-labelledby="hsv-h">
+      <h2 id="hsv-h">HSV</h2>
+      <p class="hint" style="margin:0 0 4px">Obtain HSV studies and start acyclovir if any are present:</p>
+      <div id="hsv"></div>
+      <div id="hsv-out"></div>
     </section>
 
     <section class="card" aria-labelledby="r-h">
       <h2 id="r-h">Results</h2>
-      <span class="lbl">Procalcitonin available?</span>
+      <span class="lbl">Procalcitonin available (timely)?</span>
       <div class="seg" role="radiogroup" aria-label="Procalcitonin available">
         <input type="radio" name="pctavail" id="pct-y" value="y" checked><label for="pct-y">Yes</label>
         <input type="radio" name="pctavail" id="pct-n" value="n"><label for="pct-n">No</label>
       </div>
       <div class="grid" style="margin-top:12px">
         <div id="pct-box"><label for="pct">Procalcitonin (ng/mL)</label><input id="pct" type="number" inputmode="decimal" min="0" step="0.01"></div>
-        <div><label for="anc">ANC (neutrophils/µL)</label><input id="anc" type="number" inputmode="numeric" min="0" step="1"></div>
-        <div id="crp-box" hidden><label for="crp">CRP (mg/dL)</label><input id="crp" type="number" inputmode="decimal" min="0" step="0.1"></div>
+        <div><label for="anc">ANC (cells/mm³)</label><input id="anc" type="number" inputmode="numeric" min="0" step="1"></div>
+        <div id="crp-box" hidden><label for="crp">CRP (mg/L)</label><input id="crp" type="number" inputmode="decimal" min="0" step="0.1"></div>
         <div id="tmax-box" hidden><label for="tmax">Highest temperature (°C)</label><input id="tmax" type="number" inputmode="decimal" min="35" max="43" step="0.1"></div>
       </div>
-      <h3>Urinalysis (catheter specimen)</h3>
+      <h3>Urinalysis</h3>
       <div class="opts" style="grid-template-columns:repeat(auto-fill,minmax(160px,1fr))">
-        <label class="opt"><input type="radio" name="ua" value="normal"><span><b>Normal</b>No LE, ≤ 5 WBC/hpf</span></label>
-        <label class="opt"><input type="radio" name="ua" value="abnormal"><span><b>Abnormal</b>Any leukocyte esterase or &gt; 5 WBC/hpf</span></label>
+        <label class="opt"><input type="radio" name="ua" value="neg"><span><b>Negative</b></span></label>
+        <label class="opt"><input type="radio" name="ua" value="pos"><span><b>Positive</b>Any leukocyte esterase, &gt; 5 WBC/hpf (centrifuged) or &gt; 10 WBC/mm³ (uncentrifuged)</span></label>
       </div>
-      <div id="csf-wrap" hidden>
-        <h3>CSF (if LP done)</h3>
-        <div class="grid"><div><label for="csf">CSF WBC (cells/µL)</label><input id="csf" type="number" inputmode="numeric" min="0" step="1"></div></div>
-        <label class="check"><input type="checkbox" id="gnr"><span>CSF Gram stain shows Gram-negative rods</span></label>
+      <h3>CSF</h3>
+      <div class="opts" style="grid-template-columns:repeat(auto-fill,minmax(150px,1fr))">
+        <label class="opt"><input type="radio" name="csf" value="none" checked><span><b>Not obtained</b></span></label>
+        <label class="opt"><input type="radio" name="csf" value="normal"><span><b>Normal</b></span></label>
+        <label class="opt"><input type="radio" name="csf" value="ev"><span><b>Enterovirus +</b>Otherwise reassuring</span></label>
+        <label class="opt"><input type="radio" name="csf" value="mening"><span><b>Suggests bacterial meningitis</b></span></label>
       </div>
+      <div class="grid" style="margin-top:10px"><div><label for="csfwbc">CSF WBC (cells/mm³), optional</label><input id="csfwbc" type="number" inputmode="numeric" min="0" step="1"></div></div>
+      <p class="hint" id="csf-hint"></p>
     </section>
 
     <section class="card" id="plan" aria-labelledby="p-h" aria-live="polite">
       <h2 id="p-h">Plan</h2>
-      <div id="plan-body"><p class="hint" style="margin:0">Enter the age and appearance to start.</p></div>
-    </section>
-
-    <section class="card" aria-labelledby="after-h">
-      <h2 id="after-h">After admission</h2>
-      <details class="how" open><summary>Discharge criteria (negative cultures)</summary>
-        <p>Well-appearing and feeding well; blood, urine and CSF cultures (if obtained) negative for at least 24–36 hours, per local lab reporting (confirm with the lab if the record isn't updated); HSV studies negative if sent; PCP notified with follow-up within 72 hours.</p>
-        <p><b>Low-risk 22–28 days:</b> admit and observe. If the baby becomes ill-appearing or the blood culture turns positive, do an LP and start antibiotics. If only the urine culture turns positive with a negative UA and the baby is well, an LP can be deferred and empiric antibiotics started. Inflammatory markers can be normal early: if still febrile and first seen less than 6 hours after fever onset, consider repeating them.</p></details>
-      <details class="how"><summary>Any positive culture or HSV PCR</summary>
-        <p>HSV PCR positive: consult ID. Positive cultures: target antibiotics to speciation and sensitivities; repeat the blood culture (before changing antibiotics) for bacteremia; ID consult and meningitic dosing for CSF growth; renal and bladder ultrasound (consider urology) for UTI. If no LP was done, perform one promptly (before antibiotics if not started). After failed attempts, consider point-of-care ultrasound for hematoma or referral to IR.</p></details>
-      <details class="how"><summary>LP indicated but no CSF obtained</summary>
-        <p>Inpatient LP is preferred for most. Weigh age, inflammatory markers (22–56 days) and initial appearance; use shared decision-making; consider ID consultation.</p></details>
-      <details class="how"><summary>Other tests</summary>
-        <p>CSF: Gram stain and culture, protein, glucose, cell count and differential, and save a specimen. CSF enterovirus PCR if pleocytosis (consider blood enterovirus PCR too). Stool bacterial panel or culture if mucus or blood in the stool; consider a GI virus panel. Chest X-ray as indicated. ANC under 1,000 should be interpreted in clinical context.</p></details>
+      <div id="plan-body"></div>
     </section>
 
     <div style="margin-top:8px"><button type="button" class="btn secondary" id="lock-btn">Lock clinician section</button></div>
@@ -248,7 +235,7 @@
 
 <footer class="band">
   <div class="band-inner">
-    <p>Based on the Children's Hospital of Philadelphia (CHOP) <a href="https://www.chop.edu/clinical-pathway/febrile-infant-emergent-evaluation-clinical-pathway">Febrile Infant Clinical Pathway, Emergency Department and Inpatient</a> (adapted from the AAP 2021 guideline, Pantell RH et al., Pediatrics 2021; last revised August 2026), summarized in our own words. Check the current CHOP pathway and your institution's protocol. This tool is clinical decision support and does not replace clinical judgment.</p>
+    <p>Based on the American Academy of Pediatrics clinical practice guideline <i>Evaluation and Management of Well-Appearing Febrile Infants 8 to 60 Days Old</i> (Pantell RH et al., Pediatrics 2021;148:e2021052228, with its published correction), the AAP Partnership for Policy Implementation flowcharts (Lehmann et al., Pediatrics 2024) and the AAP Red Book for acyclovir; compiled and checked with OpenEvidence, summarized in our own words. No newer AAP guidance had been published as of October 2026. This tool is clinical decision support and does not replace clinical judgment or your institution's protocol.</p>
     <p class="credit">Made with
       <svg class="pixel-heart" viewBox="0 0 7 6" width="14" height="12" role="img" aria-label="love" shape-rendering="crispEdges">
         <path fill="#E5484D" d="M1 0h2v1h-2zM4 0h2v1h-2zM0 1h7v2h-7zM1 3h5v1h-5zM2 4h3v1h-3zM3 5h1v1h-1z"/>
@@ -261,162 +248,182 @@
 <script>
 "use strict";
 /* ======================================================================
-   FEBRILE INFANT ≤ 56 DAYS — logic and doses from the CHOP Febrile Infant clinical
-   pathway, ED and inpatient (adapted from AAP 2021; last revised August 2026), read
-   from chop.edu on 2026-10-09: main flowchart, IV/lab studies, LP guidance, HSV
-   testing, oral antibiotic criteria, antimicrobial table, discharge and positive-
-   culture pages. Nothing was added from memory.
+   FEBRILE INFANT 8–60 DAYS — AAP Clinical Practice Guideline (Pantell RH et al.,
+   Pediatrics 2021;148:e2021052228; post-erratum wording "PCT should be obtained along
+   with ANC"), with the AAP Partnership for Policy Implementation flowcharts for edge cases
+   (Lehmann et al., Pediatrics 2024). Content and Table 3 doses from OpenEvidence (Snow),
+   2026-10-09, each dose confirmed against Table 3. Nothing was added from memory.
+   KAS = key action statement; "should" / "may" / "need not" kept as written.
    ====================================================================== */
 const $ = id => document.getElementById(id);
 const esc = s => String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
 const fmt = n => n >= 100 ? String(Math.round(n)) : n >= 10 ? String(Math.round(n * 10) / 10) : String(Math.round(n * 100) / 100);
 const val = id => { const v = $(id).value.trim(); return v === "" ? null : Number(v); };
 const radio = n => { const r = document.querySelector(`input[name="${n}"]:checked`); return r ? r.value : null; };
+const li = items => `<ul style="margin:6px 0 0;padding-left:1.2em">${items.map(i => `<li>${i}</li>`).join("")}</ul>`;
+const box = (cls, html) => `<div class="${cls}">${html}</div>`;
+const grade = g => ` <span class="hint">(${g})</span>`;
 
-// Abnormal thresholds (CHOP table)
-const PCT_ABN = 0.5, ANC_ABN = 4000, CRP_ABN = 2, TEMP_ABN = 38.5;
-const csfLimit = age => age <= 28 ? 15 : 9;          // ≥ 15 (0–28 d) or ≥ 9 (29–56 d) WBC/µL is pleocytosis
+const EXCL = [
+  "Age 7 days or younger, or over 60 days",
+  "Preterm (under 37 weeks) or 42 weeks or more",
+  "Under 2 weeks old with perinatal maternal fever, infection or antibiotics",
+  "Neonatal course complicated by surgery or infection",
+  "High suspicion for HSV (e.g., vesicles, maternal genital HSV lesions)",
+  "Focal bacterial infection (cellulitis, omphalitis, septic arthritis, osteomyelitis)",
+  "Clinical bronchiolitis (with or without a positive RSV test)",
+  "Documented or suspected immune compromise",
+  "Congenital or chromosomal abnormality",
+  "Medically fragile or technology-dependent",
+  "Immunization in the past 48 hours"
+];
+const HSV = ["Vesicles", "Seizures", "CSF pleocytosis with a negative Gram stain", "Leukopenia", "Thrombocytopenia", "Hypothermia",
+  "Mucous membrane ulcers", "Maternal genital HSV lesions, or maternal fever from 48 h before to 48 h after delivery", "Elevated ALT"];
+$("excl").innerHTML = `<p class="hint" style="margin:6px 0 0">Not exclusions: URI symptoms that aren't bronchiolitis, diarrhea (test stool first if a bacterial pathogen is likely), presumed otitis media, recent antibiotics after 2 weeks of age (individualize), or a positive viral test alone.</p>` +
+  EXCL.map((t, i) => `<label class="check"><input type="checkbox" class="ex" id="ex${i}"><span>${t}</span></label>`).join("");
+$("hsv").innerHTML = HSV.map((t, i) => `<label class="check"><input type="checkbox" class="hs" id="hs${i}"><span>${t}</span></label>`).join("");
 
-/* Doses (CHOP antimicrobial dosing table). Each returns { mg, every, note } for a weight in kg. */
-function dose(drug, age, kg, ga, ill) {
-  const d = (mgkg, q, extra) => ({ text: `${fmt(mgkg * kg)} mg (${mgkg} mg/kg/dose) every ${q} h`, extra });
-  switch (drug) {
-    case "ampicillin":  return age <= 7 ? d(100, 8, "meningitic dosing") : age <= 28 ? d(75, 6, "meningitic dosing") : d(50, 6, "UTI dosing");
-    case "ceftazidime": return age <= 7 ? d(50, 12) : d(50, 8);
-    case "acyclovir":   return d(20, 8);
-    case "cefepime":    return age <= 28 ? d(50, 12, "neonate") : d(50, 8, "infant");
-    case "ceftriaxone": return ill ? d(50, 12, "ill-appearing and/or CSF pleocytosis") : d(50, 24, "well-appearing, no CSF pleocytosis");
-    case "meropenem":   return ga != null && ga < 32 && age <= 13 ? d(40, 12) : d(40, 8);
-    case "cephalexin": {
-      const perDose = Math.min(50 * kg / 3, 500);
-      return { text: `${fmt(perDose)} mg every 8 h (50 mg/kg/day divided every 8 h${50 * kg / 3 > 500 ? "; capped at 500 mg/dose" : ""})` };
-    }
-    case "vancomycin": {
-      const g = kg * 1000;
-      const q = age < 7 ? (g < 1000 ? 24 : g <= 2000 ? 18 : 12) : age <= 28 ? (g < 1000 ? 18 : g <= 2000 ? 12 : 8) : 6;
-      return d(15, q);
-    }
-  }
+/* Table 3 regimens (mg/kg; no maximums in the guideline). Each item: [drug, mg/kg per day or per dose, how] */
+function dose(kg, perDay, q, label) {          // perDay: mg/kg/day divided q hours
+  const n = 24 / q;
+  return kg ? `${label}: ${fmt(perDay * kg / n)} mg every ${q} h (${perDay} mg/kg/day)` : `${label}: ${perDay} mg/kg/day divided every ${q} h`;
 }
-const NAMES = { ampicillin: "Ampicillin IV", ceftazidime: "Ceftazidime IV", acyclovir: "Acyclovir IV", cefepime: "Cefepime IV",
-  ceftriaxone: "Ceftriaxone IV", meropenem: "Meropenem IV", cephalexin: "Cephalexin PO", vancomycin: "Vancomycin IV" };
-
-function regimen(age, ctx) {
-  // ctx: { pleo, gnr, hsv, oral, ill }
-  let list, acyclovir;
-  if (age <= 21) {
-    list = ctx.pleo ? ["cefepime", "vancomycin"] : ["ceftazidime", "ampicillin"]; acyclovir = "yes";
-  } else if (age <= 28) {
-    list = ctx.pleo ? ["cefepime", "vancomycin"] : ["ceftazidime", "ampicillin"]; acyclovir = "consider";
-  } else {
-    list = ctx.pleo ? ["ceftriaxone", "vancomycin"] : ctx.oral ? ["cephalexin"] : ["ceftriaxone"]; acyclovir = "consider";
-  }
-  if (ctx.gnr) list = list.map(x => (x === "cefepime" || x === "ceftriaxone") ? "meropenem" : x);
-  if (acyclovir === "yes" || (acyclovir === "consider" && ctx.hsv)) list.push("acyclovir");
-  return { list, acyclovirNote: acyclovir === "consider" && !ctx.hsv ? "Consider acyclovir if HSV risk factors are present." : "" };
+function perDose(kg, mgkg, q, label) {         // mg/kg per dose every q hours
+  return kg ? `${label}: ${fmt(mgkg * kg)} mg every ${q} h (${mgkg} mg/kg/dose)` : `${label}: ${mgkg} mg/kg/dose every ${q} h`;
 }
+function regimen(age, kg, kind) {               // kind: "uti" | "nofocus" | "mening" | "oral"
+  const amp150 = dose(kg, 150, 8, "Ampicillin IV/IM"), amp300 = dose(kg, 300, 6, "Ampicillin IV/IM"),
+        ctz8 = dose(kg, 150, 8, "Ceftazidime IV/IM"), gent = perDose(kg, 4, 24, "Gentamicin IV/IM"),
+        ctx50 = perDose(kg, 50, 24, "Ceftriaxone IV/IM");
+  if (kind === "oral") return li([kg ? `Cephalexin PO: ${fmt(50 * kg / 4)}–${fmt(100 * kg / 4)} mg every 6 h (50–100 mg/kg/day in 4 doses)` : "Cephalexin PO 50–100 mg/kg/day in 4 doses",
+    kg ? `or cefixime PO: ${fmt(8 * kg)} mg once daily (8 mg/kg/day)` : "or cefixime PO 8 mg/kg/day once daily"]);
+  if (kind === "mening") {
+    if (age <= 28) return li([amp300, "plus " + ctz8]) + `<p class="hint">Some experts add an aminoglycoside, especially with Gram-negative organisms on Gram stain.</p>`;
+    return li([kg ? `Ceftriaxone IV: ${fmt(100 * kg)} mg once daily, or ${fmt(50 * kg)} mg every 12 h (100 mg/kg/day)` : "Ceftriaxone IV 100 mg/kg/day once daily or divided every 12 h",
+      "or " + dose(kg, 150, 6, "Ceftazidime IV"), "plus " + dose(kg, 60, 8, "Vancomycin IV")]) +
+      `<p class="hint">Vancomycin covers resistant S. pneumoniae: stop it if another organism is identified, even before susceptibilities. Some experts add an aminoglycoside with Gram-negative organisms on Gram stain.</p>`;
+  }
+  if (age <= 21) return li([amp150, "plus " + ctz8, "or (instead of ceftazidime) " + gent]) + `<p class="hint">Gentamicin adds synergy against GBS and enterococci.</p>`;
+  return li([ctx50]);
+}
+const ESBL = `<p class="hint">ESBL-producing E. coli in your community: gentamicin instead of ceftazidime for suspected bacteremia or sepsis; meropenem instead of ceftazidime for suspected meningitis. Cephalosporins don't cover Listeria or enterococci (use ampicillin if suspected). Cefotaxime is preferred where available (same 150 mg/kg/day as ceftazidime). Table 3 sets no maximum doses.</p>`;
 
-function abnIMs(age) {
-  // Returns { known, abnormal, details[] }
+function ims() {
   const avail = radio("pctavail") === "y";
   const pct = val("pct"), anc = val("anc"), crp = val("crp"), tmax = val("tmax");
-  const marks = [];
-  let known = false, abnormal = false;
-  const chk = (v, lim, label, unit) => { if (v == null) return; known = true; if (v > lim) { abnormal = true; marks.push(`${label} ${v}${unit} (> ${lim})`); } };
-  if (avail) { chk(pct, PCT_ABN, "Procalcitonin", " ng/mL"); chk(anc, ANC_ABN, "ANC", "/µL"); known = pct != null && anc != null || abnormal; }
-  else { chk(anc, ANC_ABN, "ANC", "/µL"); chk(crp, CRP_ABN, "CRP", " mg/dL"); chk(tmax, TEMP_ABN, "Temperature", "°C"); known = (anc != null && crp != null && tmax != null) || abnormal; }
-  return { known, abnormal, marks };
+  const abn = [], need = avail ? [pct, anc] : [anc, crp, tmax];
+  if (avail) { if (pct != null && pct > 0.5) abn.push(`procalcitonin ${pct} (> 0.5 ng/mL)`); if (anc != null && anc > 4000) abn.push(`ANC ${anc} (> 4,000)`); }
+  else { if (anc != null && anc > 5200) abn.push(`ANC ${anc} (> 5,200)`); if (crp != null && crp >= 20) abn.push(`CRP ${crp} (≥ 20 mg/L)`); if (tmax != null && tmax > 38.5) abn.push(`temperature ${tmax} (> 38.5°C)`); }
+  return { known: abn.length > 0 || need.every(v => v != null), abnormal: abn.length > 0, abn, avail, anc };
 }
 
-function li(items) { return `<ul style="margin:6px 0 0;padding-left:1.2em">${items.map(i => `<li>${i}</li>`).join("")}</ul>`; }
-function box(cls, html) { return `<div class="${cls}">${html}</div>`; }
-
 function render() {
-  const age = val("age"), kg = val("wt"), ga = val("ga");
-  const appear = radio("appear");
+  const age = val("age"), kg0 = val("wt"), kg = kg0 != null && kg0 >= 1 && kg0 <= 10 ? kg0 : null;
   $("pct-box").hidden = radio("pctavail") !== "y";
   $("crp-box").hidden = $("tmax-box").hidden = radio("pctavail") === "y";
-
-  // Work-up by age
-  let w = "";
-  if (age == null) w = `<p class="hint" style="margin:0">Enter the age to see the work-up.</p>`;
-  else if (!(age >= 0 && age <= 56) || !Number.isInteger(age)) w = box("banner", `<p>${age > 56 ? "Over 56 days: outside this pathway." : "Please check the age."}</p>`);
-  else if (age <= 21) w = `<p><b>0–21 days:</b></p>` + li(["CBC, blood culture", "Inflammatory markers: procalcitonin, ANC", "Catheter UA and urine culture", "HSV testing: CSF and serum HSV PCR; unroof vesicles for PCR if present", "<b>LP</b> (numbing cream to the site, tray at the bedside)"]);
-  else w = `<p><b>${age <= 28 ? "22–28" : "29–56"} days:</b></p>` + li(["CBC, blood culture", "Inflammatory markers: procalcitonin, ANC", "Catheter UA and urine culture", "Consider HSV testing (CSF and serum PCR) if risk factors", "LP depends on the UA and inflammatory markers (below)"]);
-  if (age != null && age >= 0 && age <= 56) w += `<p class="hint">Point-of-care glucose as needed. BMP or CMP as indicated.</p>`;
-  $("workup").innerHTML = w;
-
-  // CSF entry is relevant once an LP is (or may be) done
-  $("csf-wrap").hidden = !(age != null && age >= 0 && age <= 56);
+  const hsv = [...document.querySelectorAll(".hs")].some(c => c.checked);
+  $("hsv-out").innerHTML = hsv ? box("caveat", `<b>Obtain HSV studies</b> (CSF HSV PCR; mouth, nasopharynx, conjunctiva and anus swabs for HSV culture or PCR; ALT; blood HSV PCR) and <b>start acyclovir</b> IV 20 mg/kg/dose every 8 hours${kg ? ` = ${fmt(20 * kg)} mg` : ""} (AAP Red Book). High suspicion (e.g., vesicles) takes the infant outside this guideline.`) : "";
+  const csfW = val("csfwbc"), csf = radio("csf");
+  $("csf-hint").textContent = (csfW != null && age != null) ? (() => {
+    const lim = age <= 28 ? 16 : 10;
+    return `CSF WBC ${csfW}: ${csfW >= lim ? "at or above" : "below"} ${lim}/mm³, the cutoff often used in the literature for ${age <= 28 ? "28 days or younger" : "29–60 days"}. The guideline sets no single cutoff (normal ranges: 0–18 for 1–28 days, 0–8.5 for 29–60 days); use your lab's limit. Don't correct for RBCs; over 10,000 RBC/mm³, treat the CSF as uninterpretable.`;
+  })() : "Pleocytosis: the guideline sets no single cutoff; use your lab's limit. Don't correct for RBCs; over 10,000 RBC/mm³, treat the CSF as uninterpretable.";
 
   const out = [];
-  if (age == null || !appear) { $("plan-body").innerHTML = `<p class="hint" style="margin:0">Enter the age and appearance to start.</p>`; return; }
-  if (!(age >= 0 && age <= 56) || !Number.isInteger(age)) { $("plan-body").innerHTML = box("banner", `<p>This pathway covers infants 0–56 days old.</p>`); return; }
-  if (appear === "ill") {
-    $("plan-body").innerHTML = box("banner", `<p><strong>Ill-appearing: sepsis huddle and the sepsis pathway (NICU/IICU or ED/inpatient/PICU).</strong> Full evaluation including LP; antibiotics for ill-appearing infants are below once a weight is entered.</p>`) +
-      dosesHTML(age, kg, ga, { pleo: true, gnr: $("gnr").checked, hsv: $("hsvrisk").checked, ill: true }, "Ill-appearing");
+  if (age == null) { $("plan-body").innerHTML = `<p class="hint" style="margin:0">Enter the age.</p>`; return; }
+  if (!Number.isInteger(age) || age < 0) { $("plan-body").innerHTML = box("banner", "<p>Please check the age.</p>"); return; }
+  if (age < 8 || age > 60) { $("plan-body").innerHTML = box("banner", `<p>${age < 8 ? "7 days or younger" : "Over 60 days"}: outside the AAP guideline.${age <= 56 ? ` See the <a href="febrile-infant-chop.html">CHOP pathway version</a>, which covers 0–56 days.` : ""}</p>`); return; }
+  const excl = [...document.querySelectorAll(".ex")].filter(c => c.checked).length;
+  if (!$("in-well").checked || !$("in-temp").checked || !$("in-term").checked || excl) {
+    $("plan-body").innerHTML = box("banner", `<p>${excl ? "An exclusion applies" : "Confirm all three inclusion criteria"}: ${excl ? "the guideline doesn't apply; manage individually (ill-appearing: sepsis evaluation)." : "well-appearing, fever ≥ 38.0°C, and born at 37 to under 42 weeks."}</p>`);
     return;
   }
+  if (kg0 != null && !kg) out.push(box("banner", "<p>Please check the weight (1–10 kg).</p>"));
+  const ua = radio("ua"), im = ims();
+  const uaVal = (age >= 29 && $("circ").checked && !ua) ? "neg" : ua;   // circumcised boys 29–60 d may skip UA
+  if (im.abn.length) out.push(`<p class="hint">Abnormal inflammatory markers: ${esc(im.abn.join("; "))}.</p>`);
+  if (!im.avail) out.push(`<p class="hint">Without procalcitonin: ANC &gt; 5,200, CRP ≥ 20 mg/L (2 mg/dL) or temperature &gt; 38.5°C counts as abnormal.</p>`);
+  if (im.anc != null && im.anc < 1000) out.push(box("caveat", "ANC under 1,000: raises concern for sepsis in young infants."));
 
-  const ua = radio("ua"), im = abnIMs(age);
-  const csf = val("csf"), pleo = csf != null && csf >= csfLimit(age);
-  const hsv = $("hsvrisk").checked;
-  if ($("risk").checked) out.push(box("caveat", "Higher-risk history: consider additional evaluation and treatment. Inflammatory markers alone should not be used to risk-stratify."));
-  if ($("focal").checked) out.push(box("caveat", "Focal bacterial infection on exam: consider additional evaluation and treatment."));
-  if (im.marks.length) out.push(`<p class="hint">Abnormal: ${esc(im.marks.join("; "))}.</p>`);
-  if (csf != null) out.push(`<p class="hint">CSF WBC ${csf}/µL: ${pleo ? `pleocytosis (≥ ${csfLimit(age)} for ${age <= 28 ? "0–28" : "29–56"} days)` : `no pleocytosis (< ${csfLimit(age)})`}.</p>`);
-
-  let lp, abx, dispo, oral = false;
+  /* ---------- 8–21 days ---------- */
   if (age <= 21) {
-    lp = "Perform LP."; abx = true; dispo = "Admit.";
-  } else if (age <= 28) {
-    if (!ua || !im.known) { lp = null; }
-    else if (ua === "abnormal" || im.abnormal) { lp = "Perform LP."; abx = true; dispo = "Admit."; }
-    else { lp = "No LP."; abx = false; dispo = "Admit without antibiotics and observe (see low-risk 22–28 days below)."; }
-  } else {
-    if (!ua || !im.known) { lp = null; }
-    else if (ua === "normal" && im.abnormal) { lp = "Perform LP."; abx = true; dispo = "Admit."; }
-    else if (ua === "abnormal" && im.abnormal) { lp = "LP guidance: obtaining CSF when any marker is abnormal is a weak AAP recommendation; in the second month of life meningitis is no more common with pyelonephritis (0/697 with abnormal UA in one study, including 0/90 with both ANC and procalcitonin elevated). Weigh very high values or several abnormal markers."; abx = true; dispo = "Admit."; }
-    else if (ua === "abnormal") {
-      lp = "No LP."; abx = true; dispo = "Admit.";
-      oral = !$("risk").checked;   // oral criteria: normal IMs, well-appearing, no complex history or prematurity, tolerating PO
-    }
-    else { lp = "No LP."; abx = false; dispo = "Discharge home with follow-up, or admit without antibiotics if indicated for other causes (not serious bacterial infection)."; }
+    out.push(`<h3>8–21 days: evaluate and treat everyone</h3>` + li([
+      `<b>Should</b> obtain a UA by catheter or suprapubic aspiration; culture if positive${grade("KAS 1, A, strong")}`,
+      `<b>Should</b> obtain a blood culture${grade("KAS 2, A, strong")}`,
+      `<b>May</b> check inflammatory markers; they don't change initial management${grade("KAS 3, B, weak")}`,
+      `<b>Should</b> obtain CSF by LP (cell count, protein, glucose, Gram stain, culture)${grade("KAS 4, A, strong")}`,
+      `<b>Should</b> start parenteral antibiotics${grade("KAS 5, A, strong")}`,
+      `<b>Should</b> admit, with staff experienced with young infants${grade("KAS 6, B, moderate")}`]));
+    out.push(`<h3>Antibiotics</h3><p class="result-line"><b>${csf === "mening" ? "Bacterial meningitis" : "UTI or no focus"}</b></p>` + regimen(age, kg, csf === "mening" ? "mening" : "uti") + ESBL);
+    out.push(`<h3>Stopping and discharge</h3><p><b>Should</b> stop antibiotics and discharge when cultures are negative at 24–36 h (or grow only contaminants), the baby is well or improving, and there's no other reason to stay${grade("KAS 7")}. Treat any identified pathogen with targeted therapy.</p>`);
   }
 
-  if (lp == null) {
-    out.push(box("banner", `<p>Enter the UA result and the inflammatory markers (${radio("pctavail") === "y" ? "procalcitonin and ANC" : "ANC, CRP and highest temperature"}) to see the LP and antibiotic plan.</p>`));
-  } else {
-    out.push(`<p class="result-line"><b>LP:</b> ${esc(lp)}</p>`);
-    out.push(`<p class="result-line"><b>Antibiotics:</b> ${abx ? "Yes" : "No"}</p>`);
-    out.push(`<p class="result-line"><b>Disposition:</b> ${esc(dispo)}</p>`);
-    if (age > 28 && $("viral").checked) out.push(box("caveat", "Bronchiolitis, influenza or COVID-19: a well-appearing infant may not need an LP or antibiotics. Decide individually (appearance, how many markers are elevated and by how much). Admit as indicated for dehydration or respiratory distress."));
-    if (oral) out.push(box("caveat", "Oral cephalexin is possible only if all oral antibiotic criteria are met: normal inflammatory markers, well-appearing, no complex medical history or prematurity, and tolerating feeds by mouth. Otherwise ceftriaxone."));
-    if (abx) out.push(dosesHTML(age, kg, ga, { pleo, gnr: $("gnr").checked, hsv, oral, ill: false }, ""));
+  /* ---------- 22–28 days ---------- */
+  else if (age <= 28) {
+    out.push(`<h3>22–28 days</h3>` + li([
+      `<b>Should</b> obtain a UA (catheter/SPA, or a bag or voided specimen with a catheter/SPA culture if positive)${grade("KAS 8, A, strong")}`,
+      `<b>Should</b> obtain a blood culture${grade("KAS 9, A, strong")}`,
+      `<b>Should</b> check inflammatory markers${grade("KAS 10, B, strong")}`]));
+    if (!uaVal || !im.known) out.push(box("banner", `<p>Enter the UA and the inflammatory markers (${im.avail ? "procalcitonin and ANC" : "ANC, CRP and temperature"}). Keep the infant in the clinical setting until they result.</p>`));
+    else {
+      out.push(`<p class="result-line"><b>LP:</b> ${im.abnormal ? `<b>Should</b> obtain CSF (an inflammatory marker is abnormal)${grade("KAS 11b, B, moderate")}` : `<b>May</b> obtain CSF if blood and urine cultures are sent and the infant is admitted${grade("KAS 11a, C, moderate")}`}. LP before antibiotics when possible; deferring it accepts a risk of partially treated meningitis.</p>`);
+      let rx, home = false;
+      if (csf === "mening" || uaVal === "pos") rx = `<b>Should</b> give parenteral antibiotics and admit${grade("KAS 12a, A, strong")}.`;
+      else if (im.abnormal) rx = `<b>May</b> give parenteral antibiotics and admit${grade("KAS 12b, B, moderate")}.${csf === "none" ? " If CSF couldn't be obtained or interpreted: admit on parenteral antibiotics and observe (KAS 13b, B, weak)." : ""}`;
+      else {
+        rx = `If admitted: <b>may</b> give parenteral antibiotics${grade("KAS 12c, B, weak")}. ` +
+          (csf === "normal" || csf === "ev"
+            ? `<b>May</b> manage at home${grade("KAS 13a, B, moderate")} if: UA normal, no marker abnormal, CSF normal or enterovirus-positive, written and verbal return precautions given, re-evaluation within 24 hours, and a contingency plan (phone, transport, emergency access, caregivers willing to observe). If managed at home, <b>should</b> give a parenteral dose (ceftriaxone) before discharge${grade("KAS 12d, C, moderate")}.`
+            : `Home management needs a normal (or enterovirus-positive) CSF; without CSF, admit. Providers may observe without antibiotics after a risk–benefit discussion with the family.`);
+        home = true;
+      }
+      out.push(`<p class="result-line"><b>Antibiotics and disposition:</b> ${rx}</p>`);
+      out.push(`<h3>Antibiotics</h3><p class="result-line"><b>${csf === "mening" ? "Bacterial meningitis" : "UTI or no focus"}</b></p>` + regimen(age, kg, csf === "mening" ? "mening" : "uti") + ESBL);
+      out.push(`<h3>Stopping and discharge</h3><p>Admitted: <b>should</b> stop antibiotics and discharge when well or improving, cultures negative at 24–36 h, and no other reason to stay or infection to treat${grade("KAS 14a, B, strong")}. At home: <b>should</b> stop antibiotics when well at reassessment and cultures are negative at 24–36 h${grade("KAS 14b, B, strong")}.</p>`);
+    }
   }
+
+  /* ---------- 29–60 days ---------- */
+  else {
+    out.push(`<h3>29–60 days</h3>` + li([
+      `<b>Should</b> obtain a UA (bag or voided specimen is fine, with a catheter/SPA culture if positive)${grade("KAS 15, A, strong")}. Circumcised boys may skip the UA (UTI risk under 1%).`,
+      `<b>Should</b> obtain a blood culture${grade("KAS 16, B, moderate")}`,
+      `<b>Should</b> check inflammatory markers${grade("KAS 17, B, moderate")}`]));
+    if (!uaVal || !im.known) out.push(box("banner", `<p>Enter the UA${$("circ").checked ? " (or leave it blank for a circumcised boy)" : ""} and the inflammatory markers (${im.avail ? "procalcitonin and ANC" : "ANC, CRP and temperature"}). Keep the infant in the clinical setting until they result.</p>`));
+    else {
+      out.push(`<p class="result-line"><b>LP:</b> ${im.abnormal ? `<b>May</b> obtain CSF${grade("KAS 18b, C, weak")}` : `<b>Need not</b> obtain CSF${grade("KAS 18a, B, moderate")}`}.</p>`);
+      let rx, dispo, kind;
+      if (csf === "mening") { rx = `<b>Should</b> give parenteral antibiotics${grade("KAS 19a, A, strong")}.`; dispo = `<b>Should</b> admit${grade("KAS 20a, A, strong")}.`; kind = "mening"; }
+      else if (im.abnormal) { rx = `<b>May</b> give parenteral antibiotics${grade("KAS 19b, B, moderate")}.`; dispo = `<b>May</b> admit${grade("KAS 20b, B, moderate")}.`; kind = uaVal === "pos" ? "uti" : "nofocus"; }
+      else if (uaVal === "pos") { rx = `<b>Should</b> start oral antibiotics${grade("KAS 19c, B, strong")}.`; dispo = `Home with follow-up is possible; admit if needed.`; kind = "oral"; }
+      else {
+        rx = `<b>Need not</b> give antibiotics${grade("KAS 19d, B, moderate")}.`;
+        dispo = csf === "none"
+          ? `<b>May</b> manage at home without antibiotics if prompt return is possible and follow-up within 24–36 hours is agreed${grade("KAS 20d, B, moderate")}.`
+          : `<b>Should</b> manage at home with caregiver education, follow-up within 24 hours and an emergency plan${grade("KAS 20c, B, moderate")}.`;
+        dispo += " Hospital observation is an option when follow-up is hard.";
+      }
+      out.push(`<p class="result-line"><b>Antibiotics:</b> ${rx}</p><p class="result-line"><b>Disposition:</b> ${dispo}</p>`);
+      if (kind) {
+        const title = { mening: "Bacterial meningitis", uti: "UTI", nofocus: "No focus identified", oral: "UTI, oral (older than 28 days)" }[kind];
+        out.push(`<h3>Antibiotics</h3><p class="result-line"><b>${title}</b></p>` + regimen(age, kg, kind) +
+          (kind === "uti" ? `<p class="hint">Or oral cephalexin or cefixime for infants older than 28 days.</p>` : "") + ESBL);
+      }
+      out.push(`<h3>Stopping and discharge</h3><p><b>Should</b> stop antibiotics when cultures are negative at 24–36 h, the baby is well or improving, and no other infection needs treatment${grade("KAS 21a")}. Admitted UTI: discharge when blood (and CSF) cultures are negative and the baby is well${grade("KAS 21b")}. Home UTI: stop parenteral antibiotics and continue oral ones when only the urine culture is positive at 24–36 h and the baby is improving${grade("KAS 21c")}. Treat identified pathogens with targeted therapy${grade("KAS 21d")}.</p>`);
+    }
+  }
+
+  // Edge cases (AAP PPI flowcharts)
+  const edge = [];
+  if (csf === "ev") edge.push("Enterovirus-positive CSF: antibiotics may be withheld or stopped if nothing else suggests bacterial infection. Continue until cultures are negative at 24–36 h if there's significant neutrophil-predominant pleocytosis, any abnormal marker, or other concern. Keep in hospital at least 24 hours (small risk of enteroviral sepsis).");
+  edge.push("CSF unobtainable or uninterpretable (including over 10,000 RBC/mm³): admit on parenteral antibiotics and observe, or (29–60 days) observe without treatment and repeat the LP or markers depending on course; consider a meningoencephalitis PCR panel and ID consultation.");
+  edge.push("Antibiotics given before the LP: CSF is harder to interpret. Admit, consider a repeat LP, a meningoencephalitis PCR panel, and longer treatment if meningitis can't be excluded.");
+  edge.push("Positive UA from a bag or voided specimen: get a catheter or suprapubic specimen for culture before treating it as a UTI. Never culture a bag specimen.");
+  out.push(`<h3>Special situations</h3>` + li(edge));
   $("plan-body").innerHTML = out.join("");
 }
 
-function dosesHTML(age, kg, ga, ctx, title) {
-  const r = regimen(age, ctx);
-  let h = `<h3>Antibiotics, in order of administration${title ? " · " + esc(title) : ""}</h3>`;
-  if (age <= 28 && r.list.includes("ceftriaxone")) r.list = r.list.filter(x => x !== "ceftriaxone");   // never IV ceftriaxone ≤ 28 days
-  if (kg == null || !(kg >= 0.3 && kg <= 10)) {
-    h += li(r.list.map(x => esc(NAMES[x]))) + `<p class="hint">Enter a weight (kg) to calculate doses.</p>`;
-  } else {
-    h += li(r.list.map(x => { const d = dose(x, age, kg, ga, ctx.ill || ctx.pleo); return `<b>${esc(NAMES[x])}</b>: ${esc(d.text)}${d.extra ? ` <span class="hint">(${esc(d.extra)})</span>` : ""}`; }));
-    if (r.list.includes("meropenem") && ga == null) h += `<p class="hint">Meropenem interval depends on gestational age at birth: enter it above.</p>`;
-  }
-  if (ctx.gnr) h += `<p class="hint">Gram-negative rods on CSF Gram stain: meropenem replaces cefepime or ceftriaxone.</p>`;
-  if (r.acyclovirNote) h += `<p class="hint">${esc(r.acyclovirNote)}</p>`;
-  if (ctx.pleo) h += `<p class="hint">CSF pleocytosis or ill-appearing: consider the sepsis pathway; consult ID for bacterial meningitis.</p>`;
-  if (age <= 28) h += `<p class="hint">IV ceftriaxone is not used at 28 days or younger (bilirubin displacement; risk with calcium-containing fluids).</p>`;
-  return h;
-}
-
-["age", "wt", "ga", "pct", "anc", "crp", "tmax", "csf"].forEach(id => $(id).addEventListener("input", render));
-document.querySelectorAll('input[name="appear"], input[name="ua"], input[name="pctavail"]').forEach(r => r.addEventListener("change", render));
-["risk", "focal", "viral", "hsvrisk", "gnr"].forEach(id => $(id).addEventListener("change", render));
+document.querySelectorAll("#tool input").forEach(i => i.addEventListener(i.type === "checkbox" || i.type === "radio" ? "change" : "input", render));
 render();
 
 /* ---- PIN gate: same PIN, same saved unlock as the hub; second code opens the pet picker ---- */
