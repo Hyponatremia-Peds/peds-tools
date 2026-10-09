@@ -186,10 +186,10 @@
     <details class="section" id="rescue-sec">
       <summary>Rescue / status epilepticus</summary>
       <div class="inner">
-        <div class="banner">
-          <p><strong>First-line benzodiazepine dosing is not included yet</strong> (rectal/intranasal diazepam, intranasal/buccal/IM midazolam, IV lorazepam). It is waiting on source data.</p>
-        </div>
-        <label for="rdrug">Second-line IV loading dose</label>
+        <label for="bdrug">First-line benzodiazepine</label>
+        <select id="bdrug"><option value="">Select a medication…</option></select>
+        <div id="bout"></div>
+        <label for="rdrug" style="margin-top:20px">Second-line IV loading dose</label>
         <select id="rdrug"><option value="">Select a medication…</option></select>
         <div id="rout"></div>
       </div>
@@ -235,8 +235,10 @@ const fixed = (lo, hi) => ({ lo, hi: hi == null ? lo : hi });
 const DRUGS = {
   levetiracetam: { name: "Levetiracetam", brand: "Keppra", conc: 100, form: "oral solution 100 mg/mL", needsAge: true,
     compute(kg, age) {
-      if (age < MO) return { notCovered: "Under 1 month: not covered by this tool (neonatal dosing not in the source data). See the label." };
-      if (age >= 16) return { notCovered: "16 years and older: adult dosing. See the label." };
+      if (age < MO) return { notCovered: "Under 1 month: no FDA dosing (not established below 1 month). The lowest labeled band is 1 to under 6 months (start 14 mg/kg/day, up to 42 mg/kg/day). Neonatal use is off-label." };
+      if (age >= 16) return { band: "16 years and older", rows: [
+        row("Start (500 mg twice daily)", fixed(1000), { freq: 2 }), row("Maximum", fixed(3000), { freq: 2 })
+      ], note: "Partial-onset and generalized tonic-clonic: increase by 1,000 mg/day every 2 weeks, up to 3,000 mg/day. Myoclonic (12 years and older): target 3,000 mg/day." };
       const b = age < 0.5 ? { label: "1 to under 6 months", init: 14, max: 42 }
               : age < 4   ? { label: "6 months to under 4 years", init: 20, max: 50 }
               :             { label: "4 to under 16 years", init: 20, max: 60, cap: 3000 };
@@ -301,8 +303,10 @@ const DRUGS = {
 
   oxcarbazepine: { name: "Oxcarbazepine", brand: "Trileptal", conc: 60, form: "oral suspension 60 mg/mL (300 mg/5 mL)", needsAge: true,
     compute(kg, age) {
-      if (age < 2) return { notCovered: "Under 2 years: not covered by the source data. See the label." };
-      if (age >= 17) return { notCovered: "17 years and older: adult dosing. See the label." };
+      if (age < 2) return { notCovered: "Under 2 years: not FDA-approved. See the label." };
+      if (age >= 17) return { band: "17 years and older", rows: [
+        row("Adjunct start (300 mg twice daily)", fixed(600), { freq: 2 }), row("Adjunct target", fixed(1200), { freq: 2 }), row("Maximum tolerated", fixed(2400), { freq: 2 })
+      ], note: "Adjunct: increase by up to 600 mg/day weekly. Monotherapy initiation: start 600 mg/day, increase by 300 mg/day every 3 days to 1,200 mg/day." };
       const rows = [row("Initial, adjunct (8–10 mg/kg/day, up to 600 mg/day)", perKg(kg, 8, 10), { freq: 2, cap: 600 })];
       if (age < 4) rows.push(row("Maximum, age 2 to under 4 (60 mg/kg/day)", perKg(kg, 60), { freq: 2 }));
       else if (kg >= 20) {
@@ -352,9 +356,15 @@ const DRUGS = {
       <option value="none">No valproate and no enzyme inducer</option><option value="eiaed">Enzyme inducer, no valproate</option></select>`,
     compute(kg, age) {
       if (age < 2) return { notCovered: "Under 2 years: not covered by the source data. See the label." };
-      if (age >= 13) return { notCovered: "Over 12 years: a different (mg-based) schedule applies. See the label." };
       const reg = (document.getElementById("ltg-reg") || {}).value;
       if (!reg) return { notCovered: "Choose the patient's other seizure medicines above. Lamotrigine dosing depends entirely on them." };
+      if (age >= 13) {
+        const a = { vpa: [12.5, 25, 100, 200], none: [25, 50, 225, 375], eiaed: [50, 100, 300, 500] }[reg];
+        return { band: "over 12 years", rows: [
+          row(reg === "vpa" ? "Weeks 1–2 (25 mg every other day)" : "Weeks 1–2", fixed(a[0])), row("Weeks 3–4", fixed(a[1])),
+          row("Maintenance", fixed(a[2], a[3]))
+        ], note: "Fixed mg schedule. Never exceed the starting dose or the titration rate." };
+      }
       const t = { vpa: [0.15, 0.3, 1, 5, 200], none: [0.3, 0.6, 4.5, 7.5, 300], eiaed: [0.6, 1.2, 5, 15, 400] }[reg];
       return { band: "2 to 12 years", rows: [
         row(`Weeks 1–2 (${t[0]} mg/kg/day)`, perKg(kg, t[0])), row(`Weeks 3–4 (${t[1]} mg/kg/day)`, perKg(kg, t[1])),
@@ -399,7 +409,7 @@ const DRUGS = {
 
   ethosuximide: { name: "Ethosuximide", brand: "Zarontin", conc: 50, form: "oral solution 50 mg/mL (250 mg/5 mL)", needsAge: true,
     compute(kg, age) {
-      if (age < 3) return { notCovered: "Under 3 years: not established. See the label." };
+      if (age < 3) return { notCovered: "Under 3 years: not established." };
       const start = age < 6 ? 250 : 500;
       return { band: age < 6 ? "3 to under 6 years" : "6 years and older", rows: [
         row("Initial", fixed(start), { freq: 2 }), row("Optimal (about 20 mg/kg/day)", perKg(kg, 20), { freq: 2, cap: 1500 }), row("Maximum", fixed(1500), { freq: 2 })
@@ -411,7 +421,7 @@ const DRUGS = {
 
   gabapentin: { name: "Gabapentin", brand: "Neurontin", conc: 50, form: "oral solution 50 mg/mL (250 mg/5 mL)", needsAge: true,
     compute(kg, age) {
-      if (age < 3) return { notCovered: "Under 3 years: not covered by the source data. See the label." };
+      if (age < 3) return { notCovered: "Under 3 years: not established or approved; a randomized trial in 1 month to 3 years showed no benefit." };
       if (age >= 12) return { band: "12 years and older", rows: [row("Start (300 mg three times daily)", fixed(900), { freq: 3 }), row("Maintenance", fixed(900, 1800), { freq: 3 })],
         note: "Three times daily; no more than 12 hours between doses. For epilepsy the label starts at 900 mg/day directly (the 300→600→900 ramp is for postherpetic neuralgia)." };
       const m = age < 5 ? [40, 40] : [25, 35];
@@ -446,7 +456,9 @@ const DRUGS = {
 
   clonazepam: { name: "Clonazepam", brand: "Klonopin", conc: null, form: "No commercial liquid. Tablets and ODT (0.125–2 mg).", needsAge: true,
     compute(kg, age) {
-      if (age > 10 || kg > 30) return { notCovered: "Over 10 years or over 30 kg: adult dosing. See the label." };
+      if (age > 10 || kg > 30) return { band: "over 10 years or over 30 kg", rows: [
+        row("Start (no more than 1.5 mg/day)", fixed(1.5), { freq: 3 }), row("Maximum", fixed(20), { freq: 3 })
+      ], note: "Adult seizure dosing, three divided doses. Increase by 0.5–1 mg every 3 days." };
       return { band: "10 years or younger and 30 kg or less", rows: [
         row("Initial (0.01–0.03 mg/kg/day)", perKg(kg, 0.01, 0.03), { freq: 3 }), row("Maintenance (0.1–0.2 mg/kg/day)", perKg(kg, 0.1, 0.2), { freq: 3 })
       ], note: "Three times daily. Initial dose no more than 0.05 mg/kg/day; titrate by 0.25–0.5 mg every 3 days." };
@@ -454,6 +466,66 @@ const DRUGS = {
     loading: "No US IV form.", renal: "Caution: metabolites renally excreted; no fixed adjustment.", hepatic: "Caution: hepatically metabolized; clearance may be impaired.",
     target: "20–70 ng/mL (poorly defined; tolerance develops).", caveats: ["No commercial liquid: ODT or compounding needed for small children.", "Sedation, tolerance, and withdrawal on abrupt stop."],
     source: "FDA Klonopin label; ILAE TDM 2008." }
+};
+
+/* First-line benzodiazepines (OpenEvidence table, 2026-10-09). mg per dose; compute(kg, age).
+   Give an adequate full first dose; escalate to second-line after no more than two benzodiazepine doses. */
+const ESCALATE = "Escalate to a second-line agent after no more than two benzodiazepine doses (AES).";
+const ageBand = age => age < 6 ? [0.5, "2 to 5 years"] : age < 12 ? [0.3, "6 to 11 years"] : [0.2, "12 years and older"];
+const BENZO = {
+  diastat: { name: "Diazepam rectal gel (Diastat)", needsAge: true,
+    compute(kg, age) {
+      if (age < 2) return { notCovered: "Under 2 years: not FDA-approved." };
+      const [mgkg, band] = ageBand(age);
+      return { band, rows: [row(`Dose (${mgkg} mg/kg)`, perKg(kg, mgkg), { unit: "dose", cap: 20 })] };
+    },
+    notes: ["Round to the available gel dose: 2.5, 5, 7.5, 10, 12.5, 15, 17.5 or 20 mg.", "May repeat once, at least 4 h later. No more than 2 doses per episode, 1 episode every 5 days, 5 episodes a month.", ESCALATE],
+    source: "FDA Diastat label." },
+  valtoco: { name: "Diazepam nasal spray (Valtoco)", needsAge: true,
+    compute(kg, age) {
+      if (age < 2) return { notCovered: "Under 2 years: not FDA-approved." };
+      const [mgkg, band] = ageBand(age);
+      return { band, rows: [row(`Dose (${mgkg} mg/kg)`, perKg(kg, mgkg), { unit: "dose", cap: 20 })] };
+    },
+    notes: ["Devices: 5, 7.5 or 10 mg per 0.1 mL; doses over 10 mg use two devices (maximum 20 mg).", "Second dose at least 4 h later. No more than 2 doses per episode, 1 episode every 5 days, 5 episodes a month.", ESCALATE],
+    source: "FDA Valtoco label." },
+  nayzilam: { name: "Midazolam nasal spray (Nayzilam)", needsAge: true,
+    compute(kg, age) {
+      if (age < 12) return { notCovered: "Under 12 years: not FDA-approved. See intranasal midazolam (off-label) instead." };
+      return { band: "12 years and older", rows: [row("Dose (one spray, one nostril)", fixed(5), { unit: "dose" })] };
+    },
+    notes: ["5 mg/0.1 mL single-dose spray.", "One repeat of 5 mg in the opposite nostril after 10 min. No more than 2 doses per episode, 1 episode every 3 days, 5 episodes a month.", ESCALATE],
+    source: "FDA Nayzilam label." },
+  inMidaz: { name: "Midazolam intranasal, off-label", conc: 5,
+    compute: kg => ({ rows: [row("Dose (0.2 mg/kg)", perKg(kg, 0.2), { unit: "dose", cap: 10 })] }),
+    notes: ["Off-label, all ages. Use the 5 mg/mL injectable. Repeat per protocol.", ESCALATE],
+    source: "AES guideline 2016; Vasquez, Neurology 2020." },
+  buccal: { name: "Midazolam buccal (Buccolam; EMA, not FDA)", needsAge: true, conc: 5,
+    compute(kg, age) {
+      if (age < 0.25) return { notCovered: "Under 3 months: not covered." };
+      if (age >= 18) return { notCovered: "18 years and older: Buccolam bands stop at under 18 years." };
+      const b = age < 0.5 ? [2.5, "3 to 6 months (in hospital only)"] : age < 1 ? [2.5, "over 6 to under 12 months"]
+              : age < 5 ? [5, "1 to under 5 years"] : age < 10 ? [7.5, "5 to under 10 years"] : [10, "10 to under 18 years"];
+      return { band: b[1], rows: [row("Dose", fixed(b[0]), { unit: "dose" })] };
+    },
+    notes: ["5 mg/mL prefilled syringes. May repeat once after 10 min.", "Licensed by the EMA, not FDA-approved.", ESCALATE],
+    source: "Buccolam EMA SmPC; CNS Drugs." },
+  imMidaz: { name: "Midazolam IM (AES Level A)", conc: 5,
+    compute(kg) {
+      if (kg < 13) return { band: "under 13 kg", rows: [row("Dose (0.2 mg/kg)", perKg(kg, 0.2), { unit: "dose", cap: 10 })] };
+      return { band: kg < 40 ? "13 to under 40 kg" : "40 kg and over", rows: [
+        row("Dose (fixed, RAMPART)", fixed(kg < 40 ? 5 : 10), { unit: "dose" }), row("Alternative (0.2 mg/kg)", perKg(kg, 0.2), { unit: "dose", cap: 10 })] };
+    },
+    notes: ["Single full dose: do not repeat IM. 5 mg/mL preferred for IM.", "Under 13 kg: RAMPART set no fixed dose; use 0.2 mg/kg (maximum 10 mg).", ESCALATE],
+    source: "AES guideline 2016 (Level A); RAMPART (Silbergleit, Epilepsia 2011)." },
+  lorazepam: { name: "Lorazepam IV (AES Level A)",
+    compute: kg => ({ rows: [row("Dose (0.1 mg/kg)", perKg(kg, 0.1), { unit: "dose", cap: 4 }), row("Repeat once at 5 min (0.1 mg/kg)", perKg(kg, 0.1), { unit: "dose", cap: 4 })] }),
+    notes: ["Cumulative maximum 8 mg. Injection 2 mg/mL or 4 mg/mL; refrigerate.", "Off-label in children.", ESCALATE],
+    source: "AES guideline 2016 (Level A)." },
+  ivDiazepam: { name: "Diazepam IV (AES Level A)", conc: 5,
+    compute: kg => ({ rows: [row("Dose (0.15–0.2 mg/kg)", perKg(kg, 0.15, 0.2), { unit: "dose", cap: 10 })] }),
+    notes: ["May repeat once. Injection 5 mg/mL.", ESCALATE],
+    source: "AES guideline 2016 (Level A)." }
 };
 
 /* Second-line IV loading (status epilepticus). mg (or mg PE) per dose; no mL because IV concentrations weren't supplied. */
@@ -574,22 +646,41 @@ function renderRescue() {
   out.innerHTML = h;
 }
 
+function renderBenzo() {
+  const key = $("bdrug").value, out = $("bout");
+  if (!key) { out.innerHTML = ""; return; }
+  const d = BENZO[key], p = patient();
+  let h = "";
+  const problem = patientProblem(p, d.needsAge);
+  if (problem) h += `<div class="banner" style="margin-top:12px"><p>${problem}</p></div>`;
+  else {
+    const res = d.compute(p.kg, p.age);
+    h += `<h3>Dose for ${fmt(p.kg)} kg${p.age != null ? `, ${fmt(p.age)} yr` : ""}${res.band ? ` · ${esc(res.band)}` : ""}</h3>`;
+    h += res.notCovered ? `<div class="banner"><p>${esc(res.notCovered)}</p></div>` : doseTable(res.rows, d.conc || null);
+  }
+  d.notes.forEach(n => { h += `<div class="caveat">${esc(n)}</div>`; });
+  h += `<p class="src">Source: ${esc(d.source)}</p>`;
+  out.innerHTML = h;
+}
+
 function renderPatient() {
   const p = patient();
   $("pt-echo").textContent = p.kg ? (p.unit === "lb" ? `${p.w} lb = ${fmt(p.kg)} kg` : `${fmt(p.kg)} kg = ${fmt(p.kg * LB_PER_KG)} lb`) +
     (p.age != null && p.ageOk ? ` · age ${fmt(p.age)} years` : "") : "";
-  renderMaint(); renderRescue();
+  renderMaint(); renderBenzo(); renderRescue();
 }
 
 /* ============================ wiring ============================ */
 Object.keys(DRUGS).forEach(k => { const o = document.createElement("option"); o.value = k; o.textContent = DRUGS[k].name + (DRUGS[k].brand ? ` (${DRUGS[k].brand})` : ""); $("drug").appendChild(o); });
+Object.keys(BENZO).forEach(k => { const o = document.createElement("option"); o.value = k; o.textContent = BENZO[k].name; $("bdrug").appendChild(o); });
 Object.keys(RESCUE).forEach(k => { const o = document.createElement("option"); o.value = k; o.textContent = RESCUE[k].name; $("rdrug").appendChild(o); });
 ["wt", "age-y", "age-m"].forEach(id => $(id).addEventListener("input", renderPatient));
 $("drug").addEventListener("change", renderMaint);
+$("bdrug").addEventListener("change", renderBenzo);
 $("rdrug").addEventListener("change", renderRescue);
 // Changing the unit never reinterprets the number: clear it and ask again.
 document.querySelectorAll('input[name="u"]').forEach(r => r.addEventListener("change", () => {
-  if ($("wt").value !== "") { $("wt").value = ""; $("pt-echo").textContent = "Unit changed. Please enter the weight again."; renderMaint(); renderRescue(); $("wt").focus(); }
+  if ($("wt").value !== "") { $("wt").value = ""; $("pt-echo").textContent = "Unit changed. Please enter the weight again."; renderMaint(); renderBenzo(); renderRescue(); $("wt").focus(); }
 }));
 
 /* ---- PIN gate: same PIN, same saved unlock as the hub; second code opens the pet picker ---- */

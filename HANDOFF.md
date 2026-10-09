@@ -64,9 +64,8 @@ After publishing, always open the live page and re-run the checks below.
 ## 4. Open items
 
 **ASM dosing page: needs the owner's review before the DRAFT banner comes off.** All numbers came from OpenEvidence summaries the owner supplied; nothing was added from memory. A second OpenEvidence label review (2026-10-09) resolved VERIFY items 1-6 and 9 and they were applied: lacosamide <6 kg start 2 mg/kg/day (3.75 mg/kg BID is the alternate regimen), <11 kg partial-onset only; phenytoin 300 mg/day is the max starting dose, not a maintenance cap; oxcarbazepine start capped at 600 mg/day; brivaracetam twice daily; gabapentin >=12 y start 900 mg/day; fosphenytoin has no label max (rate-limited; institutional caps 1,500-2,000 mg PE); phenobarbital maintenance 4-8 mg/kg/day; valproate ESETT max 3,000 mg; ESETT cited as NEJM 2019 (Lancet 2020 = pediatric age-group analysis); AES guideline is Epilepsy Curr 2016.
-Still open (the owner's paste of the OpenEvidence reply lost these two tables):
-7. Not covered: levetiracetam <1 month and >=16 years, oxcarbazepine <2 and >=17, lamotrigine >12 years, clonazepam >10 years or >30 kg, ethosuximide and gabapentin <3 years.
-8. Rescue section: first-line benzodiazepines missing (rectal/IN diazepam, IN/buccal/IM midazolam, IV lorazepam). Need doses, weight/age bands, maximum and repeat rules, products/concentrations. OpenEvidence noted: IM midazolam <13 kg 0.2 mg/kg (max 10 mg); escalate to second-line after no more than two benzodiazepine doses.
+Also applied from OpenEvidence's tables (2026-10-09, from the owner's screenshots): adult/older bands for levetiracetam >=16 y, oxcarbazepine >=17 y, lamotrigine >12 y (by regimen), clonazepam >10 y or >30 kg; and a first-line benzodiazepine picker (Diastat, Valtoco, Nayzilam, intranasal midazolam off-label, Buccolam, IM midazolam, IV lorazepam, IV diazepam) with caps, repeat rules and products. Still not covered by design: levetiracetam <1 month, oxcarbazepine <2, ethosuximide and gabapentin <3 years (not established).
+No VERIFY items remain. **The DRAFT banner stays until the owner reviews the page and says to remove it.**
 
 **Other:**
 - The owner should review the planner's "When to call your child's healthcare provider" list (Claude's wording).
