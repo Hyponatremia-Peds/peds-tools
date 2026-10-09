@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Credits</title>
+<meta name="description" content="Credits for the artwork, code and fonts used on Pediatric Tools.">
+<meta name="theme-color" content="#0D0D0C">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<script>
+  (function () {
+    let t = null;
+    try { t = localStorage.getItem("peds-tools-theme"); } catch (e) {}
+    document.documentElement.dataset.theme = (t === "light" || t === "dark") ? t : "dark";
+  })();
+</script>
+<script src="pets.js" defer></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:wght@500;600&family=Geist+Mono:wght@400;500&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --page: #F4F4F5; --panel: #FFFFFF; --band: #232323; --band-text: #FFFFFF; --band-muted: #A1A1AA;
+    --heading: #18181B; --body: #52525B; --border: #E4E4E7; --radius: 4px;
+    --serif: "EB Garamond", Garamond, Georgia, serif;
+    --sans: Inter, system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    --mono: "Geist Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) { --page: #141413; --panel: #1C1B19; --band: #0D0D0C; --band-text: #FAF9F6; --band-muted: #A8A49B; --heading: #FAF9F6; --body: #C2BEB5; --border: #3A3833; }
+  }
+  :root[data-theme="dark"] { --page: #141413; --panel: #1C1B19; --band: #0D0D0C; --band-text: #FAF9F6; --band-muted: #A8A49B; --heading: #FAF9F6; --body: #C2BEB5; --border: #3A3833; }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--page); color: var(--body); font: 17px/1.6 var(--sans); }
+  a { color: var(--heading); text-underline-offset: 2px; }
+  strong { color: var(--heading); font-weight: 600; }
+  .band { background: var(--band); color: var(--band-text); }
+  .band-inner { max-width: 760px; margin: 0 auto; padding: 64px 16px 32px; position: relative; }
+  .band h1 { font-family: var(--serif); font-weight: 500; letter-spacing: -0.02em; font-size: clamp(2rem, 7vw, 2.9rem); line-height: 1.05; margin: 0 0 10px; color: var(--band-text); }
+  .band .by { margin: 0; color: var(--band-muted); }
+  .back { position: absolute; top: 18px; left: 16px; color: var(--band-muted); font-size: 14px; }
+  .theme-toggle { position: absolute; top: 12px; right: 16px; min-height: 40px; padding: 6px 12px; font-family: var(--mono); font-size: 12px; font-weight: 500;
+    letter-spacing: .06em; text-transform: uppercase; color: var(--band-text); background: transparent; border: 1px solid var(--band-muted); border-radius: var(--radius); cursor: pointer; }
+  .wrap { max-width: 760px; margin: 0 auto; padding: 24px 16px 40px; border-left: 1px solid var(--border); border-right: 1px solid var(--border); }
+  section { background: var(--panel); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px; margin-bottom: 14px; }
+  h2 { font-family: var(--serif); font-weight: 500; font-size: 1.5rem; color: var(--heading); margin: 0 0 8px; }
+  ul { padding-left: 1.2em; margin: 8px 0 0; } li { margin: 4px 0; }
+  p { margin: 0 0 8px; }
+  footer.band .band-inner { padding: 28px 16px 36px; font-size: 14px; }
+  footer.band p { color: var(--band-muted); }
+  footer.band a { color: inherit; }
+  .pixel-heart { vertical-align: -2px; margin: 0 2px; }
+</style>
+</head>
+<body>
+<header class="band">
+  <div class="band-inner">
+    <a class="back" href="./">← Pediatric Tools</a>
+    <button type="button" class="theme-toggle" id="theme-toggle" aria-label="Switch between light and dark mode"></button>
+    <h1>Credits</h1>
+    <p class="by">Pediatric Tools, by Dr. Christian Rada, DO</p>
+  </div>
+</header>
+
+<main class="wrap">
+  <section aria-labelledby="sprites-h">
+    <h2 id="sprites-h">Pokémon sprites</h2>
+    <p>Sprites from the <a href="https://sprites.pmdcollab.org">PMD Sprite Repository</a> (PMD Sprite Collab), licensed
+      <a href="https://creativecommons.org/licenses/by-nc/4.0/">CC BY-NC 4.0</a>. Used non-commercially.</p>
+    <ul>
+      <li><strong>Eevee:</strong> Chunsoft</li>
+      <li><strong>Jolteon:</strong> Chunsoft and dmDash</li>
+      <li><strong>Espeon:</strong> Chunsoft</li>
+    </ul>
+    <p style="margin-top:10px">Pokémon © Nintendo, Creatures, GAME FREAK. This site is not affiliated with or endorsed by them.</p>
+  </section>
+
+  <section aria-labelledby="neko-h">
+    <h2 id="neko-h">Neko</h2>
+    <p>The black cat is <a href="https://webneko.net">Web Neko</a> by Gregory Bell, loaded from webneko.net as its license requires.</p>
+  </section>
+
+  <section aria-labelledby="fonts-h">
+    <h2 id="fonts-h">Fonts</h2>
+    <p>EB Garamond, Inter and Geist Mono, from <a href="https://fonts.google.com">Google Fonts</a> (SIL Open Font License).</p>
+  </section>
+
+  <section aria-labelledby="design-h">
+    <h2 id="design-h">Design</h2>
+    <p>Light mode follows the TypeUI <a href="https://www.typeui.sh/design-skills/vertical">Vertical</a> design; dark mode is based on the TypeUI
+      <a href="https://www.typeui.sh/design-skills/claude">Claude</a> design. The stool chart and the snake-and-staff icon are original artwork made for this site.</p>
+  </section>
+</main>
+
+<footer class="band">
+  <div class="band-inner">
+    <p>Made with
+      <svg class="pixel-heart" viewBox="0 0 7 6" width="14" height="12" role="img" aria-label="love" shape-rendering="crispEdges">
+        <path fill="#E5484D" d="M1 0h2v1h-2zM4 0h2v1h-2zM0 1h7v2h-7zM1 3h5v1h-5zM2 4h3v1h-3zM3 5h1v1h-1z"/>
+      </svg>
+      <a href="https://claude.com/claude-code">Claude</a></p>
+    <p class="gh-link" hidden><a href="https://github.com/Hyponatremia-Peds/peds-tools">Source code on GitHub</a></p>
+  </div>
+</footer>
+
+<script>
+  // GitHub link appears once the clinician PIN has been entered on this device.
+  try { if (localStorage.getItem("peds-tools-clinician") === "1") document.querySelectorAll(".gh-link").forEach(e => e.hidden = false); } catch (e) {}
+  (function () {
+    const btn = document.getElementById("theme-toggle"), isDark = () => document.documentElement.dataset.theme === "dark";
+    const label = () => { btn.textContent = isDark() ? "☀ Light" : "☾ Dark"; document.querySelector('meta[name="theme-color"]').setAttribute("content", isDark() ? "#0D0D0C" : "#232323"); };
+    btn.addEventListener("click", () => { const n = isDark() ? "light" : "dark"; document.documentElement.dataset.theme = n; try { localStorage.setItem("peds-tools-theme", n); } catch (e) {} label(); });
+    label();
+  })();
+</script>
+</body>
+</html>
