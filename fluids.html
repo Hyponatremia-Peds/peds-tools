@@ -1,0 +1,461 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>IV Fluids and Sodium</title>
+<meta name="description" content="Clinician tool: pediatric maintenance fluids, dehydration, and hyponatremia/hypernatremia correction.">
+<meta name="robots" content="noindex">
+<meta name="theme-color" content="#0D0D0C">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<script>
+  (function () {
+    let t = null;
+    try { t = localStorage.getItem("peds-tools-theme"); } catch (e) {}
+    document.documentElement.dataset.theme = (t === "light" || t === "dark") ? t : "dark";
+  })();
+</script>
+<script src="pets.js?v=5" defer></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:wght@500;600&family=Geist+Mono:wght@400;500&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  /* Same tokens as the hub and the other tools. */
+  :root {
+    --page: #F4F4F5; --panel: #FFFFFF; --soft: #FAFAFA;
+    --brand: #232323; --brand-text: #FFFFFF;
+    --band: #232323; --band-text: #FFFFFF; --band-muted: #A1A1AA;
+    --heading: #18181B; --body: #52525B; --border: #E4E4E7; --subtle: #F2F2F2;
+    --warn-bg: #FEF2F2; --warn-border: #FCA5A5; --warn-text: #7F1D1D;
+    --focus: #161616; --radius: 4px;
+    --serif: "EB Garamond", "Adobe Jenson Pro", Garamond, Georgia, serif;
+    --sans: Inter, system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    --mono: "Geist Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --page: #141413; --panel: #1C1B19; --soft: #242320; --brand: #FAF9F6; --brand-text: #141413;
+      --band: #0D0D0C; --band-text: #FAF9F6; --band-muted: #A8A49B; --heading: #FAF9F6; --body: #C2BEB5;
+      --border: #3A3833; --subtle: #2C2B27; --warn-bg: #2A1A17; --warn-border: #7A2E26; --warn-text: #F3CFC6; --focus: #FAF9F6;
+    }
+  }
+  :root[data-theme="dark"] {
+    --page: #141413; --panel: #1C1B19; --soft: #242320; --brand: #FAF9F6; --brand-text: #141413;
+    --band: #0D0D0C; --band-text: #FAF9F6; --band-muted: #A8A49B; --heading: #FAF9F6; --body: #C2BEB5;
+    --border: #3A3833; --subtle: #2C2B27; --warn-bg: #2A1A17; --warn-border: #7A2E26; --warn-text: #F3CFC6; --focus: #FAF9F6;
+  }
+  * { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
+  body { margin: 0; background: var(--page); color: var(--body); font: 16px/1.55 var(--sans); }
+  strong, b { color: var(--heading); font-weight: 600; }
+  a { color: var(--heading); }
+  .band { background: var(--band); color: var(--band-text); }
+  .band-inner { max-width: 900px; margin: 0 auto; padding: 40px 16px 32px; position: relative; }
+  header.band .band-inner { padding-top: 64px; }
+  .band h1 { font-family: var(--serif); font-weight: 500; letter-spacing: -0.02em; font-size: clamp(1.9rem, 6vw, 2.6rem); line-height: 1.08; margin: 0 0 10px; color: var(--band-text); }
+  .band .by { margin: 0; color: var(--band-muted); }
+  .back { position: absolute; top: 18px; left: 16px; color: var(--band-muted); font-size: 14px; }
+  .theme-toggle { position: absolute; top: 12px; right: 16px; min-height: 40px; padding: 6px 12px; font-family: var(--mono); font-size: 12px; font-weight: 500;
+    letter-spacing: .06em; text-transform: uppercase; color: var(--band-text); background: transparent; border: 1px solid var(--band-muted); border-radius: var(--radius); cursor: pointer; }
+  footer.band .band-inner { padding: 28px 16px 36px; font-size: 13px; }
+  footer.band p { margin: 0 0 8px; color: var(--band-muted); }
+  footer.band a { color: inherit; text-underline-offset: 2px; }
+  footer.band .credit { margin-top: 14px; font-size: 14px; }
+  footer.band .sprite-credit { font-size: 12px; opacity: .8; }
+  .pixel-heart { vertical-align: -2px; margin: 0 2px; }
+
+  .wrap { max-width: 900px; margin: 0 auto; padding: 24px 16px 40px; border-left: 1px solid var(--border); border-right: 1px solid var(--border); }
+  h2 { font-family: var(--serif); font-weight: 500; font-size: 1.5rem; color: var(--heading); margin: 0 0 10px; letter-spacing: -0.01em; }
+  h3 { font-family: var(--mono); font-size: 12px; font-weight: 500; letter-spacing: .07em; text-transform: uppercase; color: var(--body); margin: 18px 0 8px; }
+  .card { background: var(--panel); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px; margin-bottom: 16px; }
+  .banner { border-radius: var(--radius); padding: 12px 14px; margin: 0 0 12px; border: 1px solid; background: var(--warn-bg); border-color: var(--warn-border); color: var(--warn-text); }
+  .banner p { margin: 0; } .banner p + p { margin-top: 6px; } .banner strong { color: inherit; }
+  label { display: block; font-weight: 600; color: var(--heading); margin-bottom: 6px; font-size: 15px; }
+  input[type=number], input[type=password], select { font: inherit; font-size: 16px; color: var(--heading); background: var(--soft);
+    border: 1px solid var(--border); border-radius: var(--radius); padding: 10px 12px; min-height: 48px; width: 100%; }
+  input:focus-visible, select:focus-visible, button:focus-visible, summary:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; align-items: end; }
+  .seg { display: inline-flex; border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; height: 48px; }
+  .seg input { position: absolute; opacity: 0; pointer-events: none; }
+  .seg label { margin: 0; padding: 0 16px; display: flex; align-items: center; cursor: pointer; background: var(--soft); font-size: 15px; }
+  .seg label + input + label { border-left: 1px solid var(--border); }
+  .seg input:checked + label { background: var(--brand); color: var(--brand-text); }
+  .seg input:focus-visible + label { outline: 2px solid var(--focus); outline-offset: -4px; }
+  .hint { font-size: 14px; margin: 6px 0 0; }
+  .check { display: flex; gap: 10px; align-items: flex-start; font-weight: 400; color: var(--body); margin-top: 14px; cursor: pointer; }
+  .check input { width: 22px; height: 22px; flex: none; margin: 1px 0 0; accent-color: var(--brand); }
+  .btn { font: inherit; font-weight: 600; font-size: 15px; border-radius: var(--radius); padding: 10px 18px; min-height: 48px; border: 1px solid var(--brand);
+    background: var(--brand); color: var(--brand-text); cursor: pointer; }
+  .btn.secondary { background: var(--panel); color: var(--heading); border-color: var(--border); }
+  .btns { display: flex; flex-wrap: wrap; gap: 10px; }
+  .pin-row { display: flex; gap: 10px; flex-wrap: wrap; }
+  .pin-row input { width: 7.5em; font-family: var(--mono); font-size: 22px; letter-spacing: .3em; }
+  .pin-msg { margin: 8px 0 0; min-height: 1.2em; color: var(--warn-text); font-weight: 600; }
+  .caveat { border-left: 3px solid var(--warn-border); padding: 6px 10px; margin: 6px 0; font-size: 14.5px; }
+  .src { font-size: 13px; margin-top: 14px; }
+  [hidden] { display: none !important; }
+
+  /* scoring items */
+  fieldset.item { border: 0; border-top: 1px solid var(--border); margin: 0; padding: 16px 0 6px; min-width: 0; }
+  fieldset.item:first-of-type { border-top: 0; padding-top: 4px; }
+  fieldset.item legend { font-weight: 600; color: var(--heading); font-size: 16px; padding: 0; float: left; width: 100%; margin-bottom: 8px; }
+  fieldset.item legend .pts { float: right; font-family: var(--mono); font-weight: 500; font-size: 13px; color: var(--body); }
+  .opts { clear: both; display: grid; grid-template-columns: repeat(auto-fill, minmax(118px, 1fr)); gap: 6px; }
+  .opt { position: relative; margin: 0; font-weight: 400; font-size: 14px; color: var(--body); cursor: pointer; }
+  .opt input { position: absolute; opacity: 0; pointer-events: none; }
+  .opt span { display: block; height: 100%; padding: 8px 10px; border: 1px solid var(--border); border-radius: var(--radius); background: var(--soft); line-height: 1.35; }
+  .opt b { display: block; font-family: var(--mono); font-weight: 500; font-size: 13px; color: var(--heading); margin-bottom: 2px; }
+  .opt input:checked + span { background: var(--brand); border-color: var(--brand); color: var(--brand-text); }
+  .opt input:checked + span b { color: var(--brand-text); }
+  .opt input:focus-visible + span { outline: 2px solid var(--focus); outline-offset: 2px; }
+  details.how { clear: both; margin: 8px 0 0; font-size: 14px; }
+  details.how summary { cursor: pointer; color: var(--heading); font-weight: 500; }
+  details.how p { margin: 6px 0 0; }
+  .pics { display: grid; grid-template-columns: repeat(auto-fill, minmax(104px, 1fr)); gap: 6px; margin-top: 8px; }
+  .pic { margin: 0; padding: 6px; border: 1px solid var(--border); border-radius: var(--radius); background: var(--soft); text-align: center; cursor: pointer; color: var(--heading); }
+  .pic svg { display: block; width: 100%; height: auto; }
+  .pic figcaption { font-family: var(--mono); font-size: 12px; margin-top: 2px; }
+  .pic figcaption span { display: block; font-family: var(--sans); font-size: 11.5px; color: var(--body); line-height: 1.3; }
+  .pic.on { border-color: var(--brand); box-shadow: inset 0 0 0 1px var(--brand); }
+  .pics-note { font-size: 12.5px; margin: 6px 0 0; }
+
+  /* result */
+  .result-big { font-family: var(--serif); font-size: 2.1rem; line-height: 1.1; color: var(--heading); margin: 0 0 4px; }
+  .subs { font-family: var(--mono); font-size: 13px; letter-spacing: .03em; }
+  .sticky { position: fixed; left: 0; right: 0; bottom: 0; z-index: 10; background: var(--band); color: var(--band-text); border-top: 1px solid var(--border); }
+  .sticky .in { max-width: 900px; margin: 0 auto; padding: 10px 16px; display: flex; gap: 12px; align-items: center; justify-content: space-between; font-family: var(--mono); font-size: 14px; }
+  .sticky a { color: var(--band-text); }
+  table { width: 100%; border-collapse: collapse; font-size: 14px; }
+  th, td { text-align: left; padding: 6px 8px; border-bottom: 1px solid var(--border); }
+  th { font-family: var(--mono); font-size: 11px; font-weight: 500; text-transform: uppercase; letter-spacing: .05em; }
+  td { font-family: var(--mono); color: var(--heading); }
+  tr.hit td { background: var(--subtle); font-weight: 600; }
+
+  @media print {
+    :root, :root[data-theme="dark"], :root[data-theme="light"], :root:not([data-theme="light"]) {
+      --page:#FFF; --panel:#FFF; --soft:#FFF; --subtle:#EEE; --heading:#000; --body:#222; --border:#999; --band:#FFF; --band-text:#000; --band-muted:#333;
+      --brand:#000; --brand-text:#FFF; --warn-bg:#FFF; --warn-border:#999; --warn-text:#000;
+    }
+    body { padding-bottom: 0; }
+    .theme-toggle, .back, #pin-form, .sticky, .noprint, details.how { display: none !important; }
+  }
+
+  .lbl { display:block; font-weight:600; color:var(--heading); margin:0 0 6px; font-size:15px; }
+  .result-line { margin: 6px 0; font-size: 16px; }
+  ul li { margin: 3px 0; }
+</style>
+</head>
+<body>
+<header class="band">
+  <div class="band-inner">
+    <a class="back" href="./">← Pediatric Tools</a>
+    <button type="button" class="theme-toggle" id="theme-toggle" aria-label="Switch between light and dark mode"></button>
+    <h1>IV Fluids and Sodium</h1>
+    <p class="by">By Dr. Christian Rada, DO · Clinician tool</p>
+  </div>
+</header>
+
+<main class="wrap">
+  <!-- PIN gate (same PIN and unlock as the hub). Not real security: the page is public. -->
+  <form class="card" id="pin-form" autocomplete="off">
+    <label for="pin">Enter the clinician PIN</label>
+    <div class="pin-row">
+      <input id="pin" type="password" inputmode="numeric" pattern="[0-9]*" maxlength="4" aria-describedby="pin-msg">
+      <button class="btn" type="submit">Unlock</button>
+    </div>
+    <p class="pin-msg" id="pin-msg" role="alert"></p>
+  </form>
+
+  <div id="tool" hidden>
+    <div class="banner">
+      <p><strong>Maintenance fluids, dehydration, and sodium correction for children 28 days to 18 years.</strong> Formulas give a starting point: recheck sodium often (every 2–4 hours during active correction) and adjust. Nothing entered here is saved or sent.</p>
+    </div>
+
+    <section class="card" aria-labelledby="pt-h">
+      <h2 id="pt-h">Patient</h2>
+      <div class="grid">
+        <div><label for="wt">Weight (kg)</label><input id="wt" type="number" inputmode="decimal" min="1" max="200" step="0.1"></div>
+        <div><label for="age-y">Age: years</label><input id="age-y" type="number" inputmode="numeric" min="0" max="25" step="1"></div>
+        <div><label for="age-m">and months</label><input id="age-m" type="number" inputmode="numeric" min="0" max="11" step="1"></div>
+      </div>
+      <div style="margin-top:12px">
+        <span class="lbl" id="sex-l">Sex (for total body water in adolescents)</span>
+        <div class="seg" role="radiogroup" aria-labelledby="sex-l">
+          <input type="radio" name="sex" id="sex-m" value="m" checked><label for="sex-m">Male</label>
+          <input type="radio" name="sex" id="sex-f" value="f"><label for="sex-f">Female</label>
+        </div>
+      </div>
+      <div class="grid" style="margin-top:12px">
+        <div><label for="tbw">Total body water fraction</label>
+          <select id="tbw">
+            <option value="auto">Automatic by age and sex</option>
+            <option value="0.8">0.80 (preterm neonate)</option>
+            <option value="0.75">0.75 (term neonate to 6 months, upper)</option>
+            <option value="0.7">0.70 (term neonate to 6 months)</option>
+            <option value="0.65">0.65 (6–12 months, upper)</option>
+            <option value="0.6">0.60 (6 months through puberty; adolescent male)</option>
+            <option value="0.55">0.55 (adolescent female, upper)</option>
+            <option value="0.5">0.50 (adolescent female)</option>
+          </select></div>
+      </div>
+      <p class="hint" id="pt-echo"></p>
+    </section>
+
+    <section class="card" aria-labelledby="m-h">
+      <h2 id="m-h">Maintenance</h2>
+      <div id="maint"></div>
+      <label class="check"><input type="checkbox" id="cap"><span>Apply a common institutional cap (100 mL/h, about 2,400 mL/day). The AAP guideline sets no cap.</span></label>
+      <details class="how"><summary>Which fluid, and who it applies to (AAP 2018)</summary>
+        <p><b>Use isotonic fluid with appropriate KCl and dextrose</b> (strong recommendation, evidence A): e.g., D5 0.9% NaCl or D5 lactated Ringer's, with KCl (20 mEq/L is common) once the patient has voided and kidney function is known. It halves the risk of hyponatremia compared with hypotonic fluid. D5 ½NS and D5 ¼NS are hypotonic and not first-line. Balanced fluids and saline are both acceptable.</p>
+        <p><b>Applies to</b> 28 days to 18 years, ward and critical care. <b>Not covered:</b> neurosurgical disorders, congenital or acquired heart disease, liver disease, cancer, kidney dysfunction, diabetes insipidus, voluminous watery diarrhea, severe burns, neonates under 28 days or in the NICU, over 18 years. DKA and SIADH need individualized fluids.</p>
+        <p><b>Neonates under 28 days:</b> outside the guideline; dosed by day of life and weight (often 60–80 mL/kg/day on day 1, advancing), with dextrose and usually no sodium for the first 24–48 hours.</p></details>
+    </section>
+
+    <section class="card" aria-labelledby="d-h">
+      <h2 id="d-h">Dehydration</h2>
+      <div class="opts" style="grid-template-columns:repeat(auto-fill,minmax(150px,1fr))">
+        <label class="opt"><input type="radio" name="dehy" value="4"><span><b>Mild 3–5%</b>Slightly less urine, thirst, few signs</span></label>
+        <label class="opt"><input type="radio" name="dehy" value="7.5"><span><b>Moderate 6–9%</b>Dry mucosa, few tears, turgor &gt; 2 s, tachycardia, slow refill, sunken eyes</span></label>
+        <label class="opt"><input type="radio" name="dehy" value="10"><span><b>Severe ≥ 10%</b>Lethargic, can't drink, hypotension, weak pulses, mottled, little urine</span></label>
+      </div>
+      <div class="grid" style="margin-top:12px">
+        <div><label for="pct">Or exact % dehydration</label><input id="pct" type="number" inputmode="decimal" min="0" max="20" step="0.5"></div>
+        <div><label for="prewt">Or pre-illness weight (kg)</label><input id="prewt" type="number" inputmode="decimal" min="1" max="200" step="0.01"></div>
+      </div>
+      <div id="dehy-out"></div>
+      <details class="how"><summary>Oral rehydration (mild to moderate)</summary>
+        <p>First-line for mild to moderate dehydration: ORS 50–100 mL/kg over 3–4 hours in small, frequent sips (5–10 mL); nasogastric is fine if needed. Replace ongoing losses: under 10 kg, 60–120 mL per stool or vomit; over 10 kg, 120–240 mL. Use IV instead for altered mental status, intractable vomiting or ileus, shock or severe dehydration. Reduced-osmolarity WHO ORS: Na 75, K 20, Cl 65, citrate 10, glucose 75 mmol/L (245 mOsm/L).</p></details>
+    </section>
+
+    <section class="card" aria-labelledby="na-h">
+      <h2 id="na-h">Sodium</h2>
+      <div class="grid">
+        <div><label for="na">Serum sodium (mmol/L)</label><input id="na" type="number" inputmode="numeric" min="90" max="200" step="1"></div>
+        <div><label for="kcl">KCl added to fluids (mEq/L)</label><input id="kcl" type="number" inputmode="numeric" min="0" max="80" step="1" value="0"></div>
+      </div>
+      <div id="na-opts"></div>
+      <div id="na-out"></div>
+    </section>
+
+    <section class="card" aria-labelledby="c-h">
+      <h2 id="c-h">Fluid composition</h2>
+      <div class="tablewrap"><table>
+        <thead><tr><th>Fluid</th><th>Na (mmol/L)</th><th>Other</th></tr></thead>
+        <tbody>
+          <tr><td>0.9% NaCl</td><td>154</td><td>Cl 154; 308 mOsm/L</td></tr>
+          <tr><td>Lactated Ringer's</td><td>130</td><td>K 4, Cl 109, Ca 2.7, lactate 28; 273 mOsm/L</td></tr>
+          <tr><td>Plasma-Lyte 148 / A</td><td>140</td><td>K 5, Cl 98, Mg 1.5, acetate 27, gluconate 23; about 294 mOsm/L</td></tr>
+          <tr><td>D5 0.45% NaCl (½NS)</td><td>77</td><td>Dextrose 50 g/L (hypotonic)</td></tr>
+          <tr><td>0.2% NaCl (¼NS)</td><td>about 34</td><td>Hypotonic</td></tr>
+          <tr><td>D5W</td><td>0</td><td>Free water</td></tr>
+          <tr><td>3% NaCl</td><td>513</td><td>Cl 513; 1,027 mOsm/L; 0.513 mEq Na per mL</td></tr>
+        </tbody>
+      </table></div>
+    </section>
+
+    <div style="margin-top:8px"><button type="button" class="btn secondary" id="lock-btn">Lock clinician section</button></div>
+  </div>
+</main>
+
+<footer class="band">
+  <div class="band-inner">
+    <p>Rules and numbers compiled and checked with OpenEvidence from the AAP clinical practice guideline on maintenance IV fluids (Feld LG et al., Pediatrics 2018), Holliday-Segar and the 4-2-1 rule, Powers KS (Pediatr Rev 2015), the IDSA infectious diarrhea guideline (2017), the RCH Paediatric Handbook (2021), Adrogué HJ and Madias NE (NEJM 2000; Intensive Care Med 1997; JAMA 2022), Sterns RH (NEJM 2015), Zieg J et al. (BMC Nephrol 2024) and Brown DH and Paloian NJ (Pediatr Rev 2023). Maintenance caps are institutional conventions, not AAP rules. This tool is clinical decision support and does not replace clinical judgment or your institution's protocol.</p>
+    <p class="credit">Made with
+      <svg class="pixel-heart" viewBox="0 0 7 6" width="14" height="12" role="img" aria-label="love" shape-rendering="crispEdges">
+        <path fill="#E5484D" d="M1 0h2v1h-2zM4 0h2v1h-2zM0 1h7v2h-7zM1 3h5v1h-5zM2 4h3v1h-3zM3 5h1v1h-1z"/>
+      </svg>
+      <a href="https://claude.com/claude-code">Claude</a></p>
+    <p class="sprite-credit"><a href="credits.html">Credits</a><span class="gh-link" hidden> · <a href="https://github.com/Hyponatremia-Peds/peds-tools">Source code on GitHub</a></span></p>
+  </div>
+</footer>
+
+<script>
+"use strict";
+/* ======================================================================
+   IV FLUIDS AND SODIUM — every rule and number from OpenEvidence (Snow), 2026-10-09:
+   Holliday-Segar / 4-2-1; AAP 2018 maintenance IV fluid guideline (Feld LG et al.);
+   dehydration (Powers, Pediatr Rev 2015; IDSA 2017; RCH Paediatric Handbook);
+   hyponatremia and hypernatremia (Adrogué & Madias; Sterns NEJM 2015; Zieg, BMC Nephrol
+   2024; Brown & Paloian, Pediatr Rev 2023; Miller, AFP 2023). Nothing was added from memory.
+   ====================================================================== */
+const $ = id => document.getElementById(id);
+const esc = s => String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+const fmt = n => Math.abs(n) >= 100 ? String(Math.round(n)) : Math.abs(n) >= 10 ? String(Math.round(n * 10) / 10) : String(Math.round(n * 100) / 100);
+const val = id => { const v = $(id).value.trim(); return v === "" ? null : Number(v); };
+const radio = n => { const r = document.querySelector(`input[name="${n}"]:checked`); return r ? r.value : null; };
+const li = items => `<ul style="margin:6px 0 0;padding-left:1.2em">${items.map(i => `<li>${i}</li>`).join("")}</ul>`;
+const box = (cls, html) => `<div class="${cls}">${html}</div>`;
+
+const CAP_H = 100;   // institutional convention, not AAP
+
+// Holliday-Segar daily volume and 4-2-1 hourly rate
+const hsDay = kg => kg <= 10 ? 100 * kg : kg <= 20 ? 1000 + 50 * (kg - 10) : 1500 + 20 * (kg - 20);
+const rate421 = kg => kg <= 10 ? 4 * kg : kg <= 20 ? 40 + 2 * (kg - 10) : 60 + (kg - 20);
+
+function patient() {
+  const kg = val("wt"), y = val("age-y"), m = val("age-m");
+  const age = y == null && m == null ? null : (y || 0) + (m || 0) / 12;
+  const ok = kg != null && kg >= 1 && kg <= 200;
+  const ageOk = age == null || (age >= 0 && age <= 25 && (m == null || (m >= 0 && m < 12)) && (y == null || y >= 0));
+  return { kg: ok ? kg : null, kgRaw: kg, age: ageOk ? age : null, ageBad: !ageOk, sex: radio("sex") };
+}
+// TBW fraction: by age and sex unless chosen
+function tbw(p) {
+  const v = $("tbw").value;
+  if (v !== "auto") return { f: Number(v), why: "chosen" };
+  if (p.age == null) return { f: 0.6, why: "default 0.6 (enter age for the age-based value)" };
+  if (p.age < 0.5) return { f: 0.7, why: "under 6 months (0.70–0.75; 0.80 if preterm)" };
+  if (p.age < 1) return { f: 0.6, why: "6–12 months (0.60–0.65)" };
+  if (p.age >= 12 && p.sex === "f") return { f: 0.5, why: "adolescent female (0.50–0.55)" };
+  return { f: 0.6, why: p.age >= 12 ? "adolescent male" : "child, 1 year through puberty" };
+}
+const ageWarn = p => p.age != null && p.age < 28 / 365 ? box("caveat", "Under 28 days: outside the AAP guideline. Neonatal fluids are dosed by day of life and weight (often 60–80 mL/kg/day on day 1, advancing), with dextrose and usually no sodium for the first 24–48 hours.") : "";
+
+function maintenance(p) {
+  if (!p.kg) return { html: `<p class="hint" style="margin:0">Enter the weight.</p>`, perH: null, perDay: null };
+  let day = hsDay(p.kg), h = rate421(p.kg);
+  const capped = $("cap").checked && h > CAP_H;
+  if (capped) { h = CAP_H; day = CAP_H * 24; }
+  const html = `<p class="result-big">${fmt(h)} mL/h</p><p class="subs">${fmt(day)} mL/day${capped ? " · capped" : ` · Holliday-Segar ${fmt(hsDay(p.kg))} mL/day; 4-2-1 rule ${fmt(rate421(p.kg))} mL/h`}</p>` +
+    (!capped && rate421(p.kg) > CAP_H ? `<p class="hint">Above 100 mL/h: many institutions cap maintenance here (tick the box below).</p>` : "") + ageWarn(p);
+  return { html, perH: h, perDay: day };
+}
+
+function dehydration(p, maint) {
+  const prewt = val("prewt"), exact = val("pct"), sel = radio("dehy");
+  if (!p.kg) return `<p class="hint">Enter the weight.</p>`;
+  let deficit, how;
+  if (prewt != null && prewt > p.kg && prewt <= 200) { deficit = (prewt - p.kg) * 1000; how = `pre-illness weight ${prewt} kg − current ${p.kg} kg (1 g lost = 1 mL)`; }
+  else if (exact != null && exact > 0 && exact <= 20) { deficit = p.kg * exact * 10; how = `${p.kg} kg × ${exact}% × 10`; }
+  else if (sel) { deficit = p.kg * Number(sel) * 10; how = `${p.kg} kg × ${sel}% × 10 (enter an exact % to change)`; }
+  else return `<p class="hint">Choose the degree of dehydration, enter a %, or enter the pre-illness weight.</p>`;
+  const pctNow = deficit / (p.kg * 10);
+  let h = `<p class="result-line"><b>Deficit:</b> ${fmt(deficit)} mL (${how}).</p>`;
+  h += `<p class="result-line"><b>Bolus if needed:</b> isotonic (0.9% NaCl or LR) 20 mL/kg = ${fmt(20 * p.kg)} mL over 5–20 min, repeat until perfusion and mental status normalize; 10 mL/kg (${fmt(10 * p.kg)} mL) for malnourished infants, heart disease, or when cautious. Reassess and consider vasoactive support beyond 40 mL/kg. Boluses are counted separately, not subtracted from the deficit.</p>`;
+  if (maint.perDay) {
+    const m = maint.perDay;
+    const r1 = (0.5 * deficit + m / 3) / 8, r2 = (0.5 * deficit + 2 * m / 3) / 16, ru = (deficit + m) / 24;
+    h += `<h3>24-hour replacement (isonatremic)</h3>` + li([
+      `<b>First 8 h:</b> ${fmt(r1)} mL/h (half the deficit + 8 h of maintenance)`,
+      `<b>Next 16 h:</b> ${fmt(r2)} mL/h (the other half + 16 h of maintenance)`,
+      `<b>Or evenly over 24 h</b> after resuscitation: ${fmt(ru)} mL/h`]);
+    h += `<p class="hint">Often D5 ½NS (or D5 ⅓NS) with 20–40 mEq/L KCl once voiding. Replace ongoing losses separately.${$("cap").checked ? " Maintenance here uses the capped value." : ""}</p>`;
+  }
+  const na = val("na");
+  if (na != null && (na < 135 || na > 145)) h += box("caveat", `Serum sodium ${na}: for hyponatremic or hypernatremic dehydration, correct the deficit over 48–72 hours, not 24. See Sodium below.`);
+  if (pctNow >= 10) h += box("caveat", "Severe dehydration: IV resuscitation, not oral rehydration.");
+  return h;
+}
+
+/* Adrogué–Madias: change in serum Na from 1 L of infusate = (Na_inf + K_inf − Na_serum) / (TBW + 1) */
+const FLUIDS = [["3% NaCl", 513, 0], ["0.9% NaCl", 154, 0], ["Lactated Ringer's", 130, 4], ["Plasma-Lyte", 140, 5], ["D5 0.45% NaCl", 77, 0], ["0.2% NaCl", 34, 0], ["D5W", 0, 0]];
+function amTable(p, naS, tbwL, list) {
+  const k = val("kcl") || 0;
+  return `<div class="tablewrap"><table><thead><tr><th>Infusate</th><th>Change per 1 L</th></tr></thead><tbody>` +
+    FLUIDS.filter(f => list.includes(f[0])).map(([n, na, kk]) => {
+      const d = (na + kk + k - naS) / (tbwL + 1);
+      return `<tr><td>${n}${k && n !== "3% NaCl" ? ` + KCl ${k}` : ""}</td><td>${d >= 0 ? "+" : "−"}${fmt(Math.abs(d))} mmol/L</td></tr>`;
+    }).join("") + `</tbody></table></div><p class="hint">Adrogué–Madias: (infusate Na + K − serum Na) ÷ (TBW + 1), per liter, with TBW ${fmt(tbwL)} L. Treats the patient as a closed system and ignores ongoing losses; it underestimates the rise when ADH switches off and a water diuresis starts (overcorrection beat the prediction in 74% with Na &lt; 120). Recheck sodium every 2–4 hours.</p>`;
+}
+
+function sodium(p) {
+  const na = val("na");
+  const opts = $("na-opts");
+  if (na == null) { opts.innerHTML = ""; return `<p class="hint">Enter the serum sodium.</p>`; }
+  if (!(na >= 90 && na <= 200)) { opts.innerHTML = ""; return box("banner", "<p>Please check the sodium you entered.</p>"); }
+  const t = tbw(p);
+  const tbwL = p.kg ? t.f * p.kg : null;
+  let h = "";
+  if (na < 135) {
+    if (!opts.dataset.mode || opts.dataset.mode !== "hypo") {
+      opts.dataset.mode = "hypo";
+      opts.innerHTML = `<label class="check"><input type="checkbox" id="sympt"><span>Symptomatic: seizure, coma, cardiorespiratory distress (or severe neurologic symptoms)</span></label>
+        <label class="check"><input type="checkbox" id="odsrisk"><span>High risk of osmotic demyelination: Na &lt; 105, malnutrition, advanced liver disease, hypokalemia, alcoholism</span></label>
+        <label class="check"><input type="checkbox" id="strict"><span>Use the strictest limit (≤ 6 mmol/L per 24 h)</span></label>`;
+      opts.querySelectorAll("input").forEach(i => i.addEventListener("change", render));
+    }
+    const sev = na < 125 ? "severe (< 125)" : na < 130 ? "moderate (125–129)" : "mild (130–134)";
+    h += `<p class="result-big">Hyponatremia, ${sev}</p><p class="hint">Duration under 48 h is acute; 48 h or more, or unknown, is chronic (treat unknown as chronic).</p>`;
+    if ($("sympt").checked) {
+      h += box("caveat", `<b>3% saline now:</b> 2 mL/kg over 10–20 min${p.kg ? ` = <b>${fmt(Math.min(2 * p.kg, 100))} mL</b>${2 * p.kg > 100 ? " (capped at 100 mL)" : ""}` : ""}, maximum 100 mL per bolus. Recheck Na after each; repeat up to 2 more times (3 total) if symptoms persist. Aim to raise Na by 4–6 mmol/L over the first 1–2 hours. Roughly 1 mL/kg raises Na about 1 mmol/L (1–2).`);
+    }
+    const lim24 = $("strict").checked ? 6 : $("odsrisk").checked ? 8 : 10;
+    h += `<h3>Correction limits</h3>` + li([`No more than <b>${lim24} mmol/L in 24 h</b>${lim24 === 10 ? " (10–12 in some sources)" : ""}${lim24 === 10 ? " and <b>18 mmol/L in 48 h</b>" : ""}. Today's ceiling: <b>${na + lim24} mmol/L</b>.`,
+      "Count the rise from the 3% boluses within the 24-hour limit."]);
+    if (tbwL) {
+      const target = Math.min(na + lim24, 135);
+      h += `<h3>Sodium deficit</h3><p>TBW ${fmt(t.f)} × ${p.kg} kg × (${target} − ${na}) = <b>${fmt(tbwL * (target - na))} mmol</b> to reach ${target} (the 24-hour ceiling or 135). TBW fraction ${fmt(t.f)}: ${esc(t.why)}.</p>`;
+      h += `<h3>Expected change per liter</h3>` + amTable(p, na, tbwL, ["3% NaCl", "0.9% NaCl", "Lactated Ringer's", "Plasma-Lyte"]);
+    } else h += `<p class="hint">Enter the weight for the sodium deficit and per-liter predictions.</p>`;
+  } else if (na > 145) {
+    if (opts.dataset.mode !== "hyper") {
+      opts.dataset.mode = "hyper";
+      opts.innerHTML = `<label class="check"><input type="checkbox" id="acute"><span>Known acute (under 48 hours)</span></label>`;
+      opts.querySelectorAll("input").forEach(i => i.addEventListener("change", render));
+    }
+    const acute = $("acute").checked;
+    h += `<p class="result-big">Hypernatremia</p>`;
+    h += `<h3>Correction limits</h3>` + li([
+      acute ? "Acute (under 48 h): up to 1 mmol/L per hour is acceptable." : "Chronic or unknown: no faster than <b>0.5 mmol/L per hour</b> and about <b>10 mmol/L per 24 h</b> (some pediatric sources allow 12).",
+      `Target 145 over at least 48 hours.${na > 170 ? " <b>Na above 170: don't go below 150 in the first 48–72 hours.</b>" : ""}`,
+      "Check Na every 1–4 h. If it falls faster than 0.5 mmol/L/h, slow the infusion about 20% and recheck in 1 h.",
+      "Shock first: 0.9% NaCl 20 mL/kg to restore circulation (not to correct the sodium)."]);
+    if (tbwL) {
+      const fwd = tbwL * (na / 140 - 1);
+      const short = (na > 170 ? 3 : 4) * p.kg * (na - 145);
+      h += `<h3>Free water deficit</h3><p>TBW ${fmt(tbwL)} L × (${na} ÷ 140 − 1) = <b>${fmt(fwd * 1000)} mL</b>. Give it over at least 48 hours (about half per day) on top of maintenance and ongoing losses. Shortcut check: ${na > 170 ? 3 : 4} mL × ${p.kg} kg × ${na - 145} mmol/L (to 145) = ${fmt(short)} mL. TBW fraction ${fmt(t.f)}: ${esc(t.why)}.</p>`;
+      h += `<h3>Expected change per liter</h3>` + amTable(p, na, tbwL, ["D5W", "0.2% NaCl", "D5 0.45% NaCl", "0.9% NaCl"]);
+    } else h += `<p class="hint">Enter the weight for the free water deficit and per-liter predictions.</p>`;
+    h += box("caveat", "Choose the most suitable hypotonic fluid (oral or NG water when possible; D5W, 0.2% or 0.45% NaCl); the more hypotonic, the lower the rate. Typical IV choice: D5 0.2% NaCl with 20–40 mEq/L KCl once voiding, over 48 h. Na above 175: use an infusate only 10–15 mmol/L below the serum Na.");
+    h += box("caveat", "Correcting too fast causes cerebral edema; seizures occur in up to about 40% with rapid hypotonic correction, and neonates are at particular risk. If seizures occur during correction, raise Na with 3% saline (about 1 mL/kg raises Na about 1 mmol/L).");
+  } else {
+    opts.dataset.mode = ""; opts.innerHTML = "";
+    h += `<p class="result-big">Sodium normal</p><p class="hint">135–145 mmol/L.</p>`;
+  }
+  return h;
+}
+
+function render() {
+  const p = patient();
+  $("pt-echo").textContent = p.ageBad ? "Please check the age." : p.kgRaw != null && !p.kg ? "Please check the weight." : p.kg ? `${p.kg} kg${p.age != null ? ` · ${fmt(p.age)} years` : ""} · TBW fraction ${fmt(tbw(p).f)}` : "";
+  const m = maintenance(p);
+  $("maint").innerHTML = m.html;
+  $("dehy-out").innerHTML = dehydration(p, m);
+  $("na-out").innerHTML = sodium(p);
+}
+["wt", "age-y", "age-m", "pct", "prewt", "na", "kcl"].forEach(id => $(id).addEventListener("input", render));
+["cap", "tbw"].forEach(id => $(id).addEventListener("change", render));
+document.querySelectorAll('input[name="sex"], input[name="dehy"]').forEach(r => r.addEventListener("change", render));
+render();
+
+/* ---- PIN gate: same PIN, same saved unlock as the hub; second code opens the pet picker ---- */
+(function () {
+  const PIN_HASH = "e4dfbbc00eabfea05b32abab544a223787749f77442a0180ec384fe65847bdde";
+  const PET_HASH = "6747081bf1c609a055b764f2db8acb47ca1a270da2771465845c66cc8d9e24e2";
+  const KEY = "peds-tools-clinician";
+  const form = $("pin-form"), input = $("pin"), msg = $("pin-msg");
+  const show = on => { $("tool").hidden = !on; form.hidden = on; document.querySelectorAll(".gh-link").forEach(e => e.hidden = !on); };
+  async function hash(t) { const b = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(t)); return [...new Uint8Array(b)].map(x => x.toString(16).padStart(2, "0")).join(""); }
+  let on = false; try { on = localStorage.getItem(KEY) === "1"; } catch (e) {}
+  show(on);
+  form.addEventListener("submit", async e => {
+    e.preventDefault();
+    const h = await hash("cleanout-hub:" + input.value.trim());
+    if (h === PET_HASH) { msg.textContent = "Meow! Pick a pet. It follows your mouse or finger."; input.value = ""; if (window.PedsPets) window.PedsPets.showPicker(form.querySelector(".pin-row")); return; }
+    if (h === PIN_HASH) { try { localStorage.setItem(KEY, "1"); } catch (e2) {} msg.textContent = ""; input.value = ""; show(true); }
+    else { msg.textContent = "That PIN is not correct."; input.select(); }
+  });
+  $("lock-btn").addEventListener("click", () => { try { localStorage.removeItem(KEY); } catch (e) {} show(false); });
+})();
+
+/* ---- light/dark switch (shared setting with the hub) ---- */
+(function () {
+  const btn = $("theme-toggle"), isDark = () => document.documentElement.dataset.theme === "dark";
+  const label = () => { btn.textContent = isDark() ? "☀ Light" : "☾ Dark"; document.querySelector('meta[name="theme-color"]').setAttribute("content", isDark() ? "#0D0D0C" : "#232323"); };
+  btn.addEventListener("click", () => { const n = isDark() ? "light" : "dark"; document.documentElement.dataset.theme = n; try { localStorage.setItem("peds-tools-theme", n); } catch (e) {} label(); });
+  label();
+})();
+</script>
+</body>
+</html>

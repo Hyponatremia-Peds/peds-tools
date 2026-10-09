@@ -16,6 +16,7 @@ Start a new session by asking Claude to read this file:
 | Ballard Score (clinician) | https://hyponatremia-peds.github.io/peds-tools/ballard.html | `peds-tools` | `ballard.html` |
 | Febrile infant pathway (clinician) | https://hyponatremia-peds.github.io/peds-tools/febrile-infant.html | `peds-tools` | `febrile-infant.html` |
 | Kawasaki pathway (clinician) | https://hyponatremia-peds.github.io/peds-tools/kawasaki.html | `peds-tools` | `kawasaki.html` |
+| IV fluids and sodium (clinician) | https://hyponatremia-peds.github.io/peds-tools/fluids.html | `peds-tools` | `fluids.html` |
 | Constipation Cleanout Planner (families) | https://hyponatremia-peds.github.io/cleanout-planner/ | `Hyponatremia-Peds/cleanout-planner` | `index.html` |
 
 - Everything is plain single-file HTML/CSS/JS. No build step, no server, no frameworks. GitHub Pages serves each repo from `main`, at the root.
@@ -78,6 +79,8 @@ Lacosamide 6 to <11 kg was settled by a follow-up Snow check of the Vimpat label
 **Site review (2026-10-09):** vigabatrin and oxcarbazepine band labels/boundaries fixed, valproate requires age, footer sources updated, pet menu readable in dark mode and placed in the footer on every page, pets.js?v=5 everywhere including the planner.
 
 **Febrile infant and Kawasaki pathways (added 2026-10-09):** both based on the CHOP clinical pathways (ED and inpatient), at the owner's request, read in full from chop.edu (flowchart branches checked visually) and summarized in our own words with links back to CHOP. Doses are CHOP's (febrile infant antimicrobial table; KD IVIG, aspirin, steroids, infliximab). Re-check against chop.edu when CHOP revises them (febrile infant last revised Aug 2026; KD May 2025). Pages are built from the Ballard page's shell (header, PIN gate, footer).
+
+**IV fluids and sodium (added 2026-10-09):** every rule from an OpenEvidence Snow answer (AAP 2018 maintenance IV fluids; Holliday-Segar/4-2-1; dehydration per Powers 2015, IDSA 2017, RCH handbook; Na correction limits 10/24 h and 18/48 h, 8/24 h if high ODS risk, optional 6; 3% saline 2 mL/kg max 100 mL x up to 3; hypernatremia 0.5 mmol/L/h, about 10/24 h; Adrogue-Madias; TBW fractions by age/sex). The 100 mL/h maintenance cap is optional and labeled institutional. Dehydration buttons use 4%, 7.5% and 10% unless an exact % or pre-illness weight is entered.
 
 **Other:**
 - The owner should review the planner's "When to call your child's healthcare provider" list (Claude's wording).
