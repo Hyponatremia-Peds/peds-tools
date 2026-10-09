@@ -250,7 +250,7 @@ const DRUGS = {
     loading: "Status epilepticus (off-label, guideline-supported): 40–60 mg/kg IV over 5–15 min, max 4,500 mg (ESETT used 60 mg/kg over 10 min).",
     renal: "Reduce per CrCl (adult table): mild 50–80 → standard; moderate 30–50 → about ½; severe <30 → about ¼; hemodialysis: q24h plus a post-dialysis supplement. Pediatric-specific renal data are not in the label.",
     hepatic: "No adjustment at any Child-Pugh grade.", target: "Not routinely monitored; reference about 12–46 mg/L.",
-    caveats: [], source: "FDA Keppra label; ESETT (Kapur, NEJM 2019); AES guideline (Epilepsy Curr 2016)." },
+    caveats: ["Behavioral and psychiatric effects: irritability, aggression, mood changes; rarely suicidality."], source: "FDA Keppra label; ESETT (Kapur, NEJM 2019; pediatric data Chamberlain, Lancet 2020); AES guideline (Epilepsy Curr 2016)." },
 
   clobazam: { name: "Clobazam", brand: "Onfi", conc: 2.5, form: "oral suspension 2.5 mg/mL",
     compute(kg) {
@@ -264,7 +264,7 @@ const DRUGS = {
     renal: "No adjustment for mild–moderate; no data in severe impairment or ESRD.",
     hepatic: "Mild–moderate (Child-Pugh 5–9): start 5 mg/day and titrate to ½ the usual doses. Severe: no recommendation.",
     target: "0.03–0.3 mg/L (parent); the N-desmethyl metabolite is active.",
-    caveats: ["CYP2C19 poor metabolizers: start 5 mg/day, titrate to ½ doses.", "Off-label mg/kg (Dravet): start 0.2 mg/kg/day, target 0.3–1, max 2 mg/kg/day."],
+    caveats: ["Serious skin reactions (SJS/TEN), mostly in the first 8 weeks.", "CYP2C19 poor metabolizers: start 5 mg/day, titrate to ½ doses.", "Off-label mg/kg (Dravet): start 0.2 mg/kg/day, target 0.3–1, max 2 mg/kg/day."],
     source: "FDA Onfi label; Strzelczyk 2022 (Dravet)." },
 
   lacosamide: { name: "Lacosamide", brand: "Vimpat", conc: 10, form: "oral solution 10 mg/mL",
@@ -287,11 +287,11 @@ const DRUGS = {
     renal: "Severe (CrCl <30): reduce the maximum dose by 25%. Hemodialysis: supplement up to 50% after dialysis.",
     hepatic: "Mild–moderate: reduce the maximum by 25%. Severe: not recommended.",
     target: "Not well established (about 5–10 mg/L reported).", caveats: ["Monitor the PR interval."],
-    source: "FDA Vimpat label; AES guideline 2016; Yale NNHH SE protocol." },
+    source: "FDA Vimpat label; AES guideline 2016; Bravo, Vaddiparti & Hirsch, Drugs 2021." },
 
   brivaracetam: { name: "Brivaracetam", brand: "Briviact", conc: 10, form: "oral solution 10 mg/mL",
     compute(kg) {
-      if (kg >= 50) return { band: "50 kg and over", rows: [row("Initial", fixed(50, 100), { freq: 2 }), row("Maintenance", fixed(50, 200), { freq: 2 })], note: "Twice daily. Fixed mg dosing; no titration required." };
+      if (kg >= 50) return { band: "50 kg and over", rows: [row("Initial", fixed(50, 100), { freq: 2 }), row("Maintenance", fixed(50, 200), { freq: 2 })], note: "Twice daily. Fixed mg dosing; no titration required. Adults (16 years and older): start 100 mg/day (50 mg twice daily)." };
       const b = kg >= 20 ? { label: "20 to under 50 kg", i: [1, 2], m: [1, 4] } : kg >= 11 ? { label: "11 to under 20 kg", i: [1, 2.5], m: [1, 5] } : { label: "under 11 kg", i: [1.5, 3], m: [1.5, 6] };
       return { band: b.label, rows: [
         row(`Initial (${b.i[0]}–${b.i[1]} mg/kg/day)`, perKg(kg, b.i[0], b.i[1]), { freq: 2 }), row(`Maintenance (${b.m[0]}–${b.m[1]} mg/kg/day)`, perKg(kg, b.m[0], b.m[1]), { freq: 2 })
@@ -299,14 +299,14 @@ const DRUGS = {
     },
     loading: "IV dose = oral dose, over 2–15 min. Status epilepticus use is off-label; no pediatric SE dosing established (adult registries about 2 mg/kg, 100 mg).",
     renal: "No adjustment; not recommended in ESRD on dialysis.", hepatic: "Reduce at all Child-Pugh grades (about ⅓–½ lower maximum).",
-    target: "0.2–2 mg/L (not routinely monitored).", caveats: [], source: "FDA Briviact label; Santamarina 2019." },
+    target: "0.2–2 mg/L (not routinely monitored).", caveats: [], source: "FDA Briviact label." },
 
   oxcarbazepine: { name: "Oxcarbazepine", brand: "Trileptal", conc: 60, form: "oral suspension 60 mg/mL (300 mg/5 mL)", needsAge: true,
     compute(kg, age) {
       if (age < 2) return { notCovered: "Under 2 years: not FDA-approved. See the label." };
       if (age >= 17) return { band: "17 years and older", rows: [
-        row("Adjunct start (300 mg twice daily)", fixed(600), { freq: 2 }), row("Adjunct target", fixed(1200), { freq: 2 }), row("Maximum tolerated", fixed(2400), { freq: 2 })
-      ], note: "Adjunct: increase by up to 600 mg/day weekly. Monotherapy initiation: start 600 mg/day, increase by 300 mg/day every 3 days to 1,200 mg/day." };
+        row("Adjunct start (300 mg twice daily)", fixed(600), { freq: 2 }), row("Adjunct recommended dose", fixed(1200), { freq: 2 }), row("Conversion to monotherapy", fixed(2400), { freq: 2 })
+      ], note: "Adjunct: increase by up to 600 mg/day weekly to 1,200 mg/day; above 1,200 mg/day adds little and most patients can't tolerate 2,400 mg/day. Monotherapy initiation: start 600 mg/day, increase by 300 mg/day every 3 days to 1,200 mg/day." };
       const rows = [row("Initial, adjunct (8–10 mg/kg/day, up to 600 mg/day)", perKg(kg, 8, 10), { freq: 2, cap: 600 })];
       if (age < 4) rows.push(row("Maximum, age 2 to under 4 (60 mg/kg/day)", perKg(kg, 60), { freq: 2 }));
       else if (kg >= 20) {
@@ -319,7 +319,7 @@ const DRUGS = {
     loading: "No IV form.", renal: "CrCl <30: start at ½ the usual dose and titrate slowly.",
     hepatic: "No adjustment for mild–moderate; not evaluated or recommended in severe impairment.",
     target: "MHD metabolite 3–35 mg/L (ILAE); efficacy often 15–35.",
-    caveats: ["Monitor for hyponatremia.", "Children 2 to under 4 years may need up to twice the adult mg/kg dose."],
+    caveats: ["Monitor for hyponatremia.", "Serious skin reactions (SJS/TEN): check HLA-B*1502 in at-risk ancestry (e.g. Han Chinese, Southeast Asian).", "Children 2 to under 4 years may need up to twice the adult mg/kg dose."],
     source: "FDA Trileptal label; ILAE TDM 2008." },
 
   carbamazepine: { name: "Carbamazepine", brand: "Tegretol", conc: 20, form: "oral suspension 20 mg/mL (100 mg/5 mL)", needsAge: true,
@@ -348,7 +348,7 @@ const DRUGS = {
     renal: "No adjustment; monitor FREE levels (protein binding reduced).",
     hepatic: "CONTRAINDICATED in hepatic disease. Boxed warning: fatal hepatotoxicity, highest risk under 2 years, with polytherapy, or with metabolic disease. Contraindicated with POLG mutations.",
     target: "50–100 mcg/mL (total). Thrombocytopenia risk rises above 110 (F) / 135 (M).",
-    caveats: ["Check ammonia if encephalopathy; consider carnitine.", "Teratogen: counsel adolescents."], source: "FDA valproate labels; ESETT (NEJM 2019); AES guideline 2016." },
+    caveats: ["Boxed warning also includes life-threatening pancreatitis (including fatal hemorrhagic cases, at any time during therapy).", "Boxed warning: fetal risk (neural tube defects, decreased IQ, neurodevelopmental disorders). Counsel adolescents.", "Check ammonia if encephalopathy; consider carnitine."], source: "FDA valproate labels; ESETT (NEJM 2019); AES guideline 2016." },
 
   lamotrigine: { name: "Lamotrigine", brand: "Lamictal", conc: null, form: "No commercial liquid. Chewable/dispersible tablets (2, 5, 25 mg); disperse in water.", needsAge: true,
     options: `<label for="ltg-reg" style="margin-top:12px">Other seizure medicines the patient takes</label>
@@ -359,9 +359,9 @@ const DRUGS = {
       const reg = (document.getElementById("ltg-reg") || {}).value;
       if (!reg) return { notCovered: "Choose the patient's other seizure medicines above. Lamotrigine dosing depends entirely on them." };
       if (age >= 13) {
-        const a = { vpa: [12.5, 25, 100, 200], none: [25, 50, 225, 375], eiaed: [50, 100, 300, 500] }[reg];
+        const a = { vpa: [25, 25, 100, 200], none: [25, 50, 225, 375], eiaed: [50, 100, 300, 500] }[reg];
         return { band: "over 12 years", rows: [
-          row(reg === "vpa" ? "Weeks 1–2 (25 mg every other day)" : "Weeks 1–2", fixed(a[0])), row("Weeks 3–4", fixed(a[1])),
+          reg === "vpa" ? row("Weeks 1–2: one dose every other day", fixed(25), { unit: "dose" }) : row("Weeks 1–2", fixed(a[0])), row("Weeks 3–4", fixed(a[1])),
           row("Maintenance", fixed(a[2], a[3]))
         ], note: "Fixed mg schedule. Never exceed the starting dose or the titration rate." };
       }
@@ -376,8 +376,9 @@ const DRUGS = {
     caveats: ["SJS/TEN risk: exceeding the starting dose or titration rate is the key risk factor.", "Under 30 kg: maintenance may need to be up to 50% higher."],
     source: "FDA Lamictal label." },
 
-  topiramate: { name: "Topiramate", brand: "Topamax / Eprontia", conc: 25, form: "oral solution 25 mg/mL (Eprontia)",
-    compute(kg) {
+  topiramate: { name: "Topiramate", brand: "Topamax / Eprontia", conc: 25, form: "oral solution 25 mg/mL (Eprontia)", needsAge: true,
+    compute(kg, age) {
+      if (age < 2) return { notCovered: "Under 2 years: not established (FDA-approved from 2 years)." };
       return { rows: [row("Initial", fixed(25), { freq: 1 }), row("Maintenance (5–9 mg/kg/day)", perKg(kg, 5, 9), { freq: 2, cap: 400 }), row("Maximum", fixed(400), { freq: 2 })],
         note: "Titrate by 1–3 mg/kg/day every 1–2 weeks; maximum 400 mg/day." };
     },
@@ -456,10 +457,10 @@ const DRUGS = {
 
   clonazepam: { name: "Clonazepam", brand: "Klonopin", conc: null, form: "No commercial liquid. Tablets and ODT (0.125–2 mg).", needsAge: true,
     compute(kg, age) {
-      if (age > 10 || kg > 30) return { band: "over 10 years or over 30 kg", rows: [
+      if (age > 10 && kg > 30) return { band: "over 10 years and over 30 kg", rows: [
         row("Start (no more than 1.5 mg/day)", fixed(1.5), { freq: 3 }), row("Maximum", fixed(20), { freq: 3 })
       ], note: "Adult seizure dosing, three divided doses. Increase by 0.5–1 mg every 3 days." };
-      return { band: "10 years or younger and 30 kg or less", rows: [
+      return { band: "10 years or younger, or 30 kg or less", rows: [
         row("Initial (0.01–0.03 mg/kg/day)", perKg(kg, 0.01, 0.03), { freq: 3 }), row("Maintenance (0.1–0.2 mg/kg/day)", perKg(kg, 0.1, 0.2), { freq: 3 })
       ], note: "Three times daily. Initial dose no more than 0.05 mg/kg/day; titrate by 0.25–0.5 mg every 3 days." };
     },
@@ -471,6 +472,7 @@ const DRUGS = {
 /* First-line benzodiazepines (OpenEvidence table, 2026-10-09). mg per dose; compute(kg, age).
    Give an adequate full first dose; escalate to second-line after no more than two benzodiazepine doses. */
 const ESCALATE = "Escalate to a second-line agent after no more than two benzodiazepine doses (AES).";
+const RESP = "Respiratory depression and sedation, especially with repeat or IV doses. Be ready to support the airway.";
 const ageBand = age => age < 6 ? [0.5, "2 to 5 years"] : age < 12 ? [0.3, "6 to 11 years"] : [0.2, "12 years and older"];
 const BENZO = {
   diastat: { name: "Diazepam rectal gel (Diastat)", needsAge: true,
@@ -479,7 +481,7 @@ const BENZO = {
       const [mgkg, band] = ageBand(age);
       return { band, rows: [row(`Dose (${mgkg} mg/kg)`, perKg(kg, mgkg), { unit: "dose", cap: 20 })] };
     },
-    notes: ["Round to the available gel dose: 2.5, 5, 7.5, 10, 12.5, 15, 17.5 or 20 mg.", "May repeat once, at least 4 h later. No more than 2 doses per episode, 1 episode every 5 days, 5 episodes a month.", ESCALATE],
+    notes: ["Round to the available gel dose: 2.5, 5, 7.5, 10, 12.5, 15, 17.5 or 20 mg.", "May repeat once, at least 4 h later. No more than 2 doses per episode, 1 episode every 5 days, 5 episodes a month.", RESP, ESCALATE],
     source: "FDA Diastat label." },
   valtoco: { name: "Diazepam nasal spray (Valtoco)", needsAge: true,
     compute(kg, age) {
@@ -487,18 +489,18 @@ const BENZO = {
       const [mgkg, band] = ageBand(age);
       return { band, rows: [row(`Dose (${mgkg} mg/kg)`, perKg(kg, mgkg), { unit: "dose", cap: 20 })] };
     },
-    notes: ["Devices: 5, 7.5 or 10 mg per 0.1 mL; doses over 10 mg use two devices (maximum 20 mg).", "Second dose at least 4 h later. No more than 2 doses per episode, 1 episode every 5 days, 5 episodes a month.", ESCALATE],
+    notes: ["Devices: 5, 7.5 or 10 mg per 0.1 mL; doses over 10 mg use two devices (maximum 20 mg).", "Second dose at least 4 h later. No more than 2 doses per episode, 1 episode every 5 days, 5 episodes a month.", RESP, ESCALATE],
     source: "FDA Valtoco label." },
   nayzilam: { name: "Midazolam nasal spray (Nayzilam)", needsAge: true,
     compute(kg, age) {
       if (age < 12) return { notCovered: "Under 12 years: not FDA-approved. See intranasal midazolam (off-label) instead." };
       return { band: "12 years and older", rows: [row("Dose (one spray, one nostril)", fixed(5), { unit: "dose" })] };
     },
-    notes: ["5 mg/0.1 mL single-dose spray.", "One repeat of 5 mg in the opposite nostril after 10 min. No more than 2 doses per episode, 1 episode every 3 days, 5 episodes a month.", ESCALATE],
+    notes: ["5 mg/0.1 mL single-dose spray.", "One repeat of 5 mg in the opposite nostril after 10 min. No more than 2 doses per episode, 1 episode every 3 days, 5 episodes a month.", RESP, ESCALATE],
     source: "FDA Nayzilam label." },
   inMidaz: { name: "Midazolam intranasal, off-label", conc: 5,
     compute: kg => ({ rows: [row("Dose (0.2 mg/kg)", perKg(kg, 0.2), { unit: "dose", cap: 10 })] }),
-    notes: ["Off-label, all ages. Use the 5 mg/mL injectable. Repeat per protocol.", ESCALATE],
+    notes: ["Off-label, all ages. Use the 5 mg/mL injectable. Repeat per protocol.", RESP, ESCALATE],
     source: "AES guideline 2016; Vasquez, Neurology 2020." },
   buccal: { name: "Midazolam buccal (Buccolam; EMA, not FDA)", needsAge: true, conc: 5,
     compute(kg, age) {
@@ -508,7 +510,7 @@ const BENZO = {
               : age < 5 ? [5, "1 to under 5 years"] : age < 10 ? [7.5, "5 to under 10 years"] : [10, "10 to under 18 years"];
       return { band: b[1], rows: [row("Dose", fixed(b[0]), { unit: "dose" })] };
     },
-    notes: ["5 mg/mL prefilled syringes. May repeat once after 10 min.", "Licensed by the EMA, not FDA-approved.", ESCALATE],
+    notes: ["5 mg/mL prefilled syringes. May repeat once after 10 min.", "Licensed by the EMA, not FDA-approved.", RESP, ESCALATE],
     source: "Buccolam EMA SmPC; CNS Drugs." },
   imMidaz: { name: "Midazolam IM (AES Level A)", conc: 5,
     compute(kg) {
@@ -516,15 +518,15 @@ const BENZO = {
       return { band: kg < 40 ? "13 to under 40 kg" : "40 kg and over", rows: [
         row("Dose (fixed, RAMPART)", fixed(kg < 40 ? 5 : 10), { unit: "dose" }), row("Alternative (0.2 mg/kg)", perKg(kg, 0.2), { unit: "dose", cap: 10 })] };
     },
-    notes: ["Single full dose: do not repeat IM. 5 mg/mL preferred for IM.", "Under 13 kg: RAMPART set no fixed dose; use 0.2 mg/kg (maximum 10 mg).", ESCALATE],
+    notes: ["Single full dose: do not repeat IM. 5 mg/mL preferred for IM.", "Under 13 kg: RAMPART set no fixed dose; use 0.2 mg/kg (maximum 10 mg).", RESP, ESCALATE],
     source: "AES guideline 2016 (Level A); RAMPART (Silbergleit, Epilepsia 2011)." },
   lorazepam: { name: "Lorazepam IV (AES Level A)",
     compute: kg => ({ rows: [row("Dose (0.1 mg/kg)", perKg(kg, 0.1), { unit: "dose", cap: 4 }), row("Repeat once at 5 min (0.1 mg/kg)", perKg(kg, 0.1), { unit: "dose", cap: 4 })] }),
-    notes: ["Cumulative maximum 8 mg. Injection 2 mg/mL or 4 mg/mL; refrigerate.", "Off-label in children.", ESCALATE],
+    notes: ["Cumulative maximum 8 mg. Injection 2 mg/mL or 4 mg/mL; refrigerate.", "Off-label in children.", RESP, ESCALATE],
     source: "AES guideline 2016 (Level A)." },
   ivDiazepam: { name: "Diazepam IV (AES Level A)", conc: 5,
     compute: kg => ({ rows: [row("Dose (0.15–0.2 mg/kg)", perKg(kg, 0.15, 0.2), { unit: "dose", cap: 10 })] }),
-    notes: ["May repeat once. Injection 5 mg/mL.", ESCALATE],
+    notes: ["May repeat once. Injection 5 mg/mL.", "The FDA pediatric diazepam label differs from the AES figure: first dose 0.2 mg/kg (maximum 8 mg), then 0.1 mg/kg (maximum 4 mg).", RESP, ESCALATE],
     source: "AES guideline 2016 (Level A)." }
 };
 
@@ -534,17 +536,17 @@ const RESCUE = {
     notes: ["Off-label, guideline-supported. ESETT used 60 mg/kg over 10 min. Maximum 4,500 mg."], source: "ESETT (Kapur, NEJM 2019; pediatric data Chamberlain, Lancet 2020); AES guideline 2016." },
   valproate: { name: "Valproate IV", compute: kg => [row("Load (20–40 mg/kg), over 5–10 min", perKg(kg, 20, 40), { unit: "dose", cap: 3000 })],
     notes: ["Off-label. ESETT used 40 mg/kg, maximum 3,000 mg. Then about 5 mg/kg/h, or 10–15 mg/kg/day divided.",
-      "CONTRAINDICATED in hepatic disease and with POLG mutations. Highest hepatotoxicity risk under 2 years."], source: "ESETT (NEJM 2019); AES guideline 2016; FDA valproate labels." },
+      "CONTRAINDICATED in hepatic disease and with POLG mutations. Highest hepatotoxicity risk under 2 years. Boxed warnings also include pancreatitis and fetal risk."], source: "ESETT (NEJM 2019); AES guideline 2016; FDA valproate labels." },
   fosphenytoin: { name: "Fosphenytoin IV", unitLabel: "mg PE", compute: kg => [row("Load (15–20 mg PE/kg)", perKg(kg, 15, 20), { unit: "dose" })],
     notes: ["Infuse at no more than 2 mg PE/kg/min (or 150 mg PE/min), whichever is slower.", "No label maximum: the label limit is the infusion rate. Institutional caps of 1,500–2,000 mg PE are common (ESETT capped at 1,500 mg PE, i.e. 20 mg PE/kg at 75 kg)."], source: "FDA Cerebyx label; ESETT (NEJM 2019); Sathe 2020." },
   phenobarbital: { name: "Phenobarbital IV", compute: kg => [row("Load (20 mg/kg), over 15 min", perKg(kg, 20), { unit: "dose" }),
       row("Repeat if needed (10–20 mg/kg)", perKg(kg, 10, 20), { unit: "dose" }), row("Maximum total (about 40 mg/kg)", perKg(kg, 40), { unit: "dose" })],
-    notes: ["Respiratory depression and sedation.", "The AES guideline uses 15 mg/kg; NCS uses 20 mg/kg."], source: "FDA Sezaby label; AES guideline 2016; NCS." },
+    notes: ["Respiratory depression and sedation.", "The AES guideline uses 15 mg/kg; NCS uses 20 mg/kg. (Neonates: Sezaby label, 20 mg/kg load, 40 mg/kg maximum.)"], source: "NCS; AES guideline 2016; FDA Sezaby label (neonatal only)." },
   lacosamide: { name: "Lacosamide IV", compute: kg => [row("Load (5–10 mg/kg), over 5–10 min", perKg(kg, 5, 10), { unit: "dose", cap: 400 }),
       row("May repeat (5 mg/kg)", perKg(kg, 5), { unit: "dose", cap: 200 })],
-    notes: ["Off-label for status epilepticus. Monitor the PR interval."], source: "AES guideline 2016; Yale NNHH SE protocol." },
+    notes: ["Off-label for status epilepticus. Monitor the PR interval."], source: "AES guideline 2016; Bravo, Vaddiparti & Hirsch, Drugs 2021." },
   brivaracetam: { name: "Brivaracetam IV", compute: () => [],
-    notes: ["Not computed: no pediatric status-epilepticus dosing is established. Adult registries used about 2 mg/kg (100 mg)."], source: "FDA Briviact label; Santamarina 2019." }
+    notes: ["Not computed: no pediatric status-epilepticus dosing is established. Adult registries used about 2 mg/kg (100 mg).", "VERIFY: the adult registry figure needs a brivaracetam-specific citation (the earlier Santamarina 2019 attribution was for lacosamide)."], source: "FDA Briviact label." }
 };
 
 /* ============================ helpers ============================ */
