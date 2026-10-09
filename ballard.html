@@ -454,7 +454,8 @@ function update() {
     const notes = [];
     const est = total < MIN_SCORE ? 19 : total > MAX_SCORE ? 45 : gaFromScore(total);
     const hrsRaw = $("hours").value.trim(), hrs = hrsRaw === "" ? null : Number(hrsRaw);
-    if (hrs != null && isFinite(hrs)) {
+    if (hrs != null && (!isFinite(hrs) || hrs < 0)) notes.push("Please check the age at exam you entered.");
+    else if (hrs != null) {
       if (hrs > 96) notes.push("Examined after 96 hours: outside the validated window, so accuracy is lower.");
       else if (est < 26 && hrs > 12) notes.push("Under 26 weeks, the score is most accurate before 12 hours of life; this exam was later.");
     }
@@ -466,7 +467,9 @@ function update() {
       if (isFinite(ob) && ob >= 18 && ob <= 45 && (obD === "" || (Number(obD) >= 0 && Number(obD) <= 6))) {
         if (total >= MIN_SCORE && total <= MAX_SCORE) {
           const diff = gaFromScore(total) - ob;
-          const txt = `Ballard estimate is ${Math.abs(Math.round(diff * 10) / 10)} weeks ${diff >= 0 ? "more" : "less"} than the obstetric GA (${weeksDays(ob)}).`;
+          const d1 = Math.round(diff * 10) / 10;
+          const txt = d1 === 0 ? `Ballard estimate matches the obstetric GA (${weeksDays(ob)}).`
+            : `Ballard estimate is ${Math.abs(d1)} weeks ${d1 > 0 ? "more" : "less"} than the obstetric GA (${weeksDays(ob)}).`;
           notes.push(Math.abs(diff) > 2 ? txt + " That is more than 2 weeks: review the dating. A reliable first-trimester ultrasound still takes precedence." : txt + " Within 2 weeks: consistent.");
         }
       } else notes.push("Please check the obstetric GA you entered.");
