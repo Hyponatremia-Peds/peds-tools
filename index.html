@@ -217,7 +217,7 @@
         <path fill="#E5484D" d="M1 0h2v1h-2zM4 0h2v1h-2zM0 1h7v2h-7zM1 3h5v1h-5zM2 4h3v1h-3zM3 5h1v1h-1z"/>
       </svg>
       <a href="https://claude.com/claude-code">Claude</a></p>
-    <p class="sprite-credit">Sprites from the PMD Sprite Repository (<a href="https://sprites.pmdcollab.org">sprites.pmdcollab.org</a>), CC BY-NC 4.0: Eevee and Espeon by Chunsoft; Jolteon by Chunsoft and dmDash. Pokémon © Nintendo, Creatures, GAME FREAK.</p>
+    <p class="sprite-credit"><a href="credits.html">Credits</a><span class="gh-link" hidden> · <a href="https://github.com/Hyponatremia-Peds/peds-tools">Source code on GitHub</a></span></p>
   </div>
 </footer>
 
@@ -229,7 +229,8 @@
     const KEY = "peds-tools-clinician";
     const form = document.getElementById("pin-form"), input = document.getElementById("pin");
     const msg = document.getElementById("pin-msg"), tools = document.getElementById("clinician-tools");
-    const show = unlocked => { tools.hidden = !unlocked; form.hidden = unlocked; };
+    // Unlocking also reveals the GitHub link in the footer.
+    const show = unlocked => { tools.hidden = !unlocked; form.hidden = unlocked; document.querySelectorAll(".gh-link").forEach(e => e.hidden = !unlocked); };
     async function hash(text) {
       const buf = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(text));
       return [...new Uint8Array(buf)].map(b => b.toString(16).padStart(2, "0")).join("");
