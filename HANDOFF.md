@@ -57,6 +57,7 @@ After publishing, always open the live page and re-run the checks below.
 **Pets (`pets.js`):**
 - Neko (Web Neko black cat, loaded from webneko.net as its license requires), plus Eevee, Jolteon and Espeon (PMD Sprite Collab, CC BY-NC 4.0: Chunsoft; Jolteon also dmDash).
 - The choice is saved in localStorage `peds-tools-pet` and shows on every page.
+- `pets.js` is loaded as `pets.js?v=N`; bump N whenever pets.js changes so phones don't keep a cached copy.
 - Works on phones too: the pet walks to wherever the screen is tapped or dragged. Picking a pet switches it in place (no reload; reloading while a phone's select menu was closing crashed phone browsers). Entering the code saves `peds-tools-pet-unlocked`, so the picker then shows in every page's footer on that device. Owner's decision: it **does** run with reduced motion on, because it's an opt-in easter egg. Animations play about 33% slower than AnimData.xml (`SLOW = 1.5`). The site is non-commercial (required by the sprites' CC BY-NC license).
 - Sheet format: Walk/Idle sheets have 8 direction rows (Down, DownRight, Right, UpRight, Up, UpLeft, Left, DownLeft); Sleep has 1 row; frame size and durations (1/60 s ticks) come from `AnimData.xml`.
 

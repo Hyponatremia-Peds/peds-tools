@@ -106,7 +106,11 @@
 
   async function startPmd(name) {
     let anims;
-    try { anims = await loadAnim(name); } catch (e) { console.warn("pets.js: could not load " + name, e); return; }
+    try { anims = await loadAnim(name); } catch (e) {
+      console.warn("pets.js: could not load " + name, e);
+      status("Couldn't load " + LABELS[name] + ": " + (e && e.message || e));
+      return;
+    }
     const el = document.createElement("div");
     el.setAttribute("aria-hidden", "true");
     el.style.cssText = "position:fixed;left:0;top:0;pointer-events:none;z-index:2147483000;" +
@@ -210,6 +214,9 @@
   }
 
   window.PedsPets = { showPicker: openPicker, current: chosen, set: v => { write(v === "none" ? "" : v); switchTo(v); } };
+
+  // Message next to the picker, if it's on the page (e.g. a load error, so it's visible on phones).
+  function status(text) { const s = document.querySelector("#pet-picker [role=status]"); if (s) s.textContent = text; }
 
   // Show pet `name` now. Web Neko can't be removed once started, so leaving it needs a reload
   // (deferred so a phone's select menu has closed first). Returns false if a reload is coming.
