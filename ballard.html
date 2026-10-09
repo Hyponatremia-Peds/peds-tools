@@ -1,0 +1,426 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ballard Score</title>
+<meta name="description" content="Clinician tool: New Ballard Score for estimating a newborn's gestational age.">
+<meta name="robots" content="noindex">
+<meta name="theme-color" content="#0D0D0C">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<script>
+  (function () {
+    let t = null;
+    try { t = localStorage.getItem("peds-tools-theme"); } catch (e) {}
+    document.documentElement.dataset.theme = (t === "light" || t === "dark") ? t : "dark";
+  })();
+</script>
+<script src="pets.js?v=5" defer></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:wght@500;600&family=Geist+Mono:wght@400;500&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  /* Same tokens as the hub and the other tools. */
+  :root {
+    --page: #F4F4F5; --panel: #FFFFFF; --soft: #FAFAFA;
+    --brand: #232323; --brand-text: #FFFFFF;
+    --band: #232323; --band-text: #FFFFFF; --band-muted: #A1A1AA;
+    --heading: #18181B; --body: #52525B; --border: #E4E4E7; --subtle: #F2F2F2;
+    --warn-bg: #FEF2F2; --warn-border: #FCA5A5; --warn-text: #7F1D1D;
+    --focus: #161616; --radius: 4px;
+    --serif: "EB Garamond", "Adobe Jenson Pro", Garamond, Georgia, serif;
+    --sans: Inter, system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    --mono: "Geist Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --page: #141413; --panel: #1C1B19; --soft: #242320; --brand: #FAF9F6; --brand-text: #141413;
+      --band: #0D0D0C; --band-text: #FAF9F6; --band-muted: #A8A49B; --heading: #FAF9F6; --body: #C2BEB5;
+      --border: #3A3833; --subtle: #2C2B27; --warn-bg: #2A1A17; --warn-border: #7A2E26; --warn-text: #F3CFC6; --focus: #FAF9F6;
+    }
+  }
+  :root[data-theme="dark"] {
+    --page: #141413; --panel: #1C1B19; --soft: #242320; --brand: #FAF9F6; --brand-text: #141413;
+    --band: #0D0D0C; --band-text: #FAF9F6; --band-muted: #A8A49B; --heading: #FAF9F6; --body: #C2BEB5;
+    --border: #3A3833; --subtle: #2C2B27; --warn-bg: #2A1A17; --warn-border: #7A2E26; --warn-text: #F3CFC6; --focus: #FAF9F6;
+  }
+  * { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
+  body { margin: 0; background: var(--page); color: var(--body); font: 16px/1.55 var(--sans); padding-bottom: 72px; }
+  strong, b { color: var(--heading); font-weight: 600; }
+  a { color: var(--heading); }
+  .band { background: var(--band); color: var(--band-text); }
+  .band-inner { max-width: 900px; margin: 0 auto; padding: 40px 16px 32px; position: relative; }
+  header.band .band-inner { padding-top: 64px; }
+  .band h1 { font-family: var(--serif); font-weight: 500; letter-spacing: -0.02em; font-size: clamp(1.9rem, 6vw, 2.6rem); line-height: 1.08; margin: 0 0 10px; color: var(--band-text); }
+  .band .by { margin: 0; color: var(--band-muted); }
+  .back { position: absolute; top: 18px; left: 16px; color: var(--band-muted); font-size: 14px; }
+  .theme-toggle { position: absolute; top: 12px; right: 16px; min-height: 40px; padding: 6px 12px; font-family: var(--mono); font-size: 12px; font-weight: 500;
+    letter-spacing: .06em; text-transform: uppercase; color: var(--band-text); background: transparent; border: 1px solid var(--band-muted); border-radius: var(--radius); cursor: pointer; }
+  footer.band .band-inner { padding: 28px 16px 36px; font-size: 13px; }
+  footer.band p { margin: 0 0 8px; color: var(--band-muted); }
+  footer.band a { color: inherit; text-underline-offset: 2px; }
+  footer.band .credit { margin-top: 14px; font-size: 14px; }
+  footer.band .sprite-credit { font-size: 12px; opacity: .8; }
+  .pixel-heart { vertical-align: -2px; margin: 0 2px; }
+
+  .wrap { max-width: 900px; margin: 0 auto; padding: 24px 16px 40px; border-left: 1px solid var(--border); border-right: 1px solid var(--border); }
+  h2 { font-family: var(--serif); font-weight: 500; font-size: 1.5rem; color: var(--heading); margin: 0 0 10px; letter-spacing: -0.01em; }
+  h3 { font-family: var(--mono); font-size: 12px; font-weight: 500; letter-spacing: .07em; text-transform: uppercase; color: var(--body); margin: 18px 0 8px; }
+  .card { background: var(--panel); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px; margin-bottom: 16px; }
+  .banner { border-radius: var(--radius); padding: 12px 14px; margin: 0 0 12px; border: 1px solid; background: var(--warn-bg); border-color: var(--warn-border); color: var(--warn-text); }
+  .banner p { margin: 0; } .banner p + p { margin-top: 6px; } .banner strong { color: inherit; }
+  label { display: block; font-weight: 600; color: var(--heading); margin-bottom: 6px; font-size: 15px; }
+  input[type=number], input[type=password], select { font: inherit; font-size: 16px; color: var(--heading); background: var(--soft);
+    border: 1px solid var(--border); border-radius: var(--radius); padding: 10px 12px; min-height: 48px; width: 100%; }
+  input:focus-visible, select:focus-visible, button:focus-visible, summary:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; align-items: end; }
+  .seg { display: inline-flex; border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; height: 48px; }
+  .seg input { position: absolute; opacity: 0; pointer-events: none; }
+  .seg label { margin: 0; padding: 0 16px; display: flex; align-items: center; cursor: pointer; background: var(--soft); font-size: 15px; }
+  .seg label + input + label { border-left: 1px solid var(--border); }
+  .seg input:checked + label { background: var(--brand); color: var(--brand-text); }
+  .seg input:focus-visible + label { outline: 2px solid var(--focus); outline-offset: -4px; }
+  .hint { font-size: 14px; margin: 6px 0 0; }
+  .check { display: flex; gap: 10px; align-items: flex-start; font-weight: 400; color: var(--body); margin-top: 14px; cursor: pointer; }
+  .check input { width: 22px; height: 22px; flex: none; margin: 1px 0 0; accent-color: var(--brand); }
+  .btn { font: inherit; font-weight: 600; font-size: 15px; border-radius: var(--radius); padding: 10px 18px; min-height: 48px; border: 1px solid var(--brand);
+    background: var(--brand); color: var(--brand-text); cursor: pointer; }
+  .btn.secondary { background: var(--panel); color: var(--heading); border-color: var(--border); }
+  .btns { display: flex; flex-wrap: wrap; gap: 10px; }
+  .pin-row { display: flex; gap: 10px; flex-wrap: wrap; }
+  .pin-row input { width: 7.5em; font-family: var(--mono); font-size: 22px; letter-spacing: .3em; }
+  .pin-msg { margin: 8px 0 0; min-height: 1.2em; color: var(--warn-text); font-weight: 600; }
+  .caveat { border-left: 3px solid var(--warn-border); padding: 6px 10px; margin: 6px 0; font-size: 14.5px; }
+  .src { font-size: 13px; margin-top: 14px; }
+  [hidden] { display: none !important; }
+
+  /* scoring items */
+  fieldset.item { border: 0; border-top: 1px solid var(--border); margin: 0; padding: 16px 0 6px; min-width: 0; }
+  fieldset.item:first-of-type { border-top: 0; padding-top: 4px; }
+  fieldset.item legend { font-weight: 600; color: var(--heading); font-size: 16px; padding: 0; float: left; width: 100%; margin-bottom: 8px; }
+  fieldset.item legend .pts { float: right; font-family: var(--mono); font-weight: 500; font-size: 13px; color: var(--body); }
+  .opts { clear: both; display: grid; grid-template-columns: repeat(auto-fill, minmax(118px, 1fr)); gap: 6px; }
+  .opt { position: relative; margin: 0; font-weight: 400; font-size: 14px; color: var(--body); cursor: pointer; }
+  .opt input { position: absolute; opacity: 0; pointer-events: none; }
+  .opt span { display: block; height: 100%; padding: 8px 10px; border: 1px solid var(--border); border-radius: var(--radius); background: var(--soft); line-height: 1.35; }
+  .opt b { display: block; font-family: var(--mono); font-weight: 500; font-size: 13px; color: var(--heading); margin-bottom: 2px; }
+  .opt input:checked + span { background: var(--brand); border-color: var(--brand); color: var(--brand-text); }
+  .opt input:checked + span b { color: var(--brand-text); }
+  .opt input:focus-visible + span { outline: 2px solid var(--focus); outline-offset: 2px; }
+  details.how { clear: both; margin: 8px 0 0; font-size: 14px; }
+  details.how summary { cursor: pointer; color: var(--heading); font-weight: 500; }
+  details.how p { margin: 6px 0 0; }
+
+  /* result */
+  .result-big { font-family: var(--serif); font-size: 2.1rem; line-height: 1.1; color: var(--heading); margin: 0 0 4px; }
+  .subs { font-family: var(--mono); font-size: 13px; letter-spacing: .03em; }
+  .sticky { position: fixed; left: 0; right: 0; bottom: 0; z-index: 10; background: var(--band); color: var(--band-text); border-top: 1px solid var(--border); }
+  .sticky .in { max-width: 900px; margin: 0 auto; padding: 10px 16px; display: flex; gap: 12px; align-items: center; justify-content: space-between; font-family: var(--mono); font-size: 14px; }
+  .sticky a { color: var(--band-text); }
+  table { width: 100%; border-collapse: collapse; font-size: 14px; }
+  th, td { text-align: left; padding: 6px 8px; border-bottom: 1px solid var(--border); }
+  th { font-family: var(--mono); font-size: 11px; font-weight: 500; text-transform: uppercase; letter-spacing: .05em; }
+  td { font-family: var(--mono); color: var(--heading); }
+  tr.hit td { background: var(--subtle); font-weight: 600; }
+
+  @media print {
+    :root, :root[data-theme="dark"], :root[data-theme="light"], :root:not([data-theme="light"]) {
+      --page:#FFF; --panel:#FFF; --soft:#FFF; --subtle:#EEE; --heading:#000; --body:#222; --border:#999; --band:#FFF; --band-text:#000; --band-muted:#333;
+      --brand:#000; --brand-text:#FFF; --warn-bg:#FFF; --warn-border:#999; --warn-text:#000;
+    }
+    body { padding-bottom: 0; }
+    .theme-toggle, .back, #pin-form, .sticky, .noprint, details.how { display: none !important; }
+  }
+</style>
+</head>
+<body>
+<header class="band">
+  <div class="band-inner">
+    <a class="back" href="./">← Pediatric Tools</a>
+    <button type="button" class="theme-toggle" id="theme-toggle" aria-label="Switch between light and dark mode"></button>
+    <h1>Ballard Score</h1>
+    <p class="by">By Dr. Christian Rada, DO · Clinician tool</p>
+  </div>
+</header>
+
+<main class="wrap">
+  <!-- PIN gate (same PIN and unlock as the hub). Not real security: the page is public. -->
+  <form class="card" id="pin-form" autocomplete="off">
+    <label for="pin">Enter the clinician PIN</label>
+    <div class="pin-row">
+      <input id="pin" type="password" inputmode="numeric" pattern="[0-9]*" maxlength="4" aria-describedby="pin-msg">
+      <button class="btn" type="submit">Unlock</button>
+    </div>
+    <p class="pin-msg" id="pin-msg" role="alert"></p>
+  </form>
+
+  <div id="tool" hidden>
+    <div class="banner">
+      <p><strong>Estimates gestational age after birth (New Ballard Score).</strong> Use it when obstetric dating is unknown or uncertain. A reliable first-trimester ultrasound (about ±5–7 days) is more accurate and takes precedence. Nothing entered here is saved or sent.</p>
+    </div>
+
+    <section class="card" aria-labelledby="exam-h">
+      <h2 id="exam-h">Exam</h2>
+      <div class="grid">
+        <div>
+          <label for="hours">Age at exam (hours of life)</label>
+          <input id="hours" type="number" inputmode="decimal" min="0" step="1">
+        </div>
+        <div>
+          <label for="ob-w">Obstetric GA, if known: weeks</label>
+          <input id="ob-w" type="number" inputmode="numeric" min="18" max="45" step="1">
+        </div>
+        <div>
+          <label for="ob-d">and days</label>
+          <input id="ob-d" type="number" inputmode="numeric" min="0" max="6" step="1">
+        </div>
+      </div>
+      <div style="margin-top:14px">
+        <span id="sex-l" style="display:block;font-weight:600;color:var(--heading);margin-bottom:6px;font-size:15px">Genitals item to score</span>
+        <div class="seg" role="radiogroup" aria-labelledby="sex-l">
+          <input type="radio" name="sex" id="sex-m" value="m" checked><label for="sex-m">Male</label>
+          <input type="radio" name="sex" id="sex-f" value="f"><label for="sex-f">Female</label>
+        </div>
+      </div>
+      <label class="check"><input type="checkbox" id="confounded">
+        <span>Tone may be affected: sedation or maternal medicines (magnesium, opioids, anesthesia), asphyxia or encephalopathy, serious illness, or neuromuscular disease.</span></label>
+    </section>
+
+    <section class="card" aria-labelledby="nm-h">
+      <h2 id="nm-h">Neuromuscular maturity <span class="subs" id="nm-sub"></span></h2>
+      <p class="hint" style="margin:0 0 6px">Examine the baby supine, quiet and warm. Crying or active resistance changes tone. The official chart shows a drawing for each score: <a href="https://www.ballardscore.com/ScoreSheet/ScoreSheet" target="_blank" rel="noopener">open the illustrated score sheet</a>.</p>
+      <div id="nm-items"></div>
+    </section>
+
+    <section class="card" aria-labelledby="ph-h">
+      <h2 id="ph-h">Physical maturity <span class="subs" id="ph-sub"></span></h2>
+      <div id="ph-items"></div>
+    </section>
+
+    <section class="card" id="result" aria-labelledby="res-h" aria-live="polite">
+      <h2 id="res-h">Result</h2>
+      <div id="res-body"></div>
+      <h3>Score to gestational age</h3>
+      <div class="tablewrap"><table id="ga-table"></table></div>
+      <p class="hint">Each 5 points is 2 weeks: estimated GA (weeks) = 24 + 0.4 × total score. Scores between rows are interpolated.</p>
+      <div class="btns noprint" style="margin-top:14px">
+        <button class="btn secondary" type="button" id="reset-btn">Clear all scores</button>
+        <button class="btn secondary" type="button" onclick="window.print()">Print</button>
+      </div>
+    </section>
+
+    <section class="card" aria-labelledby="lim-h">
+      <h2 id="lim-h">Accuracy and limits</h2>
+      <div class="caveat"><b>Timing:</b> best within the first 24–48 hours; usable to about 96 hours. Under 26 weeks, examine before 12 hours of life (97% within 2 weeks when done then). From 26 weeks on, agreement was stable (about 92%) up to 96 hours.</div>
+      <div class="caveat"><b>Accuracy:</b> original validation (530 infants) r = 0.97, mean difference 0.15 ± 1.46 weeks. Independent pooled data are wider: tends to overestimate by about 0.4 weeks, 95% of differences within ±3.8 weeks of ultrasound dating, within 2 weeks in about 72%.</div>
+      <div class="caveat"><b>Extreme prematurity:</b> before 28 weeks the score overestimated GA by 1.3–3.3 weeks, with very wide confidence intervals (NICHD Neonatal Research Network). Do not base viability or resuscitation decisions on it.</div>
+      <div class="caveat"><b>Growth restriction:</b> may misestimate GA in very small-for-gestational-age infants.</div>
+      <div class="caveat"><b>Unreliable tone</b> (sedation, maternal magnesium, opioids or anesthesia, asphyxia or HIE, illness, neuromuscular disease) distorts the neuromuscular items; the physical items are more trustworthy then.</div>
+      <div class="caveat"><b>With obstetric dating:</b> don't revise a reliable first-trimester due date because of the Ballard score. Use it to estimate GA when dating is missing or unreliable, and to flag a difference of more than 2 weeks.</div>
+    </section>
+
+    <div style="margin-top:8px"><button type="button" class="btn secondary" id="lock-btn">Lock clinician section</button></div>
+  </div>
+</main>
+
+<div class="sticky noprint" id="sticky" hidden>
+  <div class="in"><span id="sticky-text"></span><a href="#result">Result</a></div>
+</div>
+
+<footer class="band">
+  <div class="band-inner">
+    <p>Scoring criteria and technique from the official New Ballard Score sheet and training pages (<a href="https://www.ballardscore.com/ScoreSheet/ScoreSheet">ballardscore.com</a>; Ballard JL et al., New Ballard Score, expanded to include extremely premature infants, J Pediatr 1991). Accuracy and limits checked with OpenEvidence from Ballard 1991; Donovan EF et al., NICHD Neonatal Research Network (J Pediatr 1999); Lee AC et al. (Pediatrics 2016; systematic review Pediatrics 2017); Sasidharan K et al. (Arch Dis Child Fetal Neonatal Ed 2009); Alexander GR et al. (Am J Obstet Gynecol 1992); ACOG Committee Opinion 700 (2017). This tool is clinical decision support and does not replace clinical judgment.</p>
+    <p class="credit">Made with
+      <svg class="pixel-heart" viewBox="0 0 7 6" width="14" height="12" role="img" aria-label="love" shape-rendering="crispEdges">
+        <path fill="#E5484D" d="M1 0h2v1h-2zM4 0h2v1h-2zM0 1h7v2h-7zM1 3h5v1h-5zM2 4h3v1h-3zM3 5h1v1h-1z"/>
+      </svg>
+      <a href="https://claude.com/claude-code">Claude</a></p>
+    <p class="sprite-credit"><a href="credits.html">Credits</a><span class="gh-link" hidden> · <a href="https://github.com/Hyponatremia-Peds/peds-tools">Source code on GitHub</a></span></p>
+  </div>
+</footer>
+
+<script>
+"use strict";
+/* ======================================================================
+   NEW BALLARD SCORE — every criterion and technique checked against the official
+   score sheet and training pages at ballardscore.com (Ballard JL et al., J Pediatr 1991);
+   accuracy and limits from OpenEvidence (Snow). Nothing was added from memory.
+   Scarf sign and heel to ear use the official landmark lists (OpenEvidence's wording
+   for those two was only approximate).
+   Each item: [score, finding]. Scores run -1..4 (popliteal angle and skin reach 5;
+   plantar surface and eye/ear also have -2; posture and arm recoil start at 0).
+   ====================================================================== */
+const NM = [
+  { id: "posture", name: "Posture",
+    how: "Baby supine and settled. If found supine, gently flex an extended limb (or extend a flexed one) and let the baby return to a position of comfort. Choose the description closest to the resting posture.",
+    opts: [[0, "Arms and legs extended"], [1, "Arms extended; hips and knees slightly flexed"], [2, "Arms extended; hips and knees more flexed"],
+           [3, "Arms slightly flexed; legs flexed and abducted (frog-leg)"], [4, "Arms and legs fully flexed; hips flexed and adducted"]] },
+  { id: "window", name: "Square window (wrist)",
+    how: "Straighten the baby's fingers and press gently on the back of the hand, close to the fingers. Estimate the angle between the palm and the forearm.",
+    opts: [[-1, "Over 90°"], [0, "90°"], [1, "60°"], [2, "45°"], [3, "30°"], [4, "0°"]] },
+  { id: "recoil", name: "Arm recoil",
+    how: "Baby supine. Support the elbow with one hand. Holding the baby's hand, flex the elbow briefly, then extend the arm momentarily and let go. Note the angle the forearm springs back to. Don't hold the arm extended for long: flexor fatigue gives a falsely low score.",
+    opts: [[0, "180° (no recoil)"], [1, "140–180°"], [2, "110–140°"], [3, "90–110°"], [4, "Under 90°: fist touches the face"]] },
+  { id: "popliteal", name: "Popliteal angle",
+    how: "Baby supine, diaper off. Rest the thigh on the abdomen with the knee fully flexed. Once the baby relaxes, hold the foot at the sides with one hand and support the side of the thigh with the other, without pressing on the hamstrings. Extend the leg until definite resistance, then measure the angle at the knee. Wait for kicking to stop. After a frank breech presentation this item can be falsely low for 24–48 hours: repeat later.",
+    opts: [[-1, "180°"], [0, "160°"], [1, "140°"], [2, "120°"], [3, "100°"], [4, "90°"], [5, "Under 90°"]] },
+  { id: "scarf", name: "Scarf sign",
+    how: "Baby supine, head midline. Hold the baby's hand across the upper chest and, with your other thumb on the elbow, nudge the elbow across the chest. Note how far it moves easily before significant resistance.",
+    opts: [[-1, "Full scarf, at the level of the neck"], [0, "Opposite axillary line"], [1, "Opposite nipple line"], [2, "Xiphoid process"],
+           [3, "Same-side nipple line"], [4, "Same-side axillary line"]] },
+  { id: "heel", name: "Heel to ear",
+    how: "Baby supine. Rest the flexed leg on the mattress alongside the trunk and support the thigh along the body with one palm. Grasp the foot at the sides and pull it toward the ear on the same side. Note where the heel is when you feel significant resistance.",
+    opts: [[-1, "Ear"], [0, "Nose"], [1, "Chin"], [2, "Nipple line"], [3, "Umbilical area"], [4, "Femoral crease"]] }
+];
+const PH = [
+  { id: "skin", name: "Skin",
+    opts: [[-1, "Sticky, friable, transparent"], [0, "Gelatinous, red, translucent"], [1, "Smooth, pink; visible veins"], [2, "Superficial peeling and/or rash; few veins"],
+           [3, "Cracking, pale areas; rare veins"], [4, "Parchment; deep cracking; no vessels"], [5, "Leathery, cracked, wrinkled"]] },
+  { id: "lanugo", name: "Lanugo",
+    opts: [[-1, "None"], [0, "Sparse"], [1, "Abundant"], [2, "Thinning"], [3, "Bald areas"], [4, "Mostly bald"]] },
+  { id: "plantar", name: "Plantar surface",
+    opts: [[-2, "Heel–toe under 40 mm; no crease"], [-1, "Heel–toe 40–50 mm; no crease"], [0, "Over 50 mm; no crease"], [1, "Faint red marks"],
+           [2, "Anterior transverse crease only"], [3, "Creases over the anterior two-thirds"], [4, "Creases over the entire sole"]] },
+  { id: "breast", name: "Breast",
+    opts: [[-1, "Imperceptible"], [0, "Barely perceptible"], [1, "Flat areola; no bud"], [2, "Stippled areola; 1–2 mm bud"], [3, "Raised areola; 3–4 mm bud"], [4, "Full areola; 5–10 mm bud"]] },
+  { id: "eye", name: "Eye / ear",
+    opts: [[-2, "Lids fused tightly"], [-1, "Lids fused loosely"], [0, "Lids open; pinna flat, stays folded"], [1, "Slightly curved pinna; soft, slow recoil"],
+           [2, "Well-curved pinna; soft but ready recoil"], [3, "Formed and firm; instant recoil"], [4, "Thick cartilage; ear stiff"]] },
+  { id: "genM", name: "Genitals (male)", sex: "m",
+    opts: [[-1, "Scrotum flat, smooth"], [0, "Scrotum empty; faint rugae"], [1, "Testes in upper canal; rare rugae"], [2, "Testes descending; few rugae"],
+           [3, "Testes down; good rugae"], [4, "Testes pendulous; deep rugae"]] },
+  { id: "genF", name: "Genitals (female)", sex: "f",
+    opts: [[-1, "Clitoris prominent; labia flat"], [0, "Clitoris prominent; small labia minora"], [1, "Clitoris prominent; enlarging minora"], [2, "Majora and minora equally prominent"],
+           [3, "Majora large; minora small"], [4, "Majora cover clitoris and minora"]] }
+];
+// Score-to-GA table: -10 = 20 weeks ... 50 = 44 weeks, 2 weeks per 5 points.
+const TABLE = []; for (let s = -10; s <= 50; s += 5) TABLE.push([s, 24 + 0.4 * s]);
+const MIN_SCORE = -10, MAX_SCORE = 50;
+const gaFromScore = s => 24 + 0.4 * s;
+
+/* ============================ rendering ============================ */
+const $ = id => document.getElementById(id);
+const esc = s => String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+const sgn = n => (n > 0 ? "+" : n < 0 ? "−" : "") + Math.abs(n);   // proper minus sign
+const scores = {};
+
+function itemHTML(it) {
+  return `<fieldset class="item" id="f-${it.id}"${it.sex ? ` data-sex="${it.sex}"` : ""}>
+    <legend>${esc(it.name)} <span class="pts" id="p-${it.id}"></span></legend>
+    <div class="opts">${it.opts.map(([s, t]) => `<label class="opt"><input type="radio" name="${it.id}" value="${s}"><span><b>${sgn(s)}</b>${esc(t)}</span></label>`).join("")}</div>
+    ${it.how ? `<details class="how"><summary>How to do it</summary><p>${esc(it.how)}</p></details>` : ""}
+  </fieldset>`;
+}
+
+function activeItems() {
+  const sex = document.querySelector('input[name="sex"]:checked').value;
+  return [...NM, ...PH.filter(i => !i.sex || i.sex === sex)];
+}
+
+function weeksDays(w) {
+  let wk = Math.floor(w), d = Math.round((w - wk) * 7);
+  if (d === 7) { wk += 1; d = 0; }
+  return `${wk} weeks ${d} day${d === 1 ? "" : "s"}`;
+}
+
+function update() {
+  const sex = document.querySelector('input[name="sex"]:checked').value;
+  PH.filter(i => i.sex).forEach(i => { $("f-" + i.id).hidden = i.sex !== sex; });
+  const items = activeItems();
+  items.forEach(i => { $("p-" + i.id).textContent = scores[i.id] == null ? "" : sgn(scores[i.id]); });
+  const sum = list => list.reduce((a, i) => a + (scores[i.id] || 0), 0);
+  const nmDone = NM.filter(i => scores[i.id] != null).length;
+  const phList = items.filter(i => PH.includes(i)), phDone = phList.filter(i => scores[i.id] != null).length;
+  $("nm-sub").textContent = `${sgn(sum(NM))} · ${nmDone}/6`;
+  $("ph-sub").textContent = `${sgn(sum(phList))} · ${phDone}/6`;
+  const done = nmDone + phDone, total = sum(NM) + sum(phList);
+
+  let h = "", sticky = "", hit = null;
+  if (done < 12) {
+    h = `<p class="result-big">${done} of 12 scored</p><p class="hint">Score every item to see the estimate.</p>`;
+    sticky = `${done}/12 scored · total ${sgn(total)}`;
+  } else {
+    let ga;
+    if (total < MIN_SCORE) { ga = "under 20 weeks"; hit = MIN_SCORE; }
+    else if (total > MAX_SCORE) { ga = "over 44 weeks"; hit = MAX_SCORE; }
+    else { const w = gaFromScore(total); ga = `${Math.round(w * 10) / 10} weeks <span style="font-size:1.1rem">(${weeksDays(w)})</span>`; hit = Math.round(total / 5) * 5; }
+    h = `<p class="result-big">${ga}</p>
+      <p class="subs">Total ${sgn(total)} · neuromuscular ${sgn(sum(NM))} · physical ${sgn(sum(phList))}</p>`;
+    sticky = `Total ${sgn(total)} · ${total < MIN_SCORE ? "under 20 wk" : total > MAX_SCORE ? "over 44 wk" : Math.round(gaFromScore(total) * 10) / 10 + " wk"}`;
+    const notes = [];
+    const est = total < MIN_SCORE ? 19 : total > MAX_SCORE ? 45 : gaFromScore(total);
+    const hrsRaw = $("hours").value.trim(), hrs = hrsRaw === "" ? null : Number(hrsRaw);
+    if (hrs != null && isFinite(hrs)) {
+      if (hrs > 96) notes.push("Examined after 96 hours: outside the validated window, so accuracy is lower.");
+      else if (est < 26 && hrs > 12) notes.push("Under 26 weeks, the score is most accurate before 12 hours of life; this exam was later.");
+    }
+    if (est < 28) notes.push("Before 28 weeks the score overestimated GA by 1.3–3.3 weeks with very wide confidence intervals. Don't use it for viability or resuscitation decisions.");
+    if ($("confounded").checked) notes.push("Tone may be affected, so the neuromuscular items are less reliable; weigh the physical items more.");
+    const obW = $("ob-w").value.trim(), obD = $("ob-d").value.trim();
+    if (obW !== "") {
+      const ob = Number(obW) + (obD === "" ? 0 : Number(obD)) / 7;
+      if (isFinite(ob) && ob >= 18 && ob <= 45 && (obD === "" || (Number(obD) >= 0 && Number(obD) <= 6))) {
+        if (total >= MIN_SCORE && total <= MAX_SCORE) {
+          const diff = gaFromScore(total) - ob;
+          const txt = `Ballard estimate is ${Math.abs(Math.round(diff * 10) / 10)} weeks ${diff >= 0 ? "more" : "less"} than the obstetric GA (${weeksDays(ob)}).`;
+          notes.push(Math.abs(diff) > 2 ? txt + " That is more than 2 weeks: review the dating. A reliable first-trimester ultrasound still takes precedence." : txt + " Within 2 weeks: consistent.");
+        }
+      } else notes.push("Please check the obstetric GA you entered.");
+    }
+    h += notes.map(n => `<div class="caveat">${esc(n)}</div>`).join("");
+  }
+  $("res-body").innerHTML = h;
+  $("ga-table").innerHTML = `<thead><tr><th>Score</th><th>Weeks</th></tr></thead><tbody>` +
+    TABLE.map(([s, w]) => `<tr class="${s === hit ? "hit" : ""}"><td>${sgn(s)}</td><td>${w}</td></tr>`).join("") + `</tbody>`;
+  $("sticky-text").textContent = sticky;
+}
+
+function build() {
+  $("nm-items").innerHTML = NM.map(itemHTML).join("");
+  $("ph-items").innerHTML = PH.map(itemHTML).join("");
+  document.querySelectorAll(".opts input").forEach(r => r.addEventListener("change", e => { scores[e.target.name] = Number(e.target.value); update(); }));
+  ["hours", "ob-w", "ob-d"].forEach(id => $(id).addEventListener("input", update));
+  $("confounded").addEventListener("change", update);
+  document.querySelectorAll('input[name="sex"]').forEach(r => r.addEventListener("change", update));
+  $("reset-btn").addEventListener("click", () => {
+    Object.keys(scores).forEach(k => delete scores[k]);
+    document.querySelectorAll(".opts input").forEach(r => { r.checked = false; });
+    update();
+  });
+  update();
+}
+
+build();
+
+/* ---- PIN gate: same PIN, same saved unlock as the hub; second code opens the pet picker ---- */
+(function () {
+  const PIN_HASH = "e4dfbbc00eabfea05b32abab544a223787749f77442a0180ec384fe65847bdde";
+  const PET_HASH = "6747081bf1c609a055b764f2db8acb47ca1a270da2771465845c66cc8d9e24e2";
+  const KEY = "peds-tools-clinician";
+  const form = $("pin-form"), input = $("pin"), msg = $("pin-msg");
+  const show = on => { $("tool").hidden = !on; $("sticky").hidden = !on; form.hidden = on; document.querySelectorAll(".gh-link").forEach(e => e.hidden = !on); };
+  async function hash(t) { const b = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(t)); return [...new Uint8Array(b)].map(x => x.toString(16).padStart(2, "0")).join(""); }
+  let on = false; try { on = localStorage.getItem(KEY) === "1"; } catch (e) {}
+  show(on);
+  form.addEventListener("submit", async e => {
+    e.preventDefault();
+    const h = await hash("cleanout-hub:" + input.value.trim());
+    if (h === PET_HASH) { msg.textContent = "Meow! Pick a pet. It follows your mouse or finger."; input.value = ""; if (window.PedsPets) window.PedsPets.showPicker(form.querySelector(".pin-row")); return; }
+    if (h === PIN_HASH) { try { localStorage.setItem(KEY, "1"); } catch (e2) {} msg.textContent = ""; input.value = ""; show(true); }
+    else { msg.textContent = "That PIN is not correct."; input.select(); }
+  });
+  $("lock-btn").addEventListener("click", () => { try { localStorage.removeItem(KEY); } catch (e) {} show(false); });
+})();
+
+/* ---- light/dark switch (shared setting with the hub) ---- */
+(function () {
+  const btn = $("theme-toggle"), isDark = () => document.documentElement.dataset.theme === "dark";
+  const label = () => { btn.textContent = isDark() ? "☀ Light" : "☾ Dark"; document.querySelector('meta[name="theme-color"]').setAttribute("content", isDark() ? "#0D0D0C" : "#232323"); };
+  btn.addEventListener("click", () => { const n = isDark() ? "light" : "dark"; document.documentElement.dataset.theme = n; try { localStorage.setItem("peds-tools-theme", n); } catch (e) {} label(); });
+  label();
+})();
+</script>
+</body>
+</html>

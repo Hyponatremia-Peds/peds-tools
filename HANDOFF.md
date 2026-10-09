@@ -13,6 +13,7 @@ Start a new session by asking Claude to read this file:
 |---|---|---|---|
 | Hub (families + clinicians) | https://hyponatremia-peds.github.io/peds-tools/ | `Hyponatremia-Peds/peds-tools` | `index.html` |
 | ASM dosing (clinician) | https://hyponatremia-peds.github.io/peds-tools/asm-dosing.html | `peds-tools` | `asm-dosing.html` |
+| Ballard Score (clinician) | https://hyponatremia-peds.github.io/peds-tools/ballard.html | `peds-tools` | `ballard.html` |
 | Constipation Cleanout Planner (families) | https://hyponatremia-peds.github.io/cleanout-planner/ | `Hyponatremia-Peds/cleanout-planner` | `index.html` |
 
 - Everything is plain single-file HTML/CSS/JS. No build step, no server, no frameworks. GitHub Pages serves each repo from `main`, at the root.
@@ -69,6 +70,10 @@ A third review by OpenEvidence **Snow** (2026-10-09, run by Claude in the app's 
 A fourth review (Snow re-review of the published page) and a Snow follow-up were applied the same night: brivaracetam SE registry citations restored (Santamarina, Epilepsia 2019; Aicua-Rapun, Epilepsy Res 2019) and hepatic max corrected (~25% lower); lamotrigine 2-12 y valproate alone 1-3 mg/kg/day vs valproate plus others 1-5; added clobazam taper, cannabidiol <1 y guard and common AEs, valproate-lamotrigine and topiramate-valproate interactions, lacosamide AV block, levetiracetam IV:oral 1:1, Oxtellar XR note, Valtoco age note. **New drugs:** rufinamide, vigabatrin, felbamate, perampanel. **New collapsible "Infantile spasms" section** (last section): first-line choice by etiology, response definition, monitoring, and calculators for high-dose ACTH (needs height for BSA, Mosteller), low-dose ACTH, high-dose prednisolone, vigabatrin.
 A fifth review (Snow, of the new drugs and infantile spasms section) confirmed all new drugs and every infantile spasms regimen; applied: phenobarbital settled at 3-6 mg/kg/day (Pellock 2004; Moffett 2018), brivaracetam hepatic wording, rufinamide DRESS warning, ICISS 18-month journal.
 Lacosamide 6 to <11 kg was settled by a follow-up Snow check of the Vimpat label: 7.5-15 mg/kg/day (3.75-7.5 mg/kg BID); that row shares a merged table cell with the <6 kg row, which caused the earlier 6-12 reading. Snow suggested a one-time look at the rendered Vimpat PDF (Table 1, section 2.1) to be certain. No VERIFY items remain.
+
+**Ballard Score page (added 2026-10-09):** New Ballard Score, behind the clinician PIN. All 12 items' criteria and techniques were checked against the official score sheet and training pages at ballardscore.com (OpenEvidence's wording for scarf sign, heel to ear and posture 4 was wrong, so the official landmarks are used). Accuracy, timing and limits come from OpenEvidence Snow (Ballard 1991; Donovan 1999; Lee 2016/2017; Sasidharan 2009; Alexander 1992; ACOG CO 700). GA = 24 + 0.4 x total; below -10 shows "under 20 weeks", above 50 "over 44 weeks". The official chart drawings are copyrighted, so the page links to them instead of copying them.
+
+**Site review (2026-10-09):** vigabatrin and oxcarbazepine band labels/boundaries fixed, valproate requires age, footer sources updated, pet menu readable in dark mode and placed in the footer on every page, pets.js?v=5 everywhere including the planner.
 
 **Other:**
 - The owner should review the planner's "When to call your child's healthcare provider" list (Claude's wording).
