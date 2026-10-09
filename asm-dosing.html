@@ -207,7 +207,7 @@
         <path fill="#E5484D" d="M1 0h2v1h-2zM4 0h2v1h-2zM0 1h7v2h-7zM1 3h5v1h-5zM2 4h3v1h-3zM3 5h1v1h-1z"/>
       </svg>
       <a href="https://claude.com/claude-code">Claude</a></p>
-    <p class="sprite-credit">Sprites from the PMD Sprite Repository (<a href="https://sprites.pmdcollab.org">sprites.pmdcollab.org</a>), CC BY-NC 4.0: Eevee and Espeon by Chunsoft; Jolteon by Chunsoft and dmDash. Pokémon © Nintendo, Creatures, GAME FREAK.</p>
+    <p class="sprite-credit"><a href="credits.html">Credits</a><span class="gh-link" hidden> · <a href="https://github.com/Hyponatremia-Peds/peds-tools">Source code on GitHub</a></span></p>
   </div>
 </footer>
 
@@ -598,7 +598,7 @@ document.querySelectorAll('input[name="u"]').forEach(r => r.addEventListener("ch
   const PET_HASH = "6747081bf1c609a055b764f2db8acb47ca1a270da2771465845c66cc8d9e24e2";
   const KEY = "peds-tools-clinician";
   const form = $("pin-form"), input = $("pin"), msg = $("pin-msg");
-  const show = on => { $("tool").hidden = !on; form.hidden = on; };
+  const show = on => { $("tool").hidden = !on; form.hidden = on; document.querySelectorAll(".gh-link").forEach(e => e.hidden = !on); };
   async function hash(t) { const b = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(t)); return [...new Uint8Array(b)].map(x => x.toString(16).padStart(2, "0")).join(""); }
   let on = false; try { on = localStorage.getItem(KEY) === "1"; } catch (e) {}
   show(on);
