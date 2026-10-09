@@ -201,7 +201,7 @@
 
 <footer class="band">
   <div class="band-inner">
-    <p>Doses compiled (via OpenEvidence) from FDA drug labels, the ILAE therapeutic-drug-monitoring position paper (Epilepsia 2008), the ESETT trial (Lancet 2020) and the AES status-epilepticus treatment review (Epilepsy Curr 2020, as cited by OpenEvidence). This tool is clinical decision support and does not replace the current product label or institutional protocol.</p>
+    <p>Doses compiled (via OpenEvidence) from FDA drug labels, the ILAE therapeutic-drug-monitoring position paper (Epilepsia 2008), the ESETT trial (NEJM 2019; pediatric age-group analysis Lancet 2020) and the AES status-epilepticus guideline (Epilepsy Curr 2016). This tool is clinical decision support and does not replace the current product label or institutional protocol.</p>
     <p class="credit">Made with
       <svg class="pixel-heart" viewBox="0 0 7 6" width="14" height="12" role="img" aria-label="love" shape-rendering="crispEdges">
         <path fill="#E5484D" d="M1 0h2v1h-2zM4 0h2v1h-2zM0 1h7v2h-7zM1 3h5v1h-5zM2 4h3v1h-3zM3 5h1v1h-1z"/>
@@ -215,7 +215,8 @@
 "use strict";
 /* ======================================================================
    DOSING DATA — every number below comes from the OpenEvidence summary the
-   user supplied (FDA labels, ILAE 2008, ESETT 2020, AES review). Nothing was
+   user supplied (FDA labels, ILAE 2008, ESETT NEJM 2019 / Lancet 2020, AES 2016),
+   corrected by a second OpenEvidence label review (2026-10-09). Nothing was
    added from memory. Open questions are marked verify: "...".
    Each compute(kg, ageY, opts) returns either
      { notCovered: "why" } or { needAge: true } or
@@ -244,10 +245,10 @@ const DRUGS = {
         row(`Maximum (${b.max} mg/kg/day${b.cap ? ", up to 3,000 mg/day" : ""})`, perKg(kg, b.max), { freq: 2, cap: b.cap })
       ], note: "Twice daily. Titrate every 2 weeks by the same increment used to start." };
     },
-    loading: "Status epilepticus (off-label, guideline-supported): 40–60 mg/kg IV over 5–15 min, max 4,500 mg (ESETT used 60 mg/kg).",
+    loading: "Status epilepticus (off-label, guideline-supported): 40–60 mg/kg IV over 5–15 min, max 4,500 mg (ESETT used 60 mg/kg over 10 min).",
     renal: "Reduce per CrCl (adult table): mild 50–80 → standard; moderate 30–50 → about ½; severe <30 → about ¼; hemodialysis: q24h plus a post-dialysis supplement. Pediatric-specific renal data are not in the label.",
     hepatic: "No adjustment at any Child-Pugh grade.", target: "Not routinely monitored; reference about 12–46 mg/L.",
-    caveats: [], source: "FDA Keppra label; ESETT (Lancet 2020); AES SE review." },
+    caveats: [], source: "FDA Keppra label; ESETT (Kapur, NEJM 2019); AES guideline (Epilepsy Curr 2016)." },
 
   clobazam: { name: "Clobazam", brand: "Onfi", conc: 2.5, form: "oral suspension 2.5 mg/mL",
     compute(kg) {
@@ -269,31 +270,30 @@ const DRUGS = {
       if (kg >= 50) return { band: "50 kg and over", rows: [
         row("Initial", fixed(100), { freq: 2 }), row("Maintenance (adjunct)", fixed(200, 400), { freq: 2 }), row("Monotherapy", fixed(300, 400), { freq: 2 })
       ], note: "Fixed mg dosing. Titrate by 100 mg/day weekly." };
-      const v6 = "OpenEvidence gives 6–<11 kg the same maintenance range as 11–<30 kg (6–12 mg/kg/day). Check against the Vimpat label.";
-      const v0 = "Under 6 kg values (start 3.75 mg/kg twice daily) need checking against the Vimpat label.";
+      const pos = "Under 11 kg: FDA-approved for partial-onset seizures only (not primary generalized tonic-clonic).";
       const b = kg >= 30 ? { label: "30 to under 50 kg", init: 2, m: [4, 8] }
               : kg >= 11 ? { label: "11 to under 30 kg", init: 2, m: [6, 12] }
-              : kg >= 6  ? { label: "6 to under 11 kg", init: 2, m: [6, 12], verify: v6 }
-              :            { label: "under 6 kg", init: 7.5, m: [7.5, 15], verify: v0 };
+              : kg >= 6  ? { label: "6 to under 11 kg", init: 2, m: [6, 12], warn: [pos] }
+              :            { label: "under 6 kg", init: 2, m: [7.5, 15], warn: [pos,
+                  "Alternate initiation (label): 3.75 mg/kg twice daily (7.5 mg/kg/day). IV under 6 kg is given three times daily, not twice."] };
       return { band: b.label, rows: [
-        row(`Initial (${b.init} mg/kg/day)`, perKg(kg, b.init), { freq: 2, verify: b.verify }),
-        row(`Maintenance (${b.m[0]}–${b.m[1]} mg/kg/day)`, perKg(kg, b.m[0], b.m[1]), { freq: 2, verify: b.verify })
-      ], note: "Twice daily. Titrate by 1 mg/kg twice daily, weekly." };
+        row(`Initial (${b.init} mg/kg/day)`, perKg(kg, b.init), { freq: 2 }),
+        row(`Maintenance (${b.m[0]}–${b.m[1]} mg/kg/day)`, perKg(kg, b.m[0], b.m[1]), { freq: 2 })
+      ], note: "Twice daily (oral). Titrate by 1 mg/kg twice daily, weekly.", warn: b.warn };
     },
-    loading: "Status epilepticus (off-label): 5–10 mg/kg IV over 5–10 min, max 400 mg; may repeat 5 mg/kg (max 200 mg). Label loading option: single 200 mg (≥50 kg) or 4 mg/kg, then maintenance 12 h later.",
+    loading: "Status epilepticus (off-label): 5–10 mg/kg IV over 5–10 min, max 400 mg; may repeat 5 mg/kg (max 200 mg). The label's loading option (single 200 mg at ≥50 kg, or 4 mg/kg, then maintenance 12 h later) is a treatment-initiation load, not a status epilepticus protocol.",
     renal: "Severe (CrCl <30): reduce the maximum dose by 25%. Hemodialysis: supplement up to 50% after dialysis.",
     hepatic: "Mild–moderate: reduce the maximum by 25%. Severe: not recommended.",
     target: "Not well established (about 5–10 mg/L reported).", caveats: ["Monitor the PR interval."],
-    source: "FDA Vimpat label; AES SE review; Yale NNHH SE protocol." },
+    source: "FDA Vimpat label; AES guideline 2016; Yale NNHH SE protocol." },
 
   brivaracetam: { name: "Brivaracetam", brand: "Briviact", conc: 10, form: "oral solution 10 mg/mL",
     compute(kg) {
-      const vf = "OpenEvidence didn't state the dosing frequency, so per-dose amounts aren't shown. Check the label.";
-      if (kg >= 50) return { band: "50 kg and over", rows: [row("Initial", fixed(50, 100)), row("Maintenance", fixed(50, 200))], note: "Fixed mg dosing; no titration required.", warn: [vf] };
+      if (kg >= 50) return { band: "50 kg and over", rows: [row("Initial", fixed(50, 100), { freq: 2 }), row("Maintenance", fixed(50, 200), { freq: 2 })], note: "Twice daily. Fixed mg dosing; no titration required." };
       const b = kg >= 20 ? { label: "20 to under 50 kg", i: [1, 2], m: [1, 4] } : kg >= 11 ? { label: "11 to under 20 kg", i: [1, 2.5], m: [1, 5] } : { label: "under 11 kg", i: [1.5, 3], m: [1.5, 6] };
       return { band: b.label, rows: [
-        row(`Initial (${b.i[0]}–${b.i[1]} mg/kg/day)`, perKg(kg, b.i[0], b.i[1])), row(`Maintenance (${b.m[0]}–${b.m[1]} mg/kg/day)`, perKg(kg, b.m[0], b.m[1]))
-      ], note: "No titration required.", warn: [vf] };
+        row(`Initial (${b.i[0]}–${b.i[1]} mg/kg/day)`, perKg(kg, b.i[0], b.i[1]), { freq: 2 }), row(`Maintenance (${b.m[0]}–${b.m[1]} mg/kg/day)`, perKg(kg, b.m[0], b.m[1]), { freq: 2 })
+      ], note: "Twice daily. No titration required." };
     },
     loading: "IV dose = oral dose, over 2–15 min. Status epilepticus use is off-label; no pediatric SE dosing established (adult registries about 2 mg/kg, 100 mg).",
     renal: "No adjustment; not recommended in ESRD on dialysis.", hepatic: "Reduce at all Child-Pugh grades (about ⅓–½ lower maximum).",
@@ -303,14 +303,14 @@ const DRUGS = {
     compute(kg, age) {
       if (age < 2) return { notCovered: "Under 2 years: not covered by the source data. See the label." };
       if (age >= 17) return { notCovered: "17 years and older: adult dosing. See the label." };
-      const rows = [row("Initial, adjunct (8–10 mg/kg/day)", perKg(kg, 8, 10), { freq: 2, verify: "OpenEvidence didn't give a maximum starting dose (mg/day). Check the label." })];
+      const rows = [row("Initial, adjunct (8–10 mg/kg/day, up to 600 mg/day)", perKg(kg, 8, 10), { freq: 2, cap: 600 })];
       if (age < 4) rows.push(row("Maximum, age 2 to under 4 (60 mg/kg/day)", perKg(kg, 60), { freq: 2 }));
       else if (kg >= 20) {
         const t = kg <= 29 ? 900 : kg <= 39 ? 1200 : 1800;
         rows.push(row(`Target, adjunct (weight ${kg <= 29 ? "20–29" : kg <= 39 ? "29–39" : "over 39"} kg)`, fixed(t), { freq: 2 }));
       }
       return { band: age < 4 ? "2 to under 4 years" : "4 to 16 years", rows,
-        note: "Twice daily. Adjunct (4–16 yr): titrate over 2 weeks to the weight target. Monotherapy: increase 5 mg/kg/day every 3 days." + (age >= 4 && kg < 20 ? " Under 20 kg: the source data give no weight target." : "") };
+        note: "Twice daily. Adjunct (4–16 yr): titrate over 2 weeks to the weight target. Monotherapy: increase 5 mg/kg/day every 3 days." + (age >= 4 && kg < 20 ? " Under 20 kg: the source data give no weight target." : "") + (age < 4 && kg < 20 ? " Under 20 kg: a higher start of 16–20 mg/kg/day may be needed (still up to 600 mg/day)." : "") };
     },
     loading: "No IV form.", renal: "CrCl <30: start at ½ the usual dose and titrate slowly.",
     hepatic: "No adjustment for mild–moderate; not evaluated or recommended in severe impairment.",
@@ -340,11 +340,11 @@ const DRUGS = {
         note: "Titrate by 5–10 mg/kg/day weekly. Divide the dose if over 250 mg/day.",
         warn: age != null && age < 2 ? ["Under 2 years: highest risk of fatal hepatotoxicity. Avoid if possible; if used, sole agent only."] : [] };
     },
-    loading: "Status epilepticus (off-label): 20–40 mg/kg IV over 5–10 min (ESETT 40 mg/kg, max 4,000 mg), then about 5 mg/kg/h or 10–15 mg/kg/day divided.",
+    loading: "Status epilepticus (off-label): 20–40 mg/kg IV over 5–10 min (ESETT 40 mg/kg, max 3,000 mg), then about 5 mg/kg/h or 10–15 mg/kg/day divided.",
     renal: "No adjustment; monitor FREE levels (protein binding reduced).",
     hepatic: "CONTRAINDICATED in hepatic disease. Boxed warning: fatal hepatotoxicity, highest risk under 2 years, with polytherapy, or with metabolic disease. Contraindicated with POLG mutations.",
     target: "50–100 mcg/mL (total). Thrombocytopenia risk rises above 110 (F) / 135 (M).",
-    caveats: ["Check ammonia if encephalopathy; consider carnitine.", "Teratogen: counsel adolescents."], source: "FDA valproate labels; ESETT 2020; AES SE review." },
+    caveats: ["Check ammonia if encephalopathy; consider carnitine.", "Teratogen: counsel adolescents."], source: "FDA valproate labels; ESETT (NEJM 2019); AES guideline 2016." },
 
   lamotrigine: { name: "Lamotrigine", brand: "Lamictal", conc: null, form: "No commercial liquid. Chewable/dispersible tablets (2, 5, 25 mg); disperse in water.", needsAge: true,
     options: `<label for="ltg-reg" style="margin-top:12px">Other seizure medicines the patient takes</label>
@@ -412,8 +412,8 @@ const DRUGS = {
   gabapentin: { name: "Gabapentin", brand: "Neurontin", conc: 50, form: "oral solution 50 mg/mL (250 mg/5 mL)", needsAge: true,
     compute(kg, age) {
       if (age < 3) return { notCovered: "Under 3 years: not covered by the source data. See the label." };
-      if (age >= 12) return { band: "12 years and older", rows: [row("Maintenance", fixed(900, 1800), { freq: 3 })],
-        note: "Three times daily; no more than 12 hours between doses.", warn: ["OpenEvidence didn't give a starting dose for 12 years and older. See the label."] };
+      if (age >= 12) return { band: "12 years and older", rows: [row("Start (300 mg three times daily)", fixed(900), { freq: 3 }), row("Maintenance", fixed(900, 1800), { freq: 3 })],
+        note: "Three times daily; no more than 12 hours between doses. For epilepsy the label starts at 900 mg/day directly (the 300→600→900 ramp is for postherpetic neuralgia)." };
       const m = age < 5 ? [40, 40] : [25, 35];
       return { band: age < 5 ? "3 to 4 years" : "5 to 11 years", rows: [
         row("Initial (10–15 mg/kg/day)", perKg(kg, 10, 15), { freq: 3 }), row(`Maintenance (${m[0] === m[1] ? m[0] : m[0] + "–" + m[1]} mg/kg/day)`, perKg(kg, m[0], m[1]), { freq: 3 })
@@ -426,18 +426,17 @@ const DRUGS = {
     options: `<label for="pb-conc" style="margin-top:12px">Elixir strength you stock</label>
       <select id="pb-conc"><option value="">Select…</option><option value="4">4 mg/mL (20 mg/5 mL)</option><option value="3">3 mg/mL</option></select>`,
     compute(kg) {
-      return { rows: [row("Children (3–8 mg/kg/day)", perKg(kg, 3, 8))], note: "Given in 1–2 doses a day. Neonates: 4.5 mg/kg/day." };
+      return { rows: [row("Children (4–8 mg/kg/day)", perKg(kg, 4, 8))], note: "Given in 1–2 doses a day. Neonates: 4.5 mg/kg/day (Sezaby label)." };
     },
     loading: "Status epilepticus: 20 mg/kg IV over 15 min; may repeat 10–20 mg/kg; maximum total about 40 mg/kg.",
     renal: "About 25% renal; reduce or extend the interval if GFR <10.", hepatic: "Severe (Child-Pugh >8): consider a 25–50% reduction.",
     target: "10–40 mcg/mL (neonatal seizures 20–40).", caveats: ["Respiratory depression and sedation; long half-life."],
-    source: "FDA labels; Moffett 2018; ILAE TDM 2008." },
+    source: "FDA labels (incl. Sezaby); Moffett 2018; ILAE TDM 2008." },
 
   phenytoin: { name: "Phenytoin", brand: "Dilantin", conc: 25, form: "oral suspension 25 mg/mL (125 mg/5 mL, free acid)",
     compute(kg) {
-      return { rows: [row("Initial (5 mg/kg/day)", perKg(kg, 5)), row("Maintenance (4–8 mg/kg/day)", perKg(kg, 4, 8))],
-        note: "Given in 2–3 doses a day.",
-        warn: ["OpenEvidence's note says \"cap 300 mg/day\". The Dilantin label describes 300 mg/day as the minimum adult dose older children may need, not a cap, so the page doesn't apply it. Please confirm."] };
+      return { rows: [row("Initial (5 mg/kg/day, up to 300 mg/day)", perKg(kg, 5), { cap: 300 }), row("Maintenance (4–8 mg/kg/day)", perKg(kg, 4, 8))],
+        note: "Given in 2–3 doses a day. 300 mg/day is the maximum starting dose, not a maintenance cap: children over 6 years may need 300 mg/day or more, guided by levels." };
     },
     loading: "Status epilepticus: fosphenytoin 15–20 mg PE/kg IV at no more than 2 mg PE/kg/min (or 150 mg PE/min).",
     renal: "No fixed reduction; monitor FREE phenytoin (unbound fraction rises). No oral load in renal or hepatic disease.", hepatic: "Monitor free levels; early toxicity in liver disease.",
@@ -460,18 +459,18 @@ const DRUGS = {
 /* Second-line IV loading (status epilepticus). mg (or mg PE) per dose; no mL because IV concentrations weren't supplied. */
 const RESCUE = {
   levetiracetam: { name: "Levetiracetam IV", compute: kg => [row("Load (40–60 mg/kg), over 5–15 min", perKg(kg, 40, 60), { unit: "dose", cap: 4500 })],
-    notes: ["Off-label, guideline-supported. ESETT used 60 mg/kg. Maximum 4,500 mg."], source: "ESETT (Lancet 2020); AES SE review." },
-  valproate: { name: "Valproate IV", compute: kg => [row("Load (20–40 mg/kg), over 5–10 min", perKg(kg, 20, 40), { unit: "dose", cap: 4000 })],
-    notes: ["Off-label. ESETT used 40 mg/kg, maximum 4,000 mg. Then about 5 mg/kg/h, or 10–15 mg/kg/day divided.",
-      "CONTRAINDICATED in hepatic disease and with POLG mutations. Highest hepatotoxicity risk under 2 years."], source: "ESETT 2020; AES SE review; FDA valproate labels." },
+    notes: ["Off-label, guideline-supported. ESETT used 60 mg/kg over 10 min. Maximum 4,500 mg."], source: "ESETT (Kapur, NEJM 2019; pediatric data Chamberlain, Lancet 2020); AES guideline 2016." },
+  valproate: { name: "Valproate IV", compute: kg => [row("Load (20–40 mg/kg), over 5–10 min", perKg(kg, 20, 40), { unit: "dose", cap: 3000 })],
+    notes: ["Off-label. ESETT used 40 mg/kg, maximum 3,000 mg. Then about 5 mg/kg/h, or 10–15 mg/kg/day divided.",
+      "CONTRAINDICATED in hepatic disease and with POLG mutations. Highest hepatotoxicity risk under 2 years."], source: "ESETT (NEJM 2019); AES guideline 2016; FDA valproate labels." },
   fosphenytoin: { name: "Fosphenytoin IV", unitLabel: "mg PE", compute: kg => [row("Load (15–20 mg PE/kg)", perKg(kg, 15, 20), { unit: "dose" })],
-    notes: ["Infuse at no more than 2 mg PE/kg/min (or 150 mg PE/min), whichever is slower.", "VERIFY: OpenEvidence gave no maximum loading dose."], source: "FDA Cerebyx label." },
+    notes: ["Infuse at no more than 2 mg PE/kg/min (or 150 mg PE/min), whichever is slower.", "No label maximum: the label limit is the infusion rate. Institutional caps of 1,500–2,000 mg PE are common (ESETT capped at 1,500 mg PE, i.e. 20 mg PE/kg at 75 kg)."], source: "FDA Cerebyx label; ESETT (NEJM 2019); Sathe 2020." },
   phenobarbital: { name: "Phenobarbital IV", compute: kg => [row("Load (20 mg/kg), over 15 min", perKg(kg, 20), { unit: "dose" }),
       row("Repeat if needed (10–20 mg/kg)", perKg(kg, 10, 20), { unit: "dose" }), row("Maximum total (about 40 mg/kg)", perKg(kg, 40), { unit: "dose" })],
-    notes: ["Respiratory depression and sedation."], source: "FDA labels; AES SE review." },
+    notes: ["Respiratory depression and sedation.", "The AES guideline uses 15 mg/kg; NCS uses 20 mg/kg."], source: "FDA Sezaby label; AES guideline 2016; NCS." },
   lacosamide: { name: "Lacosamide IV", compute: kg => [row("Load (5–10 mg/kg), over 5–10 min", perKg(kg, 5, 10), { unit: "dose", cap: 400 }),
       row("May repeat (5 mg/kg)", perKg(kg, 5), { unit: "dose", cap: 200 })],
-    notes: ["Off-label for status epilepticus. Monitor the PR interval."], source: "AES SE review; Yale NNHH SE protocol." },
+    notes: ["Off-label for status epilepticus. Monitor the PR interval."], source: "AES guideline 2016; Yale NNHH SE protocol." },
   brivaracetam: { name: "Brivaracetam IV", compute: () => [],
     notes: ["Not computed: no pediatric status-epilepticus dosing is established. Adult registries used about 2 mg/kg (100 mg)."], source: "FDA Briviact label; Santamarina 2019." }
 };
@@ -542,7 +541,8 @@ function renderMaint() {
     else {
       h += doseTable(res.rows, conc);
       if (res.note) h += `<p class="hint">${esc(res.note)}</p>`;
-      [...new Set([...(res.warn || []), ...res.rows.filter(r => r.verify).map(r => r.verify)])]
+      (res.warn || []).forEach(w => { h += `<div class="caveat">${esc(w)}</div>`; });
+      [...new Set(res.rows.filter(r => r.verify).map(r => r.verify))]
         .forEach(w => { h += `<div class="caveat"><span class="tag">VERIFY</span> ${esc(w)}</div>`; });
     }
   }
