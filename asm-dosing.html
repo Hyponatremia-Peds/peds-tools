@@ -195,6 +195,28 @@
       </div>
     </details>
 
+    <details class="section" id="is-sec">
+      <summary>Infantile spasms</summary>
+      <div class="inner">
+        <h3>Choosing first-line treatment</h3>
+        <p style="margin:8px 0"><b>Not tuberous sclerosis:</b> hormonal therapy (ACTH or high-dose oral prednisolone) is preferred over vigabatrin. UKISS: spasms stopped by day 14 in 73% with hormonal therapy vs 54% with vigabatrin.</p>
+        <p style="margin:8px 0"><b>Tuberous sclerosis:</b> vigabatrin first-line.</p>
+        <p style="margin:8px 0"><b>Combination (ICISS):</b> hormonal therapy plus vigabatrin stopped spasms more often early (days 14–42: 72% vs 57%), with no developmental difference at 18 months. Many centers still treat one drug at a time.</p>
+        <h3>Judging response</h3>
+        <p style="margin:8px 0">All or none: spasms must stop <b>and</b> hypsarrhythmia must resolve on EEG. Fewer spasms is not a response. Reassess at day 14 (most responders stop by day 7) with a sleep–wake or 24-hour video EEG.</p>
+        <p style="margin:8px 0">Hormonal course: about 2 weeks of treatment plus a 2-week taper.</p>
+        <label for="ht" style="margin-top:16px">Height (cm), for ACTH dosing</label>
+        <input id="ht" type="number" inputmode="decimal" min="30" max="200" step="0.5" style="max-width:200px">
+        <label for="isdrug" style="margin-top:12px">Treatment</label>
+        <select id="isdrug"><option value="">Select a treatment…</option></select>
+        <div id="isout"></div>
+        <h3>Monitoring</h3>
+        <div class="caveat"><b>Hormonal therapy:</b> blood pressure, infection (the most common serious side effect in ICISS), electrolytes and glucose, irritability, Cushingoid changes, cardiac hypertrophy, and adrenal insufficiency after the course.</div>
+        <div class="caveat"><b>Vigabatrin:</b> vision testing per the boxed warning (by 4 weeks, every 3 months, and 3–6 months after stopping; ERG in infants); reversible MRI changes; REMS only.</div>
+        <p class="src">Sources: AAN/CNS practice parameter (Go 2012, since retired); ICISS (O'Callaghan, Lancet Neurol 2017; 18-month outcomes 2018); UKISS; NISC (Pellock 2010; Knupp 2016); Baram 1996; FDA Acthar Gel and Sabril labels.</p>
+      </div>
+    </details>
+
     <div style="margin-top:8px"><button type="button" class="btn secondary" id="lock-btn">Lock clinician section</button></div>
   </div>
 </main>
@@ -250,7 +272,7 @@ const DRUGS = {
     loading: "Status epilepticus (off-label, guideline-supported): 40–60 mg/kg IV over 5–15 min, max 4,500 mg (ESETT used 60 mg/kg over 10 min).",
     renal: "Reduce per CrCl (adult table): mild 50–80 → standard; moderate 30–50 → about ½; severe <30 → about ¼; hemodialysis: q24h plus a post-dialysis supplement. Pediatric-specific renal data are not in the label.",
     hepatic: "No adjustment at any Child-Pugh grade.", target: "Not routinely monitored; reference about 12–46 mg/L.",
-    caveats: ["Behavioral and psychiatric effects: irritability, aggression, mood changes; rarely suicidality."], source: "FDA Keppra label; ESETT (Kapur, NEJM 2019; pediatric data Chamberlain, Lancet 2020); AES guideline (Epilepsy Curr 2016)." },
+    caveats: ["Behavioral and psychiatric effects: irritability, aggression, mood changes; rarely suicidality.", "IV and oral are 1:1, so the same dose carries over when switching."], source: "FDA Keppra label; ESETT (Kapur, NEJM 2019; pediatric data Chamberlain, Lancet 2020); AES guideline (Epilepsy Curr 2016)." },
 
   clobazam: { name: "Clobazam", brand: "Onfi", conc: 2.5, form: "oral suspension 2.5 mg/mL",
     compute(kg) {
@@ -264,7 +286,7 @@ const DRUGS = {
     renal: "No adjustment for mild–moderate; no data in severe impairment or ESRD.",
     hepatic: "Mild–moderate (Child-Pugh 5–9): start 5 mg/day and titrate to ½ the usual doses. Severe: no recommendation.",
     target: "0.03–0.3 mg/L (parent); the N-desmethyl metabolite is active.",
-    caveats: ["Serious skin reactions (SJS/TEN), mostly in the first 8 weeks.", "CYP2C19 poor metabolizers: start 5 mg/day, titrate to ½ doses.", "Off-label mg/kg (Dravet): start 0.2 mg/kg/day, target 0.3–1, max 2 mg/kg/day."],
+    caveats: ["Serious skin reactions (SJS/TEN), mostly in the first 8 weeks.", "Don't stop abruptly: taper by 5–10 mg/day weekly (withdrawal seizures and reactions).", "CYP2C19 poor metabolizers: start 5 mg/day, titrate to ½ doses.", "Off-label mg/kg (Dravet): start 0.2 mg/kg/day, target 0.3–1, max 2 mg/kg/day."],
     source: "FDA Onfi label; Strzelczyk 2022 (Dravet)." },
 
   lacosamide: { name: "Lacosamide", brand: "Vimpat", conc: 10, form: "oral solution 10 mg/mL",
@@ -286,7 +308,7 @@ const DRUGS = {
     loading: "Status epilepticus (off-label): 5–10 mg/kg IV over 5–10 min, max 400 mg; may repeat 5 mg/kg (max 200 mg). The label's loading option (single 200 mg at ≥50 kg, or 4 mg/kg, then maintenance 12 h later) is a treatment-initiation load, not a status epilepticus protocol.",
     renal: "Severe (CrCl <30): reduce the maximum dose by 25%. Hemodialysis: supplement up to 50% after dialysis.",
     hepatic: "Mild–moderate: reduce the maximum by 25%. Severe: not recommended.",
-    target: "Not well established (about 5–10 mg/L reported).", caveats: ["Monitor the PR interval."],
+    target: "Not well established (about 5–10 mg/L reported).", caveats: ["Monitor the PR interval. Caution with second- or third-degree AV block and with other PR-prolonging drugs."],
     source: "FDA Vimpat label; AES guideline 2016; Bravo, Vaddiparti & Hirsch, Drugs 2021." },
 
   brivaracetam: { name: "Brivaracetam", brand: "Briviact", conc: 10, form: "oral solution 10 mg/mL",
@@ -297,9 +319,9 @@ const DRUGS = {
         row(`Initial (${b.i[0]}–${b.i[1]} mg/kg/day)`, perKg(kg, b.i[0], b.i[1]), { freq: 2 }), row(`Maintenance (${b.m[0]}–${b.m[1]} mg/kg/day)`, perKg(kg, b.m[0], b.m[1]), { freq: 2 })
       ], note: "Twice daily. No titration required." };
     },
-    loading: "IV dose = oral dose, over 2–15 min. Status epilepticus use is off-label; no pediatric SE dosing established (adult registries about 2 mg/kg, 100 mg).",
-    renal: "No adjustment; not recommended in ESRD on dialysis.", hepatic: "Reduce at all Child-Pugh grades (about ⅓–½ lower maximum).",
-    target: "0.2–2 mg/L (not routinely monitored).", caveats: [], source: "FDA Briviact label." },
+    loading: "IV dose = oral dose, over 2–15 min. Status epilepticus use is off-label; no pediatric SE dosing established (adult registries: median 100 mg, about 2 mg/kg).",
+    renal: "No adjustment; not recommended in ESRD on dialysis.", hepatic: "All Child-Pugh grades: halve the starting dose; maximum about 25% lower (adults 150 mg/day; 20 to under 50 kg, 3 instead of 4 mg/kg/day).",
+    target: "0.2–2 mg/L (not routinely monitored).", caveats: [], source: "FDA Briviact label; Santamarina, Epilepsia 2019; Aicua-Rapun, Epilepsy Res 2019." },
 
   oxcarbazepine: { name: "Oxcarbazepine", brand: "Trileptal", conc: 60, form: "oral suspension 60 mg/mL (300 mg/5 mL)", needsAge: true,
     compute(kg, age) {
@@ -319,7 +341,7 @@ const DRUGS = {
     loading: "No IV form.", renal: "CrCl <30: start at ½ the usual dose and titrate slowly.",
     hepatic: "No adjustment for mild–moderate; not evaluated or recommended in severe impairment.",
     target: "MHD metabolite 3–35 mg/L (ILAE); efficacy often 15–35.",
-    caveats: ["Monitor for hyponatremia.", "Serious skin reactions (SJS/TEN): check HLA-B*1502 in at-risk ancestry (e.g. Han Chinese, Southeast Asian).", "Children 2 to under 4 years may need up to twice the adult mg/kg dose."],
+    caveats: ["Doses here are for immediate-release Trileptal. Once-daily Oxtellar XR (6 years and older) is dosed differently: see its label.", "Monitor for hyponatremia.", "Serious skin reactions (SJS/TEN): check HLA-B*1502 in at-risk ancestry (e.g. Han Chinese, Southeast Asian).", "Children 2 to under 4 years may need up to twice the adult mg/kg dose."],
     source: "FDA Trileptal label; ILAE TDM 2008." },
 
   carbamazepine: { name: "Carbamazepine", brand: "Tegretol", conc: 20, form: "oral suspension 20 mg/mL (100 mg/5 mL)", needsAge: true,
@@ -348,7 +370,7 @@ const DRUGS = {
     renal: "No adjustment; monitor FREE levels (protein binding reduced).",
     hepatic: "CONTRAINDICATED in hepatic disease. Boxed warning: fatal hepatotoxicity, highest risk under 2 years, with polytherapy, or with metabolic disease. Contraindicated with POLG mutations.",
     target: "50–100 mcg/mL (total). Thrombocytopenia risk rises above 110 (F) / 135 (M).",
-    caveats: ["Boxed warning also includes life-threatening pancreatitis (including fatal hemorrhagic cases, at any time during therapy).", "Boxed warning: fetal risk (neural tube defects, decreased IQ, neurodevelopmental disorders). Counsel adolescents.", "Check ammonia if encephalopathy; consider carnitine."], source: "FDA valproate labels; ESETT (NEJM 2019); AES guideline 2016." },
+    caveats: ["Boxed warning also includes life-threatening pancreatitis (including fatal hemorrhagic cases, at any time during therapy).", "Boxed warning: fetal risk (neural tube defects, decreased IQ, neurodevelopmental disorders). Counsel adolescents.", "Check ammonia if encephalopathy; consider carnitine. Topiramate plus valproate raises the risk of hyperammonemic encephalopathy.", "Valproate roughly doubles lamotrigine levels (hence lamotrigine's slower start with valproate)."], source: "FDA valproate labels; ESETT (NEJM 2019); AES guideline 2016." },
 
   lamotrigine: { name: "Lamotrigine", brand: "Lamictal", conc: null, form: "No commercial liquid. Chewable/dispersible tablets (2, 5, 25 mg); disperse in water.", needsAge: true,
     options: `<label for="ltg-reg" style="margin-top:12px">Other seizure medicines the patient takes</label>
@@ -366,9 +388,12 @@ const DRUGS = {
         ], note: "Fixed mg schedule. Never exceed the starting dose or the titration rate." };
       }
       const t = { vpa: [0.15, 0.3, 1, 5, 200], none: [0.3, 0.6, 4.5, 7.5, 300], eiaed: [0.6, 1.2, 5, 15, 400] }[reg];
+      const maint = reg === "vpa"
+        ? [row("Maintenance, valproate alone (1–3 mg/kg/day, max 200 mg/day)", perKg(kg, 1, 3), { cap: 200 }),
+           row("Maintenance, valproate plus other drugs (1–5 mg/kg/day, max 200 mg/day)", perKg(kg, 1, 5), { cap: 200 })]
+        : [row(`Maintenance (${t[2]}–${t[3]} mg/kg/day, max ${t[4]} mg/day)`, perKg(kg, t[2], t[3]), { cap: t[4] })];
       return { band: "2 to 12 years", rows: [
-        row(`Weeks 1–2 (${t[0]} mg/kg/day)`, perKg(kg, t[0])), row(`Weeks 3–4 (${t[1]} mg/kg/day)`, perKg(kg, t[1])),
-        row(`Maintenance (${t[2]}–${t[3]} mg/kg/day, max ${t[4]} mg/day)`, perKg(kg, t[2], t[3]), { cap: t[4] })
+        row(`Weeks 1–2 (${t[0]} mg/kg/day)`, perKg(kg, t[0])), row(`Weeks 3–4 (${t[1]} mg/kg/day)`, perKg(kg, t[1])), ...maint
       ], note: "Round to whole tablets (smallest is 2 mg). Never exceed the starting dose or the titration rate." };
     },
     loading: "No IV form. Never load: slow titration is mandatory.", renal: "Reduced maintenance may suffice; caution in significant impairment.",
@@ -384,7 +409,7 @@ const DRUGS = {
     },
     loading: "No IV form.", renal: "CrCl <70 mL/min/1.73m²: use ½ the usual dose. Hemodialysis: give a supplemental dose.",
     hepatic: "Clearance falls about 26%; adjustment generally not required but use caution.", target: "5–20 mg/L (not routinely monitored).",
-    caveats: ["Metabolic acidosis, oligohydrosis/hyperthermia, nephrolithiasis, word-finding difficulty.", "Taper to avoid withdrawal seizures."],
+    caveats: ["Metabolic acidosis, oligohydrosis/hyperthermia, nephrolithiasis, word-finding difficulty.", "With valproate: hyperammonemic encephalopathy risk.", "Taper to avoid withdrawal seizures."],
     source: "FDA Topamax/Eprontia labels." },
 
   zonisamide: { name: "Zonisamide", brand: "Zonegran / Zonisade", conc: 20, form: "oral suspension 20 mg/mL (Zonisade)",
@@ -397,15 +422,16 @@ const DRUGS = {
     target: "10–40 mg/L (not routinely monitored).", caveats: ["Sulfonamide: contraindicated in sulfa allergy.", "Oligohydrosis/hyperthermia, nephrolithiasis, metabolic acidosis."],
     source: "FDA Zonisade label; Gidal 2024; EU SmPC." },
 
-  cannabidiol: { name: "Cannabidiol", brand: "Epidiolex", conc: 100, form: "oral solution 100 mg/mL",
-    compute(kg) {
+  cannabidiol: { name: "Cannabidiol", brand: "Epidiolex", conc: 100, form: "oral solution 100 mg/mL", needsAge: true,
+    compute(kg, age) {
+      if (age < 1) return { notCovered: "Under 1 year: not established (FDA-approved from 1 year)." };
       return { rows: [row("Start (5 mg/kg/day)", perKg(kg, 5), { freq: 2 }), row("Maintenance, week 2, LGS/Dravet (10 mg/kg/day)", perKg(kg, 10), { freq: 2 }),
         row("Maximum, LGS/Dravet (20 mg/kg/day)", perKg(kg, 20), { freq: 2 }), row("Maximum, TSC (25 mg/kg/day)", perKg(kg, 25), { freq: 2 })],
         note: "Twice daily. Start 2.5 mg/kg twice daily; increase weekly by 5 mg/kg/day." };
     },
     loading: "No IV form.", renal: "No adjustment (EMA data).",
     hepatic: "Moderate (Child-Pugh B): start 1.25 mg/kg twice daily, ½ maintenance. Severe (C): start 0.5 mg/kg twice daily, about ¼ maintenance.", target: "Not established.",
-    caveats: ["Dose-related transaminase elevation: check LFTs at baseline, 1, 3 and 6 months (especially with valproate).", "Raises N-desmethylclobazam: watch for sedation with clobazam.", "Serum creatinine rises about 10% without a true change in GFR."],
+    caveats: ["Dose-related transaminase elevation: check LFTs at baseline, 1, 3 and 6 months (especially with valproate).", "Raises N-desmethylclobazam: watch for sedation with clobazam.", "Serum creatinine rises about 10% without a true change in GFR.", "Common: somnolence, decreased appetite, diarrhea."],
     source: "FDA Epidiolex label; EMA assessment." },
 
   ethosuximide: { name: "Ethosuximide", brand: "Zarontin", conc: 50, form: "oral solution 50 mg/mL (250 mg/5 mL)", needsAge: true,
@@ -437,7 +463,8 @@ const DRUGS = {
     options: `<label for="pb-conc" style="margin-top:12px">Elixir strength you stock</label>
       <select id="pb-conc"><option value="">Select…</option><option value="4">4 mg/mL (20 mg/5 mL)</option><option value="3">3 mg/mL</option></select>`,
     compute(kg) {
-      return { rows: [row("Children (4–8 mg/kg/day)", perKg(kg, 4, 8))], note: "Given in 1–2 doses a day. Neonates: 4.5 mg/kg/day (Sezaby label)." };
+      return { rows: [row("Children (3–6 mg/kg/day)", perKg(kg, 3, 6), { verify: "OpenEvidence's two reviews disagree: one suggested 4–8 mg/kg/day, the later Snow review 3–6 mg/kg/day (Moffett 2018 range 3–8; 8 is the extreme top). Please choose." })],
+        note: "Given in 1–2 doses a day. Up to 8 mg/kg/day at most; infants up to about 5–6. Neonates: 4.5 mg/kg/day (Sezaby label)." };
     },
     loading: "Status epilepticus: 20 mg/kg IV over 15 min; may repeat 10–20 mg/kg; maximum total about 40 mg/kg.",
     renal: "About 25% renal; reduce or extend the interval if GFR <10.", hepatic: "Severe (Child-Pugh >8): consider a 25–50% reduction.",
@@ -466,7 +493,73 @@ const DRUGS = {
     },
     loading: "No US IV form.", renal: "Caution: metabolites renally excreted; no fixed adjustment.", hepatic: "Caution: hepatically metabolized; clearance may be impaired.",
     target: "20–70 ng/mL (poorly defined; tolerance develops).", caveats: ["No commercial liquid: ODT or compounding needed for small children.", "Sedation, tolerance, and withdrawal on abrupt stop."],
-    source: "FDA Klonopin label; ILAE TDM 2008." }
+    source: "FDA Klonopin label; ILAE TDM 2008." },
+  rufinamide: { name: "Rufinamide", brand: "Banzel", conc: 40, form: "oral suspension 40 mg/mL; give with food", needsAge: true,
+    options: `<label for="ruf-reg" style="margin-top:12px">Is the patient on valproate?</label>
+      <select id="ruf-reg"><option value="">Select…</option><option value="no">No</option><option value="vpa">Yes</option></select>`,
+    compute(kg, age) {
+      if (age < 1) return { notCovered: "Under 1 year: not established (FDA-approved from 1 year, Lennox-Gastaut syndrome)." };
+      const reg = (document.getElementById("ruf-reg") || {}).value;
+      if (!reg) return { notCovered: "Choose whether the patient takes valproate above. Valproate raises rufinamide levels." };
+      return { band: "1 year and older (Lennox-Gastaut)", rows: [
+        row("Start (10 mg/kg/day)", perKg(kg, 10), { freq: 2 }), row("Target / maximum (45 mg/kg/day, up to 3,200 mg/day)", perKg(kg, 45), { freq: 2, cap: 3200 })
+      ], note: "Twice daily with food. Increase by about 10 mg/kg/day every other day.",
+        warn: reg === "vpa" ? ["With valproate: start below 10 mg/kg/day (the label gives no exact figure; levels rise up to about 70% in children)."] : [] };
+    },
+    loading: "No IV form.", renal: "No adjustment; hemodialysis lowers levels about 30% (consider a supplement).",
+    hepatic: "Mild–moderate: caution. Severe: not recommended.", target: "Not FDA-defined; about 15–30 mg/L reported (side effects rise above 20).",
+    caveats: ["Contraindicated in familial short QT syndrome; avoid other QT-shortening drugs."],
+    source: "FDA Banzel label; Perucca 2008; Yamamoto 2022." },
+
+  vigabatrin: { name: "Vigabatrin", brand: "Sabril / Vigafyde", conc: 50, form: "Sabril powder 500 mg packet in 10 mL water = 50 mg/mL (Vigafyde ready-made 100 mg/mL, infantile spasms only)", needsAge: true,
+    compute(kg, age) {
+      if (age < MO) return { notCovered: "Under 1 month: not established." };
+      if (age < 2) return { band: "infantile spasms, 1 month to 2 years", rows: [
+        row("Start (50 mg/kg/day)", perKg(kg, 50), { freq: 2 }), row("Maximum (150 mg/kg/day)", perKg(kg, 150), { freq: 2 })
+      ], note: "Twice daily. Increase by 25–50 mg/kg/day every 3 days. Stop if no benefit within 2–4 weeks (taper 25–50 mg/kg every 3–4 days). See the Infantile spasms section below." };
+      if (kg < 10) return { notCovered: "2 years and older but under 10 kg: no weight band in the label." };
+      if (kg > 60) return { band: "over 60 kg (adult dosing)", rows: [row("Start", fixed(1000), { freq: 2 }), row("Target", fixed(3000), { freq: 2 })],
+        note: "Refractory complex partial seizures, adjunct. Twice daily, titrated weekly. Stop if no benefit within 3 months (taper by a third weekly over 3 weeks)." };
+      const b = kg < 15 ? ["10 to under 15 kg", 350, 1050] : kg < 20 ? ["15 to under 20 kg", 450, 1300] : kg < 25 ? ["20 to under 25 kg", 500, 1500] : ["25 to 60 kg", 500, 2000];
+      return { band: b[0] + ", refractory complex partial seizures", rows: [row("Start", fixed(b[1]), { freq: 2 }), row("Maintenance", fixed(b[2]), { freq: 2 })],
+        note: "Adjunct, not first-line. Twice daily, titrated weekly. Stop if no benefit within 3 months (taper by a third weekly over 3 weeks)." };
+    },
+    loading: "No IV form.", renal: "2 years and older, by CrCl: over 50–80, reduce 25%; over 30–50, reduce 50%; over 10–30, reduce 75%. Infants: not studied.",
+    hepatic: "No adjustment.", target: "Levels are not useful for titration.",
+    caveats: ["BOXED WARNING: permanent bilateral vision loss; no risk-free dose. Vision testing by 4 weeks, then every 3 months, and 3–6 months after stopping (30-Hz flicker ERG in infants).", "Available only through the Vigabatrin REMS program (certified prescriber and pharmacy, enrolled patient).", "Reversible MRI signal changes, more common at 150 mg/kg/day or more."],
+    source: "FDA Sabril and Vigafyde labels." },
+
+  felbamate: { name: "Felbamate", brand: "Felbatol", conc: 120, form: "oral suspension 600 mg/5 mL (120 mg/mL)", needsAge: true,
+    compute(kg, age) {
+      if (age < 2) return { notCovered: "Under 2 years: not established." };
+      if (age >= 14) return { notCovered: "14 years and older: adult dosing. See the label." };
+      return { band: "2 to under 14 years (Lennox-Gastaut)", rows: [
+        row("Week 1 (15 mg/kg/day)", perKg(kg, 15), { freq: 3, cap: 3600 }), row("Week 2 (30 mg/kg/day)", perKg(kg, 30), { freq: 3, cap: 3600 }),
+        row("Week 3 on, maximum (45 mg/kg/day, up to 3,600 mg/day)", perKg(kg, 45), { freq: 3, cap: 3600 })
+      ], note: "Three to four times daily. Reduce other seizure medicines by about 20% when starting.",
+        warn: ["Reserved for severe refractory epilepsy; not first-line. A signed patient/physician acknowledgment form is required."] };
+    },
+    loading: "No IV form.", renal: "Reduce starting and maintenance doses by 50%.",
+    hepatic: "Don't start with any history of liver dysfunction.", target: "Not defined.",
+    caveats: ["BOXED WARNINGS: aplastic anemia (about 20–30% fatal) and acute liver failure. Stop for any marrow suppression or AST/ALT 2× the upper limit. Baseline and regular CBC with platelets and reticulocytes, and AST/ALT.", "Raises phenytoin, valproate, phenobarbital and carbamazepine-epoxide; lowers carbamazepine."],
+    source: "FDA Felbatol label; Felbamate Study Group, NEJM 1993." },
+
+  perampanel: { name: "Perampanel", brand: "Fycompa", conc: 0.5, form: "oral suspension 0.5 mg/mL (discard 90 days after opening)", needsAge: true,
+    options: `<label for="pmp-reg" style="margin-top:12px">Enzyme inducer (phenytoin, carbamazepine or oxcarbazepine)?</label>
+      <select id="pmp-reg"><option value="">Select…</option><option value="no">No</option><option value="ind">Yes</option></select>`,
+    compute(kg, age) {
+      if (age < 4) return { notCovered: "Under 4 years: not established (partial-onset from 4 years; generalized tonic-clonic adjunct from 12 years)." };
+      const reg = (document.getElementById("pmp-reg") || {}).value;
+      if (!reg) return { notCovered: "Choose whether the patient takes an enzyme inducer above." };
+      const ind = reg === "ind";
+      return { band: age < 12 ? "4 years and older (partial-onset only)" : "12 years and older", rows: [
+        row("Start", fixed(ind ? 4 : 2), { freq: 1 }), row(ind ? "Maintenance (not established; highest studied 12 mg)" : "Maintenance", fixed(8, 12), { freq: 1 }), row("Maximum", fixed(12), { freq: 1 })
+      ], note: "Once daily at bedtime. Fixed doses, not weight-based. Increase by 2 mg no more often than weekly." + (age >= 12 ? " Generalized tonic-clonic: 8 mg, up to 12 mg." : "") };
+    },
+    loading: "No IV form.", renal: "Mild: none. Moderate: caution, titrate slowly. Severe or hemodialysis: not recommended.",
+    hepatic: "Start 2 mg and titrate every 2 weeks. Mild: maximum 6 mg/day. Moderate: maximum 4 mg/day. Severe: not recommended.", target: "Not established.",
+    caveats: ["BOXED WARNING: serious psychiatric and behavioral reactions (aggression, hostility, homicidal ideation), dose-related. Monitor during titration and for at least 1 month after the last dose. Avoid alcohol."],
+    source: "FDA Fycompa label." }
 };
 
 /* First-line benzodiazepines (OpenEvidence table, 2026-10-09). mg per dose; compute(kg, age).
@@ -489,7 +582,7 @@ const BENZO = {
       const [mgkg, band] = ageBand(age);
       return { band, rows: [row(`Dose (${mgkg} mg/kg)`, perKg(kg, mgkg), { unit: "dose", cap: 20 })] };
     },
-    notes: ["Devices: 5, 7.5 or 10 mg per 0.1 mL; doses over 10 mg use two devices (maximum 20 mg).", "Second dose at least 4 h later. No more than 2 doses per episode, 1 episode every 5 days, 5 episodes a month.", RESP, ESCALATE],
+    notes: ["The label was expanded to 2 years and older (some references still say 6 years).", "Devices: 5, 7.5 or 10 mg per 0.1 mL; doses over 10 mg use two devices (maximum 20 mg).", "Second dose at least 4 h later. No more than 2 doses per episode, 1 episode every 5 days, 5 episodes a month.", RESP, ESCALATE],
     source: "FDA Valtoco label." },
   nayzilam: { name: "Midazolam nasal spray (Nayzilam)", needsAge: true,
     compute(kg, age) {
@@ -530,6 +623,39 @@ const BENZO = {
     source: "AES guideline 2016 (Level A)." }
 };
 
+/* Infantile spasms (infantile epileptic spasms syndrome) — OpenEvidence Snow, 2026-10-09.
+   compute(kg, age, bsa) -> { rows, unitLabel, conc, notCovered, note }. */
+const IS = {
+  acthHigh: { name: "ACTH, high dose (Acthar Gel)", unitLabel: "IU",
+    compute(kg, age, bsa) {
+      if (!bsa) return { notCovered: "Enter the height above: high-dose ACTH is dosed by body surface area." };
+      return { band: `BSA ${fmt(bsa)} m²`, rows: [
+        row("Days 1–14 (150 IU/m²/day IM, divided twice daily)", fixed(150 * bsa), { freq: 2 }),
+        row("Days 15–17 (30 IU/m² each morning)", fixed(30 * bsa), { unit: "dose" }),
+        row("Days 18–20 (15 IU/m² each morning)", fixed(15 * bsa), { unit: "dose" }),
+        row("Days 21–23 (10 IU/m² each morning)", fixed(10 * bsa), { unit: "dose" }),
+        row("Then 10 IU/m² every other morning × 3 doses", fixed(10 * bsa), { unit: "dose" })
+      ], note: "Baram / NISC regimen (87% response in the original trial). Natural ACTH, IM." };
+    } },
+  acthLow: { name: "ACTH, low dose", unitLabel: "IU",
+    compute: () => ({ rows: [row("20–30 IU/day IM", fixed(20, 30))], note: "For 2–6 weeks, then taper over about 1 week. AAN/CNS: probably as effective as high dose (Level B)." }) },
+  pred: { name: "Prednisolone, high dose (oral)",
+    compute: kg => ({ rows: [
+      row("Days 1–14 (10 mg four times daily)", fixed(40), { freq: 4 }),
+      row("If spasms continue at day 7", fixed(60), { freq: 4 }),
+      row("Taper over about 2 weeks (days 15–29)", fixed(30)), row("then", fixed(20)), row("then", fixed(10)),
+      row("Weight-based alternative (4–8 mg/kg/day, max 60 mg/day)", perKg(kg, 4, 8), { cap: 60 })
+    ], note: "UKISS / NISC fixed regimen. The weight-based alternative is tapered over 2–6 weeks. No significant difference from ACTH in spasm cessation or hypsarrhythmia resolution (meta-analyses)." }) },
+  vgb: { name: "Vigabatrin", conc: 50,
+    compute(kg, age) {
+      return { rows: [
+        row("Days 1–3 (50 mg/kg/day)", perKg(kg, 50), { freq: 2 }), row("Days 4–6 (100 mg/kg/day)", perKg(kg, 100), { freq: 2 }),
+        row("Day 7 on (150 mg/kg/day, FDA maximum)", perKg(kg, 150), { freq: 2 })
+      ], note: "Twice daily (NISC schedule). Sabril powder 50 mg/mL. Reassess by day 14; stop if no benefit within 2–4 weeks. Duration is debated: 6 months or less (retinal toxicity) versus up to about 24 months (relapse).",
+        warn: age != null && (age < MO || age >= 2) ? ["FDA infantile spasms labeling covers 1 month to 2 years."] : [] };
+    } }
+};
+
 /* Second-line IV loading (status epilepticus). mg (or mg PE) per dose; no mL because IV concentrations weren't supplied. */
 const RESCUE = {
   levetiracetam: { name: "Levetiracetam IV", compute: kg => [row("Load (40–60 mg/kg), over 5–15 min", perKg(kg, 40, 60), { unit: "dose", cap: 4500 })],
@@ -546,7 +672,7 @@ const RESCUE = {
       row("May repeat (5 mg/kg)", perKg(kg, 5), { unit: "dose", cap: 200 })],
     notes: ["Off-label for status epilepticus. Monitor the PR interval."], source: "AES guideline 2016; Bravo, Vaddiparti & Hirsch, Drugs 2021." },
   brivaracetam: { name: "Brivaracetam IV", compute: () => [],
-    notes: ["Not computed: no pediatric status-epilepticus dosing is established. Adult registries used about 2 mg/kg (100 mg).", "VERIFY: the adult registry figure needs a brivaracetam-specific citation (the earlier Santamarina 2019 attribution was for lacosamide)."], source: "FDA Briviact label." }
+    notes: ["Not computed: no pediatric status-epilepticus dosing is established. Adult registries: median loading dose 100 mg (about 1.8 mg/kg); no responder below about 1.9 mg/kg, so at least 2 mg/kg is advised.", "Off-label; AES 2020 rated the evidence insufficient."], source: "Santamarina, Epilepsia 2019; Aicua-Rapun, Epilepsy Res 2019; FDA Briviact label." }
 };
 
 /* ============================ helpers ============================ */
@@ -665,11 +791,33 @@ function renderBenzo() {
   out.innerHTML = h;
 }
 
+function renderIS() {
+  const key = $("isdrug").value, out = $("isout");
+  if (!key) { out.innerHTML = ""; return; }
+  const d = IS[key], p = patient();
+  const ht = Number($("ht").value);
+  const bsa = p.kg && ht >= 30 && ht <= 200 ? Math.sqrt(ht * p.kg / 3600) : null;   // Mosteller
+  let h = "";
+  const problem = patientProblem(p, false);
+  if (problem) h += `<div class="banner" style="margin-top:12px"><p>${problem}</p></div>`;
+  else {
+    const res = d.compute(p.kg, p.age, bsa);
+    h += `<h3>Dose for ${fmt(p.kg)} kg${res.band ? ` · ${esc(res.band)}` : ""}</h3>`;
+    if (res.notCovered) h += `<div class="banner"><p>${esc(res.notCovered)}</p></div>`;
+    else {
+      h += doseTable(res.rows, d.conc || null, d.unitLabel || "mg");
+      if (res.note) h += `<p class="hint">${esc(res.note)}</p>`;
+      (res.warn || []).forEach(w => { h += `<div class="caveat">${esc(w)}</div>`; });
+    }
+  }
+  out.innerHTML = h;
+}
+
 function renderPatient() {
   const p = patient();
   $("pt-echo").textContent = p.kg ? (p.unit === "lb" ? `${p.w} lb = ${fmt(p.kg)} kg` : `${fmt(p.kg)} kg = ${fmt(p.kg * LB_PER_KG)} lb`) +
     (p.age != null && p.ageOk ? ` · age ${fmt(p.age)} years` : "") : "";
-  renderMaint(); renderBenzo(); renderRescue();
+  renderMaint(); renderBenzo(); renderRescue(); renderIS();
 }
 
 /* ============================ wiring ============================ */
@@ -679,10 +827,13 @@ Object.keys(RESCUE).forEach(k => { const o = document.createElement("option"); o
 ["wt", "age-y", "age-m"].forEach(id => $(id).addEventListener("input", renderPatient));
 $("drug").addEventListener("change", renderMaint);
 $("bdrug").addEventListener("change", renderBenzo);
+Object.keys(IS).forEach(k => { const o = document.createElement("option"); o.value = k; o.textContent = IS[k].name; $("isdrug").appendChild(o); });
+$("isdrug").addEventListener("change", renderIS);
+$("ht").addEventListener("input", renderIS);
 $("rdrug").addEventListener("change", renderRescue);
 // Changing the unit never reinterprets the number: clear it and ask again.
 document.querySelectorAll('input[name="u"]').forEach(r => r.addEventListener("change", () => {
-  if ($("wt").value !== "") { $("wt").value = ""; $("pt-echo").textContent = "Unit changed. Please enter the weight again."; renderMaint(); renderBenzo(); renderRescue(); $("wt").focus(); }
+  if ($("wt").value !== "") { $("wt").value = ""; $("pt-echo").textContent = "Unit changed. Please enter the weight again."; renderMaint(); renderBenzo(); renderRescue(); renderIS(); $("wt").focus(); }
 }));
 
 /* ---- PIN gate: same PIN, same saved unlock as the hub; second code opens the pet picker ---- */
