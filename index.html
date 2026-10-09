@@ -1,0 +1,256 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Pediatric Tools</title>
+<meta name="description" content="Planners and calculators for families and clinicians, by Dr. Christian Rada, DO.">
+<!-- link previews in texts and chats -->
+<meta property="og:type" content="website">
+<meta property="og:title" content="Pediatric Tools">
+<meta property="og:description" content="By Dr. Christian Rada, DO. Planners and calculators for families and clinicians.">
+<meta property="og:url" content="https://hyponatremia-peds.github.io/peds-tools/">
+<meta property="og:image" content="https://hyponatremia-peds.github.io/peds-tools/og-image.png">
+<meta property="og:image:width" content="512">
+<meta property="og:image:height" content="512">
+<meta property="og:image:alt" content="A small snake wound around a staff (Rod of Asclepius)">
+<meta name="twitter:card" content="summary">
+<!-- browser bar color on phones (updated by the light/dark switch) -->
+<meta name="theme-color" content="#0D0D0C">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<script>
+  // Dark mode by default; a saved choice from the switch wins. Applied before the page draws, so it doesn't flash.
+  (function () {
+    let t = null;
+    try { t = localStorage.getItem("peds-tools-theme"); } catch (e) {}
+    document.documentElement.dataset.theme = (t === "light" || t === "dark") ? t : "dark";
+  })();
+</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:wght@500;600&family=Geist+Mono:wght@400;500&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  /* Same tokens as the Cleanout Planner: light = TypeUI "Vertical", dark = warm "Claude" palette. */
+  :root {
+    --page: #F4F4F5; --panel: #FFFFFF; --soft: #FAFAFA;
+    --brand: #232323; --brand-text: #FFFFFF;
+    --band: #232323; --band-text: #FFFFFF; --band-muted: #A1A1AA;
+    --heading: #18181B; --body: #52525B; --border: #E4E4E7; --subtle: #F2F2F2;
+    --warn-bg: #FEF2F2; --warn-border: #FCA5A5; --warn-text: #7F1D1D;
+    --focus: #161616;
+    --radius: 4px;
+    --serif: "EB Garamond", "Adobe Jenson Pro", Garamond, Georgia, serif;
+    --sans: Inter, system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    --mono: "Geist Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --page: #141413; --panel: #1C1B19; --soft: #242320;
+      --brand: #FAF9F6; --brand-text: #141413;
+      --band: #0D0D0C; --band-text: #FAF9F6; --band-muted: #A8A49B;
+      --heading: #FAF9F6; --body: #C2BEB5; --border: #3A3833; --subtle: #2C2B27;
+      --warn-bg: #2A1A17; --warn-border: #7A2E26; --warn-text: #F3CFC6;
+      --focus: #FAF9F6;
+    }
+  }
+  :root[data-theme="dark"] {
+    --page: #141413; --panel: #1C1B19; --soft: #242320;
+    --brand: #FAF9F6; --brand-text: #141413;
+    --band: #0D0D0C; --band-text: #FAF9F6; --band-muted: #A8A49B;
+    --heading: #FAF9F6; --body: #C2BEB5; --border: #3A3833; --subtle: #2C2B27;
+    --warn-bg: #2A1A17; --warn-border: #7A2E26; --warn-text: #F3CFC6;
+    --focus: #FAF9F6;
+  }
+  * { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
+  body { margin: 0; background: var(--page); color: var(--body); font: 17px/1.6 var(--sans); }
+  strong, b { color: var(--heading); font-weight: 600; }
+
+  .band { background: var(--band); color: var(--band-text); }
+  .band-inner { max-width: 760px; margin: 0 auto; padding: 40px 16px 36px; position: relative; }
+  header.band .band-inner { padding-top: 64px; }
+  .band h1 { font-family: var(--serif); font-weight: 500; letter-spacing: -0.02em; font-size: clamp(2rem, 7vw, 2.9rem);
+             line-height: 1.05; margin: 0 0 10px; color: var(--band-text); }
+  .band .by { margin: 0; color: var(--band-muted); }
+  footer.band .band-inner { padding: 28px 16px 36px; font-size: 14px; }
+  footer.band p { margin: 0 0 8px; color: var(--band-muted); }
+  .theme-toggle { position: absolute; top: 12px; right: 16px; min-height: 40px; padding: 6px 12px;
+    font-family: var(--mono); font-size: 12px; font-weight: 500; letter-spacing: .06em; text-transform: uppercase;
+    color: var(--band-text); background: transparent; border: 1px solid var(--band-muted); border-radius: var(--radius); cursor: pointer; }
+  .theme-toggle:focus-visible { outline: 2px solid var(--band-text); outline-offset: 2px; }
+
+  .wrap { max-width: 760px; margin: 0 auto; padding: 24px 16px 40px; border-left: 1px solid var(--border); border-right: 1px solid var(--border); }
+  h2 { font-family: var(--serif); font-weight: 500; letter-spacing: -0.015em; font-size: 1.65rem; line-height: 1.15;
+       color: var(--heading); margin: 28px 0 12px; }
+  .banner { border-radius: var(--radius); padding: 12px 14px; margin: 0 0 8px; border: 1px solid;
+            background: var(--warn-bg); border-color: var(--warn-border); color: var(--warn-text); }
+  .banner p { margin: 0; }
+  .banner strong { color: inherit; }
+
+  .tools { display: grid; gap: 12px; }
+  .tool { background: var(--panel); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px; }
+  .tool h3 { font-family: var(--sans); font-size: 1.15rem; font-weight: 600; color: var(--heading); margin: 0 0 6px; }
+  .tool p { margin: 0 0 14px; }
+  .tool.soon { background: var(--soft); border-style: dashed; }
+  .tool.soon p { margin: 0; }
+  .tag { display: inline-block; font-family: var(--mono); font-size: 12px; letter-spacing: .06em; text-transform: uppercase;
+         color: var(--body); border: 1px solid var(--border); border-radius: 2px; padding: 1px 6px; margin-bottom: 8px; }
+  .btns { display: flex; flex-wrap: wrap; gap: 10px; }
+  .btn { font: inherit; font-weight: 600; font-size: 15px; border-radius: var(--radius); padding: 11px 18px; min-height: 52px;
+         border: 1px solid var(--brand); background: var(--brand); color: var(--brand-text); text-decoration: none;
+         display: inline-flex; align-items: center; cursor: pointer; }
+  .btn.secondary { background: var(--panel); color: var(--heading); border-color: var(--border); }
+  .btn:focus-visible, summary:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+  details { margin-top: 12px; }
+  summary { font-weight: 600; color: var(--heading); cursor: pointer; }
+  .qr { display: block; width: 200px; height: 200px; margin: 12px 0 4px; background: #fff; padding: 8px; border-radius: var(--radius); }
+  .hint { font-size: 15px; margin: 4px 0 0; }
+  .pin label { display: block; font-weight: 600; color: var(--heading); margin-bottom: 8px; }
+  .pin-row { display: flex; gap: 10px; flex-wrap: wrap; }
+  .pin input { font: inherit; font-family: var(--mono); font-size: 22px; letter-spacing: .3em; width: 7.5em; min-height: 52px;
+               padding: 8px 12px; color: var(--heading); background: var(--soft); border: 1px solid var(--border); border-radius: var(--radius); }
+  .pin input:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+  .pin-msg { margin: 8px 0 0; min-height: 1.2em; color: var(--warn-text); font-weight: 600; }
+  [hidden] { display: none !important; }
+
+  @media print {
+    :root, :root[data-theme="dark"], :root[data-theme="light"], :root:not([data-theme="light"]) {
+      --page: #FFF; --panel: #FFF; --soft: #FFF; --heading: #000; --body: #222; --border: #999;
+      --band: #FFF; --band-text: #000; --band-muted: #333; --brand: #000; --brand-text: #FFF;
+      --warn-bg: #FFF; --warn-border: #999; --warn-text: #000;
+    }
+    .theme-toggle { display: none; }
+  }
+</style>
+</head>
+<body>
+<header class="band">
+  <div class="band-inner">
+    <button type="button" class="theme-toggle" id="theme-toggle" aria-label="Switch between light and dark mode"></button>
+    <h1>Pediatric Tools</h1>
+    <p class="by">By Dr. Christian Rada, DO</p>
+  </div>
+</header>
+
+<main class="wrap">
+  <div class="banner">
+    <p><strong>Use these tools only as directed by your child's healthcare provider.</strong> They do not replace medical advice.</p>
+  </div>
+
+  <!-- ============ FOR FAMILIES ============
+       To add a tool, copy one <article class="tool"> block and change the name, description and link. -->
+  <section aria-labelledby="families-h">
+    <h2 id="families-h">For families</h2>
+    <div class="tools">
+      <article class="tool">
+        <span class="tag">Planner</span>
+        <h3>Constipation Cleanout Planner</h3>
+        <p>Your child's 3-day cleanout and daily Miralax plan, dosed by weight, with a daily checklist and calendar reminders.</p>
+        <div class="btns"><a class="btn" href="https://hyponatremia-peds.github.io/cleanout-planner/">Open the planner</a></div>
+      </article>
+      <article class="tool soon">
+        <span class="tag">Coming soon</span>
+        <h3>More planners and calculators</h3>
+        <p>New tools will appear here.</p>
+      </article>
+    </div>
+  </section>
+
+  <!-- ============ FOR CLINICIANS ============ -->
+  <section aria-labelledby="clinicians-h">
+    <h2 id="clinicians-h">For clinicians</h2>
+    <!-- PIN gate. This keeps families out of this section; it is not real security
+         (the page is public), so nothing confidential belongs here. -->
+    <form class="tool pin" id="pin-form" autocomplete="off">
+      <label for="pin">Enter the clinician PIN</label>
+      <div class="pin-row">
+        <input id="pin" type="password" inputmode="numeric" pattern="[0-9]*" maxlength="4" aria-describedby="pin-msg">
+        <button class="btn" type="submit">Unlock</button>
+      </div>
+      <p class="pin-msg" id="pin-msg" role="alert"></p>
+    </form>
+    <div class="tools" id="clinician-tools" hidden>
+      <article class="tool">
+        <span class="tag">Reference</span>
+        <h3>Cleanout Planner: dosing and rules</h3>
+        <p>Weight-based Miralax, senna and bisacodyl tables, the 10 kg (22 lb) floor, lb/kg boundary handling, and the 2-capful maintenance cap.</p>
+        <div class="btns">
+          <a class="btn secondary" href="https://github.com/Hyponatremia-Peds/cleanout-planner#the-plan">View dosing tables</a>
+          <a class="btn secondary" href="https://hyponatremia-peds.github.io/cleanout-planner/">Open the planner</a>
+        </div>
+        <details>
+          <summary>QR code to share with a family</summary>
+          <img class="qr" src="https://hyponatremia-peds.github.io/cleanout-planner/qr-code.png" width="200" height="200"
+               alt="QR code that opens the Constipation Cleanout Planner">
+          <p class="hint">Scanning it opens the planner on the family's phone.</p>
+        </details>
+      </article>
+      <article class="tool soon">
+        <span class="tag">Coming soon</span>
+        <h3>More references</h3>
+        <p>Dosing references for new tools will appear here.</p>
+      </article>
+      <div class="btns"><button class="btn secondary" type="button" id="lock-btn">Lock clinician section</button></div>
+    </div>
+  </section>
+</main>
+
+<footer class="band">
+  <div class="band-inner">
+    <p>These tools give general information for families and clinicians. They do not replace advice from a child's healthcare provider. Always follow your provider's instructions if they are different.</p>
+    <p>Nothing you enter on this page is collected. Each tool explains how it handles information.</p>
+  </div>
+</footer>
+
+<script>
+  // Clinician PIN gate. Only a SHA-256 hash of the PIN is stored here, so the PIN itself
+  // isn't readable in the page source. This is a convenience gate, not security.
+  (function () {
+    const PIN_HASH = "e4dfbbc00eabfea05b32abab544a223787749f77442a0180ec384fe65847bdde";
+    const KEY = "peds-tools-clinician";
+    const form = document.getElementById("pin-form"), input = document.getElementById("pin");
+    const msg = document.getElementById("pin-msg"), tools = document.getElementById("clinician-tools");
+    const show = unlocked => { tools.hidden = !unlocked; form.hidden = unlocked; };
+    async function hash(text) {
+      const buf = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(text));
+      return [...new Uint8Array(buf)].map(b => b.toString(16).padStart(2, "0")).join("");
+    }
+    // Stays unlocked until this browser tab is closed.
+    let unlocked = false;
+    try { unlocked = sessionStorage.getItem(KEY) === "1"; } catch (e) {}
+    show(unlocked);
+    form.addEventListener("submit", async e => {
+      e.preventDefault();
+      if ((await hash("cleanout-hub:" + input.value.trim())) === PIN_HASH) {
+        try { sessionStorage.setItem(KEY, "1"); } catch (e2) {}
+        msg.textContent = ""; input.value = ""; show(true);
+      } else {
+        msg.textContent = "That PIN is not correct."; input.select();
+      }
+    });
+    document.getElementById("lock-btn").addEventListener("click", () => {
+      try { sessionStorage.removeItem(KEY); } catch (e) {}
+      show(false);
+    });
+  })();
+
+  // Light/dark switch: starts dark until the visitor picks one.
+  (function () {
+    const btn = document.getElementById("theme-toggle");
+    const isDark = () => document.documentElement.dataset.theme === "dark";
+    const label = () => {
+      btn.textContent = isDark() ? "☀ Light" : "☾ Dark";
+      document.querySelector('meta[name="theme-color"]').setAttribute("content", isDark() ? "#0D0D0C" : "#232323");
+    };
+    btn.addEventListener("click", () => {
+      const next = isDark() ? "light" : "dark";
+      document.documentElement.dataset.theme = next;
+      try { localStorage.setItem("peds-tools-theme", next); } catch (e) {}
+      label();
+    });
+    label();
+  })();
+</script>
+</body>
+</html>
