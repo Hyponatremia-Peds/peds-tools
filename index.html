@@ -27,6 +27,8 @@
     document.documentElement.dataset.theme = (t === "light" || t === "dark") ? t : "dark";
   })();
 </script>
+<!-- cursor-following pet (only appears if chosen through the secret code) -->
+<script src="pets.js" defer></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=EB+Garamond:wght@500;600&family=Geist+Mono:wght@400;500&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -78,6 +80,7 @@
   footer.band a { color: inherit; text-underline-offset: 2px; }
   footer.band .credit { margin-top: 14px; }
   .pixel-heart { vertical-align: -2px; margin: 0 2px; image-rendering: pixelated; }
+  footer.band .sprite-credit { font-size: 12px; opacity: .8; }
   .theme-toggle { position: absolute; top: 12px; right: 16px; min-height: 40px; padding: 6px 12px;
     font-family: var(--mono); font-size: 12px; font-weight: 500; letter-spacing: .06em; text-transform: uppercase;
     color: var(--band-text); background: transparent; border: 1px solid var(--band-muted); border-radius: var(--radius); cursor: pointer; }
@@ -189,6 +192,12 @@
           <p class="hint">Scanning it opens the planner on the family's phone.</p>
         </details>
       </article>
+      <article class="tool">
+        <span class="tag">Calculator · Draft</span>
+        <h3>Anti-Seizure Medication Dosing</h3>
+        <p>Weight- and age-based daily dosing for 16 pediatric anti-seizure medications, with mg to mL for oral liquids, plus second-line IV loading doses. <strong>Draft: not yet reviewed.</strong></p>
+        <div class="btns"><a class="btn" href="asm-dosing.html">Open the calculator</a></div>
+      </article>
       <article class="tool soon">
         <span class="tag">Coming soon</span>
         <h3>More references</h3>
@@ -208,6 +217,7 @@
         <path fill="#E5484D" d="M1 0h2v1h-2zM4 0h2v1h-2zM0 1h7v2h-7zM1 3h5v1h-5zM2 4h3v1h-3zM3 5h1v1h-1z"/>
       </svg>
       <a href="https://claude.com/claude-code">Claude</a></p>
+    <p class="sprite-credit">Sprites from the PMD Sprite Repository (<a href="https://sprites.pmdcollab.org">sprites.pmdcollab.org</a>), CC BY-NC 4.0: Eevee and Espeon by Chunsoft; Jolteon by Chunsoft and dmDash. Pokémon © Nintendo, Creatures, GAME FREAK.</p>
   </div>
 </footer>
 
@@ -228,37 +238,16 @@
     let unlocked = false;
     try { unlocked = localStorage.getItem(KEY) === "1"; } catch (e) {}
     show(unlocked);
-    // Easter egg: a different code (also stored only as a hash) summons Web Neko's black cat.
-    const NEKO_HASH = "6747081bf1c609a055b764f2db8acb47ca1a270da2771465845c66cc8d9e24e2";
-    let nekoStarted = false;
-    function summonNeko() {
-      if (nekoStarted) return;
-      nekoStarted = true;
-      window.NekoType = "black";
-      window.NekoNoDefault = true;   // we start it ourselves; the page has already loaded
-      // Appear just right of the Unlock button (or just below it if there's no room on a narrow phone).
-      const b = form.querySelector('button[type="submit"]').getBoundingClientRect();
-      const roomRight = b.right + 12 + 40 <= document.documentElement.clientWidth;
-      window.startNekoX = Math.round((roomRight ? b.right + 12 : b.left) + window.scrollX);
-      window.startNekoY = Math.round((roomRight ? b.top + 4 : b.bottom + 8) + window.scrollY);
-      // The script calls document.write once (to add a style). After the page has loaded that
-      // could wipe the page, so turn it into a harmless style insert while the script loads.
-      const realWrite = document.write;
-      document.write = html => document.head.insertAdjacentHTML("beforeend", html);
-      const s = document.createElement("script");
-      // Web Neko's license asks that the script be linked from webneko.net, not copied.
-      s.src = "https://webneko.net/n20171213.js";
-      s.onload = () => { document.write = realWrite; if (typeof window.startANeko === "function") window.startANeko(); };
-      s.onerror = () => { document.write = realWrite; nekoStarted = false; };
-      document.head.appendChild(s);
-    }
+    // Easter egg: a different code (also stored only as a hash) opens the pet picker (pets.js).
+    const PET_HASH = "6747081bf1c609a055b764f2db8acb47ca1a270da2771465845c66cc8d9e24e2";
 
     form.addEventListener("submit", async e => {
       e.preventDefault();
       const entered = await hash("cleanout-hub:" + input.value.trim());
-      if (entered === NEKO_HASH) {
-        msg.textContent = "Meow! Click the cat to play chase."; input.value = "";
-        summonNeko();
+      if (entered === PET_HASH) {
+        msg.textContent = "Meow! Pick a pet. It follows your mouse.";
+        input.value = "";
+        if (window.PedsPets) window.PedsPets.showPicker(form.querySelector(".pin-row"));
         return;
       }
       if (entered === PIN_HASH) {
