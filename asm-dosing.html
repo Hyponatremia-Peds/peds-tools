@@ -1,0 +1,624 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ASM Dosing</title>
+<meta name="description" content="Clinician reference: pediatric anti-seizure medication dosing by weight and age, with mg-to-mL conversion. Draft.">
+<meta name="robots" content="noindex">
+<meta name="theme-color" content="#0D0D0C">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<script>
+  (function () {
+    let t = null;
+    try { t = localStorage.getItem("peds-tools-theme"); } catch (e) {}
+    document.documentElement.dataset.theme = (t === "light" || t === "dark") ? t : "dark";
+  })();
+</script>
+<script src="pets.js" defer></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:wght@500;600&family=Geist+Mono:wght@400;500&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  /* Same tokens as the hub and the Cleanout Planner. */
+  :root {
+    --page: #F4F4F5; --panel: #FFFFFF; --soft: #FAFAFA;
+    --brand: #232323; --brand-text: #FFFFFF;
+    --band: #232323; --band-text: #FFFFFF; --band-muted: #A1A1AA;
+    --heading: #18181B; --body: #52525B; --border: #E4E4E7; --subtle: #F2F2F2;
+    --warn-bg: #FEF2F2; --warn-border: #FCA5A5; --warn-text: #7F1D1D;
+    --stop-bg: #FEF2F2; --stop-border: #E40014; --stop-text: #C10007;
+    --hl: #F4F4F5; --focus: #161616; --radius: 4px;
+    --serif: "EB Garamond", "Adobe Jenson Pro", Garamond, Georgia, serif;
+    --sans: Inter, system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    --mono: "Geist Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --page: #141413; --panel: #1C1B19; --soft: #242320; --brand: #FAF9F6; --brand-text: #141413;
+      --band: #0D0D0C; --band-text: #FAF9F6; --band-muted: #A8A49B; --heading: #FAF9F6; --body: #C2BEB5;
+      --border: #3A3833; --subtle: #2C2B27; --warn-bg: #2A1A17; --warn-border: #7A2E26; --warn-text: #F3CFC6;
+      --stop-bg: #2C1513; --stop-border: #DC2626; --stop-text: #FBD3CC; --hl: #2C2B27; --focus: #FAF9F6;
+    }
+  }
+  :root[data-theme="dark"] {
+    --page: #141413; --panel: #1C1B19; --soft: #242320; --brand: #FAF9F6; --brand-text: #141413;
+    --band: #0D0D0C; --band-text: #FAF9F6; --band-muted: #A8A49B; --heading: #FAF9F6; --body: #C2BEB5;
+    --border: #3A3833; --subtle: #2C2B27; --warn-bg: #2A1A17; --warn-border: #7A2E26; --warn-text: #F3CFC6;
+    --stop-bg: #2C1513; --stop-border: #DC2626; --stop-text: #FBD3CC; --hl: #2C2B27; --focus: #FAF9F6;
+  }
+  * { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
+  body { margin: 0; background: var(--page); color: var(--body); font: 16px/1.55 var(--sans); }
+  strong, b { color: var(--heading); font-weight: 600; }
+  a { color: var(--heading); }
+  .band { background: var(--band); color: var(--band-text); }
+  .band-inner { max-width: 900px; margin: 0 auto; padding: 40px 16px 32px; position: relative; }
+  header.band .band-inner { padding-top: 64px; }
+  .band h1 { font-family: var(--serif); font-weight: 500; letter-spacing: -0.02em; font-size: clamp(1.9rem, 6vw, 2.6rem); line-height: 1.08; margin: 0 0 10px; color: var(--band-text); }
+  .band .by { margin: 0; color: var(--band-muted); }
+  .back { position: absolute; top: 18px; left: 16px; color: var(--band-muted); font-size: 14px; }
+  .theme-toggle { position: absolute; top: 12px; right: 16px; min-height: 40px; padding: 6px 12px; font-family: var(--mono); font-size: 12px; font-weight: 500;
+    letter-spacing: .06em; text-transform: uppercase; color: var(--band-text); background: transparent; border: 1px solid var(--band-muted); border-radius: var(--radius); cursor: pointer; }
+  footer.band .band-inner { padding: 28px 16px 36px; font-size: 13px; }
+  footer.band p { margin: 0 0 8px; color: var(--band-muted); }
+  footer.band a { color: inherit; text-underline-offset: 2px; }
+  footer.band .credit { margin-top: 14px; font-size: 14px; }
+  footer.band .sprite-credit { font-size: 12px; opacity: .8; }
+  .pixel-heart { vertical-align: -2px; margin: 0 2px; }
+
+  .wrap { max-width: 900px; margin: 0 auto; padding: 24px 16px 40px; border-left: 1px solid var(--border); border-right: 1px solid var(--border); }
+  h2 { font-family: var(--serif); font-weight: 500; font-size: 1.5rem; color: var(--heading); margin: 0 0 10px; letter-spacing: -0.01em; }
+  h3 { font-family: var(--mono); font-size: 12px; font-weight: 500; letter-spacing: .07em; text-transform: uppercase; color: var(--body); margin: 18px 0 8px; }
+  .card { background: var(--panel); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px; margin-bottom: 16px; }
+  .banner { border-radius: var(--radius); padding: 12px 14px; margin: 0 0 12px; border: 1px solid; background: var(--warn-bg); border-color: var(--warn-border); color: var(--warn-text); }
+  .banner.stop { background: var(--stop-bg); border-color: var(--stop-border); color: var(--stop-text); }
+  .banner p { margin: 0; } .banner p + p { margin-top: 6px; } .banner strong { color: inherit; }
+  label { display: block; font-weight: 600; color: var(--heading); margin-bottom: 6px; font-size: 15px; }
+  input[type=number], input[type=password], select { font: inherit; font-size: 16px; color: var(--heading); background: var(--soft);
+    border: 1px solid var(--border); border-radius: var(--radius); padding: 10px 12px; min-height: 48px; width: 100%; }
+  input:focus-visible, select:focus-visible, button:focus-visible, summary:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; align-items: end; }
+  .seg { display: inline-flex; border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; height: 48px; }
+  .seg input { position: absolute; opacity: 0; pointer-events: none; }
+  .seg label { margin: 0; padding: 0 16px; display: flex; align-items: center; cursor: pointer; background: var(--soft); font-family: var(--mono); text-transform: uppercase; font-size: 13px; }
+  .seg input:checked + label { background: var(--brand); color: var(--brand-text); }
+  .hint { font-size: 14px; margin: 6px 0 0; }
+  .btn { font: inherit; font-weight: 600; font-size: 15px; border-radius: var(--radius); padding: 10px 18px; min-height: 48px; border: 1px solid var(--brand);
+    background: var(--brand); color: var(--brand-text); cursor: pointer; }
+  .btn.secondary { background: var(--panel); color: var(--heading); border-color: var(--border); }
+  details.section { background: var(--panel); border: 1px solid var(--border); border-radius: var(--radius); margin-bottom: 16px; }
+  details.section > summary { padding: 16px 20px; font-family: var(--serif); font-size: 1.45rem; color: var(--heading); cursor: pointer; }
+  details.section > .inner { padding: 0 20px 20px; }
+  table { width: 100%; border-collapse: collapse; font-size: 15px; margin-top: 6px; }
+  th, td { text-align: left; padding: 9px 8px; border-bottom: 1px solid var(--border); vertical-align: top; }
+  th { font-family: var(--mono); font-size: 11px; font-weight: 500; text-transform: uppercase; letter-spacing: .05em; }
+  td.num { font-family: var(--mono); color: var(--heading); white-space: nowrap; }
+  .tablewrap { overflow-x: auto; }
+  .field { margin: 10px 0; } .field .k { font-weight: 600; color: var(--heading); }
+  .caveat { border-left: 3px solid var(--warn-border); padding: 6px 10px; margin: 6px 0; font-size: 14.5px; }
+  .tag { font-family: var(--mono); font-size: 11px; padding: 2px 7px; border-radius: 2px; border: 1px solid var(--stop-border); color: var(--stop-text); margin-left: 6px; white-space: nowrap; }
+  .capped { font-size: 12px; color: var(--warn-text); display: block; }
+  .conv { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin-top: 8px; }
+  .conv input { width: 8em; min-height: 44px; }
+  .src { font-size: 13px; margin-top: 14px; }
+  .pin-row { display: flex; gap: 10px; flex-wrap: wrap; }
+  .pin-row input { width: 7.5em; font-family: var(--mono); font-size: 22px; letter-spacing: .3em; }
+  .pin-msg { margin: 8px 0 0; min-height: 1.2em; color: var(--warn-text); font-weight: 600; }
+  [hidden] { display: none !important; }
+  @media print {
+    :root, :root[data-theme="dark"], :root[data-theme="light"], :root:not([data-theme="light"]) {
+      --page:#FFF; --panel:#FFF; --soft:#FFF; --heading:#000; --body:#222; --border:#999; --band:#FFF; --band-text:#000; --band-muted:#333;
+      --brand:#000; --brand-text:#FFF; --warn-bg:#FFF; --warn-border:#999; --warn-text:#000; --stop-bg:#FFF; --stop-border:#C10007; --stop-text:#C10007; --hl:#EEE;
+    }
+    .theme-toggle, .back, #pin-form, .conv-card { display: none !important; }
+  }
+</style>
+</head>
+<body>
+<header class="band">
+  <div class="band-inner">
+    <a class="back" href="./">← Pediatric Tools</a>
+    <button type="button" class="theme-toggle" id="theme-toggle" aria-label="Switch between light and dark mode"></button>
+    <h1>Anti-Seizure Medication Dosing</h1>
+    <p class="by">By Dr. Christian Rada, DO · Clinician reference</p>
+  </div>
+</header>
+
+<main class="wrap">
+  <div class="banner stop">
+    <p><strong>DRAFT. Not yet reviewed. Do not use for patient care.</strong></p>
+    <p>Doses come from an OpenEvidence summary of FDA labels and guidelines and are awaiting Dr. Rada's review. Items marked <span class="tag">VERIFY</span> are known open questions.</p>
+  </div>
+
+  <!-- PIN gate (same PIN and unlock as the hub). Not real security: the page is public. -->
+  <form class="card" id="pin-form" autocomplete="off">
+    <label for="pin">Enter the clinician PIN</label>
+    <div class="pin-row">
+      <input id="pin" type="password" inputmode="numeric" pattern="[0-9]*" maxlength="4" aria-describedby="pin-msg">
+      <button class="btn" type="submit">Unlock</button>
+    </div>
+    <p class="pin-msg" id="pin-msg" role="alert"></p>
+  </form>
+
+  <div id="tool" hidden>
+    <div class="banner">
+      <p><strong>Decision support only.</strong> Verify every dose against the current product label and your institution's protocol. Confirm the oral-liquid concentration you are actually dispensing before converting mg to mL.</p>
+    </div>
+
+    <section class="card" aria-labelledby="pt-h">
+      <h2 id="pt-h">Patient</h2>
+      <div class="grid">
+        <div>
+          <label for="wt">Weight</label>
+          <input id="wt" type="number" inputmode="decimal" min="0" step="0.1">
+        </div>
+        <div>
+          <label>&nbsp;</label>
+          <div class="seg" role="radiogroup" aria-label="Weight unit">
+            <input type="radio" name="u" id="u-kg" value="kg" checked><label for="u-kg">kg</label>
+            <input type="radio" name="u" id="u-lb" value="lb"><label for="u-lb">lb</label>
+          </div>
+        </div>
+        <div>
+          <label for="age-y">Age: years</label>
+          <input id="age-y" type="number" inputmode="numeric" min="0" step="1">
+        </div>
+        <div>
+          <label for="age-m">and months</label>
+          <input id="age-m" type="number" inputmode="numeric" min="0" max="11" step="1">
+        </div>
+      </div>
+      <p class="hint" id="pt-echo"></p>
+    </section>
+
+    <details class="section" id="maint-sec" open>
+      <summary>Daily (maintenance) dosing</summary>
+      <div class="inner">
+        <label for="drug">Medication</label>
+        <select id="drug"><option value="">Select a medication…</option></select>
+        <div id="drug-opts"></div>
+        <div id="out"></div>
+      </div>
+    </details>
+
+    <details class="section" id="rescue-sec">
+      <summary>Rescue / status epilepticus</summary>
+      <div class="inner">
+        <div class="banner">
+          <p><strong>First-line benzodiazepine dosing is not included yet</strong> (rectal/intranasal diazepam, intranasal/buccal/IM midazolam, IV lorazepam). It is waiting on source data.</p>
+        </div>
+        <label for="rdrug">Second-line IV loading dose</label>
+        <select id="rdrug"><option value="">Select a medication…</option></select>
+        <div id="rout"></div>
+      </div>
+    </details>
+
+    <div style="margin-top:8px"><button type="button" class="btn secondary" id="lock-btn">Lock clinician section</button></div>
+  </div>
+</main>
+
+<footer class="band">
+  <div class="band-inner">
+    <p>Doses compiled (via OpenEvidence) from FDA drug labels, the ILAE therapeutic-drug-monitoring position paper (Epilepsia 2008), the ESETT trial (Lancet 2020) and the AES status-epilepticus treatment review (Epilepsy Curr 2020, as cited by OpenEvidence). This tool is clinical decision support and does not replace the current product label or institutional protocol.</p>
+    <p class="credit">Made with
+      <svg class="pixel-heart" viewBox="0 0 7 6" width="14" height="12" role="img" aria-label="love" shape-rendering="crispEdges">
+        <path fill="#E5484D" d="M1 0h2v1h-2zM4 0h2v1h-2zM0 1h7v2h-7zM1 3h5v1h-5zM2 4h3v1h-3zM3 5h1v1h-1z"/>
+      </svg>
+      <a href="https://claude.com/claude-code">Claude</a></p>
+    <p class="sprite-credit">Sprites from the PMD Sprite Repository (<a href="https://sprites.pmdcollab.org">sprites.pmdcollab.org</a>), CC BY-NC 4.0: Eevee and Espeon by Chunsoft; Jolteon by Chunsoft and dmDash. Pokémon © Nintendo, Creatures, GAME FREAK.</p>
+  </div>
+</footer>
+
+<script>
+"use strict";
+/* ======================================================================
+   DOSING DATA — every number below comes from the OpenEvidence summary the
+   user supplied (FDA labels, ILAE 2008, ESETT 2020, AES review). Nothing was
+   added from memory. Open questions are marked verify: "...".
+   Each compute(kg, ageY, opts) returns either
+     { notCovered: "why" } or { needAge: true } or
+     { rows: [ { stage, lo, hi, unit: "day"|"dose", freq, fixed, cap } ], note, warn: [] }
+   lo/hi are mg (per day unless unit "dose"); freq = doses per day when known.
+   ====================================================================== */
+const MO = 1 / 12;
+const perKg = (kg, lo, hi) => ({ lo: lo * kg, hi: (hi == null ? lo : hi) * kg });
+function row(stage, r, o = {}) {
+  let lo = r.lo, hi = r.hi, capped = false;
+  if (o.cap != null && (hi > o.cap || lo > o.cap)) { capped = true; lo = Math.min(lo, o.cap); hi = Math.min(hi, o.cap); }
+  return { stage, lo, hi, unit: o.unit || "day", freq: o.freq || null, capped, cap: o.cap, verify: o.verify };
+}
+const fixed = (lo, hi) => ({ lo, hi: hi == null ? lo : hi });
+
+const DRUGS = {
+  levetiracetam: { name: "Levetiracetam", brand: "Keppra", conc: 100, form: "oral solution 100 mg/mL", needsAge: true,
+    compute(kg, age) {
+      if (age < MO) return { notCovered: "Under 1 month: not covered by this tool (neonatal dosing not in the source data). See the label." };
+      if (age >= 16) return { notCovered: "16 years and older: adult dosing. See the label." };
+      const b = age < 0.5 ? { label: "1 to under 6 months", init: 14, max: 42 }
+              : age < 4   ? { label: "6 months to under 4 years", init: 20, max: 50 }
+              :             { label: "4 to under 16 years", init: 20, max: 60, cap: 3000 };
+      return { band: b.label, rows: [
+        row(`Initial (${b.init} mg/kg/day)`, perKg(kg, b.init), { freq: 2, cap: b.cap }),
+        row(`Maximum (${b.max} mg/kg/day${b.cap ? ", up to 3,000 mg/day" : ""})`, perKg(kg, b.max), { freq: 2, cap: b.cap })
+      ], note: "Twice daily. Titrate every 2 weeks by the same increment used to start." };
+    },
+    loading: "Status epilepticus (off-label, guideline-supported): 40–60 mg/kg IV over 5–15 min, max 4,500 mg (ESETT used 60 mg/kg).",
+    renal: "Reduce per CrCl (adult table): mild 50–80 → standard; moderate 30–50 → about ½; severe <30 → about ¼; hemodialysis: q24h plus a post-dialysis supplement. Pediatric-specific renal data are not in the label.",
+    hepatic: "No adjustment at any Child-Pugh grade.", target: "Not routinely monitored; reference about 12–46 mg/L.",
+    caveats: [], source: "FDA Keppra label; ESETT (Lancet 2020); AES SE review." },
+
+  clobazam: { name: "Clobazam", brand: "Onfi", conc: 2.5, form: "oral suspension 2.5 mg/mL",
+    compute(kg) {
+      const low = kg <= 30, d = low ? [5, 10, 20] : [10, 20, 40];
+      const f = mg => mg > 5 ? 2 : 1;
+      return { band: low ? "30 kg or less" : "over 30 kg", rows: [
+        row("Start", fixed(d[0]), { freq: f(d[0]) }), row("Day 7", fixed(d[1]), { freq: f(d[1]) }), row("Day 14 (maximum)", fixed(d[2]), { freq: f(d[2]) })
+      ], note: "Fixed doses by weight band. Divide twice daily when the dose is over 5 mg/day." };
+    },
+    loading: "No IV form. Oral only (tablet, suspension, film).",
+    renal: "No adjustment for mild–moderate; no data in severe impairment or ESRD.",
+    hepatic: "Mild–moderate (Child-Pugh 5–9): start 5 mg/day and titrate to ½ the usual doses. Severe: no recommendation.",
+    target: "0.03–0.3 mg/L (parent); the N-desmethyl metabolite is active.",
+    caveats: ["CYP2C19 poor metabolizers: start 5 mg/day, titrate to ½ doses.", "Off-label mg/kg (Dravet): start 0.2 mg/kg/day, target 0.3–1, max 2 mg/kg/day."],
+    source: "FDA Onfi label; Strzelczyk 2022 (Dravet)." },
+
+  lacosamide: { name: "Lacosamide", brand: "Vimpat", conc: 10, form: "oral solution 10 mg/mL",
+    compute(kg) {
+      if (kg >= 50) return { band: "50 kg and over", rows: [
+        row("Initial", fixed(100), { freq: 2 }), row("Maintenance (adjunct)", fixed(200, 400), { freq: 2 }), row("Monotherapy", fixed(300, 400), { freq: 2 })
+      ], note: "Fixed mg dosing. Titrate by 100 mg/day weekly." };
+      const v6 = "OpenEvidence gives 6–<11 kg the same maintenance range as 11–<30 kg (6–12 mg/kg/day). Check against the Vimpat label.";
+      const v0 = "Under 6 kg values (start 3.75 mg/kg twice daily) need checking against the Vimpat label.";
+      const b = kg >= 30 ? { label: "30 to under 50 kg", init: 2, m: [4, 8] }
+              : kg >= 11 ? { label: "11 to under 30 kg", init: 2, m: [6, 12] }
+              : kg >= 6  ? { label: "6 to under 11 kg", init: 2, m: [6, 12], verify: v6 }
+              :            { label: "under 6 kg", init: 7.5, m: [7.5, 15], verify: v0 };
+      return { band: b.label, rows: [
+        row(`Initial (${b.init} mg/kg/day)`, perKg(kg, b.init), { freq: 2, verify: b.verify }),
+        row(`Maintenance (${b.m[0]}–${b.m[1]} mg/kg/day)`, perKg(kg, b.m[0], b.m[1]), { freq: 2, verify: b.verify })
+      ], note: "Twice daily. Titrate by 1 mg/kg twice daily, weekly." };
+    },
+    loading: "Status epilepticus (off-label): 5–10 mg/kg IV over 5–10 min, max 400 mg; may repeat 5 mg/kg (max 200 mg). Label loading option: single 200 mg (≥50 kg) or 4 mg/kg, then maintenance 12 h later.",
+    renal: "Severe (CrCl <30): reduce the maximum dose by 25%. Hemodialysis: supplement up to 50% after dialysis.",
+    hepatic: "Mild–moderate: reduce the maximum by 25%. Severe: not recommended.",
+    target: "Not well established (about 5–10 mg/L reported).", caveats: ["Monitor the PR interval."],
+    source: "FDA Vimpat label; AES SE review; Yale NNHH SE protocol." },
+
+  brivaracetam: { name: "Brivaracetam", brand: "Briviact", conc: 10, form: "oral solution 10 mg/mL",
+    compute(kg) {
+      const vf = "OpenEvidence didn't state the dosing frequency, so per-dose amounts aren't shown. Check the label.";
+      if (kg >= 50) return { band: "50 kg and over", rows: [row("Initial", fixed(50, 100)), row("Maintenance", fixed(50, 200))], note: "Fixed mg dosing; no titration required.", warn: [vf] };
+      const b = kg >= 20 ? { label: "20 to under 50 kg", i: [1, 2], m: [1, 4] } : kg >= 11 ? { label: "11 to under 20 kg", i: [1, 2.5], m: [1, 5] } : { label: "under 11 kg", i: [1.5, 3], m: [1.5, 6] };
+      return { band: b.label, rows: [
+        row(`Initial (${b.i[0]}–${b.i[1]} mg/kg/day)`, perKg(kg, b.i[0], b.i[1])), row(`Maintenance (${b.m[0]}–${b.m[1]} mg/kg/day)`, perKg(kg, b.m[0], b.m[1]))
+      ], note: "No titration required.", warn: [vf] };
+    },
+    loading: "IV dose = oral dose, over 2–15 min. Status epilepticus use is off-label; no pediatric SE dosing established (adult registries about 2 mg/kg, 100 mg).",
+    renal: "No adjustment; not recommended in ESRD on dialysis.", hepatic: "Reduce at all Child-Pugh grades (about ⅓–½ lower maximum).",
+    target: "0.2–2 mg/L (not routinely monitored).", caveats: [], source: "FDA Briviact label; Santamarina 2019." },
+
+  oxcarbazepine: { name: "Oxcarbazepine", brand: "Trileptal", conc: 60, form: "oral suspension 60 mg/mL (300 mg/5 mL)", needsAge: true,
+    compute(kg, age) {
+      if (age < 2) return { notCovered: "Under 2 years: not covered by the source data. See the label." };
+      if (age >= 17) return { notCovered: "17 years and older: adult dosing. See the label." };
+      const rows = [row("Initial, adjunct (8–10 mg/kg/day)", perKg(kg, 8, 10), { freq: 2, verify: "OpenEvidence didn't give a maximum starting dose (mg/day). Check the label." })];
+      if (age < 4) rows.push(row("Maximum, age 2 to under 4 (60 mg/kg/day)", perKg(kg, 60), { freq: 2 }));
+      else if (kg >= 20) {
+        const t = kg <= 29 ? 900 : kg <= 39 ? 1200 : 1800;
+        rows.push(row(`Target, adjunct (weight ${kg <= 29 ? "20–29" : kg <= 39 ? "29–39" : "over 39"} kg)`, fixed(t), { freq: 2 }));
+      }
+      return { band: age < 4 ? "2 to under 4 years" : "4 to 16 years", rows,
+        note: "Twice daily. Adjunct (4–16 yr): titrate over 2 weeks to the weight target. Monotherapy: increase 5 mg/kg/day every 3 days." + (age >= 4 && kg < 20 ? " Under 20 kg: the source data give no weight target." : "") };
+    },
+    loading: "No IV form.", renal: "CrCl <30: start at ½ the usual dose and titrate slowly.",
+    hepatic: "No adjustment for mild–moderate; not evaluated or recommended in severe impairment.",
+    target: "MHD metabolite 3–35 mg/L (ILAE); efficacy often 15–35.",
+    caveats: ["Monitor for hyponatremia.", "Children 2 to under 4 years may need up to twice the adult mg/kg dose."],
+    source: "FDA Trileptal label; ILAE TDM 2008." },
+
+  carbamazepine: { name: "Carbamazepine", brand: "Tegretol", conc: 20, form: "oral suspension 20 mg/mL (100 mg/5 mL)", needsAge: true,
+    compute(kg, age) {
+      if (age < 6) return { band: "under 6 years", rows: [
+        row("Initial (10–20 mg/kg/day)", perKg(kg, 10, 20), { freq: 3 }), row("Maximum (35 mg/kg/day)", perKg(kg, 35), { freq: 4 })
+      ], note: "Suspension: give three to four times daily." };
+      const b = age < 12 ? { label: "6 to under 12 years", s: 200, t: "+100 mg/day weekly", max: 1000 }
+              : age < 15 ? { label: "12 to under 15 years", s: 400, t: "+200 mg/day weekly", max: 1000 }
+              :            { label: "15 years and older", s: 400, t: "+200 mg/day weekly", max: 1200 };
+      return { band: b.label, rows: [row("Start", fixed(b.s)), row("Maximum", fixed(b.max))],
+        note: `Titrate ${b.t} to effect. Suspension: give three to four times daily.` };
+    },
+    loading: "No IV form.", renal: "No adjustment (under 1% renal). Monitor for hyponatremia.",
+    hepatic: "Use with caution; discontinue if hepatic dysfunction. No fixed adjustment.", target: "4–12 mcg/mL (same in children and adults).",
+    caveats: ["Suspension gives higher peaks and lower troughs than tablets, so use smaller, more frequent doses.", "Don't give the suspension at the same time as other liquid medicines (precipitate).", "Autoinduction: clearance rises over 2–4 weeks.", "Check HLA-B*1502 in at-risk ancestry."],
+    source: "FDA Tegretol label; ILAE TDM 2008." },
+
+  valproic: { name: "Valproic acid / divalproex", brand: "Depakene / Depakote", conc: 50, form: "oral solution 50 mg/mL (250 mg/5 mL), Depakene; Depakote has no liquid",
+    compute(kg, age) {
+      return { rows: [row("Initial (10–15 mg/kg/day)", perKg(kg, 10, 15)), row("Maximum (60 mg/kg/day)", perKg(kg, 60))],
+        note: "Titrate by 5–10 mg/kg/day weekly. Divide the dose if over 250 mg/day.",
+        warn: age != null && age < 2 ? ["Under 2 years: highest risk of fatal hepatotoxicity. Avoid if possible; if used, sole agent only."] : [] };
+    },
+    loading: "Status epilepticus (off-label): 20–40 mg/kg IV over 5–10 min (ESETT 40 mg/kg, max 4,000 mg), then about 5 mg/kg/h or 10–15 mg/kg/day divided.",
+    renal: "No adjustment; monitor FREE levels (protein binding reduced).",
+    hepatic: "CONTRAINDICATED in hepatic disease. Boxed warning: fatal hepatotoxicity, highest risk under 2 years, with polytherapy, or with metabolic disease. Contraindicated with POLG mutations.",
+    target: "50–100 mcg/mL (total). Thrombocytopenia risk rises above 110 (F) / 135 (M).",
+    caveats: ["Check ammonia if encephalopathy; consider carnitine.", "Teratogen: counsel adolescents."], source: "FDA valproate labels; ESETT 2020; AES SE review." },
+
+  lamotrigine: { name: "Lamotrigine", brand: "Lamictal", conc: null, form: "No commercial liquid. Chewable/dispersible tablets (2, 5, 25 mg); disperse in water.", needsAge: true,
+    options: `<label for="ltg-reg" style="margin-top:12px">Other seizure medicines the patient takes</label>
+      <select id="ltg-reg"><option value="">Select…</option><option value="vpa">Valproate</option>
+      <option value="none">No valproate and no enzyme inducer</option><option value="eiaed">Enzyme inducer, no valproate</option></select>`,
+    compute(kg, age) {
+      if (age < 2) return { notCovered: "Under 2 years: not covered by the source data. See the label." };
+      if (age >= 13) return { notCovered: "Over 12 years: a different (mg-based) schedule applies. See the label." };
+      const reg = (document.getElementById("ltg-reg") || {}).value;
+      if (!reg) return { notCovered: "Choose the patient's other seizure medicines above. Lamotrigine dosing depends entirely on them." };
+      const t = { vpa: [0.15, 0.3, 1, 5, 200], none: [0.3, 0.6, 4.5, 7.5, 300], eiaed: [0.6, 1.2, 5, 15, 400] }[reg];
+      return { band: "2 to 12 years", rows: [
+        row(`Weeks 1–2 (${t[0]} mg/kg/day)`, perKg(kg, t[0])), row(`Weeks 3–4 (${t[1]} mg/kg/day)`, perKg(kg, t[1])),
+        row(`Maintenance (${t[2]}–${t[3]} mg/kg/day, max ${t[4]} mg/day)`, perKg(kg, t[2], t[3]), { cap: t[4] })
+      ], note: "Round to whole tablets (smallest is 2 mg). Never exceed the starting dose or the titration rate." };
+    },
+    loading: "No IV form. Never load: slow titration is mandatory.", renal: "Reduced maintenance may suffice; caution in significant impairment.",
+    hepatic: "Mild: none. Moderate/severe without ascites: reduce about 25%. Severe with ascites: reduce about 50%.", target: "2.5–15 mg/L (not routinely monitored).",
+    caveats: ["SJS/TEN risk: exceeding the starting dose or titration rate is the key risk factor.", "Under 30 kg: maintenance may need to be up to 50% higher."],
+    source: "FDA Lamictal label." },
+
+  topiramate: { name: "Topiramate", brand: "Topamax / Eprontia", conc: 25, form: "oral solution 25 mg/mL (Eprontia)",
+    compute(kg) {
+      return { rows: [row("Initial", fixed(25), { freq: 1 }), row("Maintenance (5–9 mg/kg/day)", perKg(kg, 5, 9), { freq: 2, cap: 400 }), row("Maximum", fixed(400), { freq: 2 })],
+        note: "Titrate by 1–3 mg/kg/day every 1–2 weeks; maximum 400 mg/day." };
+    },
+    loading: "No IV form.", renal: "CrCl <70 mL/min/1.73m²: use ½ the usual dose. Hemodialysis: give a supplemental dose.",
+    hepatic: "Clearance falls about 26%; adjustment generally not required but use caution.", target: "5–20 mg/L (not routinely monitored).",
+    caveats: ["Metabolic acidosis, oligohydrosis/hyperthermia, nephrolithiasis, word-finding difficulty.", "Taper to avoid withdrawal seizures."],
+    source: "FDA Topamax/Eprontia labels." },
+
+  zonisamide: { name: "Zonisamide", brand: "Zonegran / Zonisade", conc: 20, form: "oral suspension 20 mg/mL (Zonisade)",
+    compute(kg) {
+      return { rows: [row("Initial (1–2 mg/kg/day)", perKg(kg, 1, 2)), row("Maximum (12 mg/kg/day)", perKg(kg, 12))],
+        note: "Titrate by 1–2 mg/kg every 1–2 weeks; maintenance 4–8, maximum 12 mg/kg/day.",
+        warn: ["FDA-approved only from 16 years; pediatric mg/kg use is off-label (EU approves from 6 years)."] };
+    },
+    loading: "No IV form.", renal: "Avoid if eGFR <50 mL/min (Zonisade label); titrate more slowly.", hepatic: "Not studied; titrate more slowly and monitor closely.",
+    target: "10–40 mg/L (not routinely monitored).", caveats: ["Sulfonamide: contraindicated in sulfa allergy.", "Oligohydrosis/hyperthermia, nephrolithiasis, metabolic acidosis."],
+    source: "FDA Zonisade label; Gidal 2024; EU SmPC." },
+
+  cannabidiol: { name: "Cannabidiol", brand: "Epidiolex", conc: 100, form: "oral solution 100 mg/mL",
+    compute(kg) {
+      return { rows: [row("Start (5 mg/kg/day)", perKg(kg, 5), { freq: 2 }), row("Maintenance, week 2, LGS/Dravet (10 mg/kg/day)", perKg(kg, 10), { freq: 2 }),
+        row("Maximum, LGS/Dravet (20 mg/kg/day)", perKg(kg, 20), { freq: 2 }), row("Maximum, TSC (25 mg/kg/day)", perKg(kg, 25), { freq: 2 })],
+        note: "Twice daily. Start 2.5 mg/kg twice daily; increase weekly by 5 mg/kg/day." };
+    },
+    loading: "No IV form.", renal: "No adjustment (EMA data).",
+    hepatic: "Moderate (Child-Pugh B): start 1.25 mg/kg twice daily, ½ maintenance. Severe (C): start 0.5 mg/kg twice daily, about ¼ maintenance.", target: "Not established.",
+    caveats: ["Dose-related transaminase elevation: check LFTs at baseline, 1, 3 and 6 months (especially with valproate).", "Raises N-desmethylclobazam: watch for sedation with clobazam.", "Serum creatinine rises about 10% without a true change in GFR."],
+    source: "FDA Epidiolex label; EMA assessment." },
+
+  ethosuximide: { name: "Ethosuximide", brand: "Zarontin", conc: 50, form: "oral solution 50 mg/mL (250 mg/5 mL)", needsAge: true,
+    compute(kg, age) {
+      if (age < 3) return { notCovered: "Under 3 years: not established. See the label." };
+      const start = age < 6 ? 250 : 500;
+      return { band: age < 6 ? "3 to under 6 years" : "6 years and older", rows: [
+        row("Initial", fixed(start), { freq: 2 }), row("Optimal (about 20 mg/kg/day)", perKg(kg, 20), { freq: 2, cap: 1500 }), row("Maximum", fixed(1500), { freq: 2 })
+      ], note: "Titrate by 250 mg every 4–7 days. Absence seizures only." };
+    },
+    loading: "No IV form.", renal: "No specific adjustment; removed by hemodialysis (about 40–50% per session), so supplement.",
+    hepatic: "No specific adjustment; hepatically metabolized.", target: "40–100 mcg/mL.",
+    caveats: ["Absence seizures only: no efficacy for generalized tonic-clonic seizures."], source: "FDA Zarontin label; ILAE TDM 2008." },
+
+  gabapentin: { name: "Gabapentin", brand: "Neurontin", conc: 50, form: "oral solution 50 mg/mL (250 mg/5 mL)", needsAge: true,
+    compute(kg, age) {
+      if (age < 3) return { notCovered: "Under 3 years: not covered by the source data. See the label." };
+      if (age >= 12) return { band: "12 years and older", rows: [row("Maintenance", fixed(900, 1800), { freq: 3 })],
+        note: "Three times daily; no more than 12 hours between doses.", warn: ["OpenEvidence didn't give a starting dose for 12 years and older. See the label."] };
+      const m = age < 5 ? [40, 40] : [25, 35];
+      return { band: age < 5 ? "3 to 4 years" : "5 to 11 years", rows: [
+        row("Initial (10–15 mg/kg/day)", perKg(kg, 10, 15), { freq: 3 }), row(`Maintenance (${m[0] === m[1] ? m[0] : m[0] + "–" + m[1]} mg/kg/day)`, perKg(kg, m[0], m[1]), { freq: 3 })
+      ], note: "Three times daily; no more than 12 hours between doses." };
+    },
+    loading: "No IV form.", renal: "Adjust per CrCl: 30–59 → 200–700 mg twice daily; 15–29 → daily; ≤15 → reduce further; supplement after hemodialysis. Children under 12 with renal impairment: not studied.",
+    hepatic: "No adjustment (renally cleared).", target: "About 2–20 mg/L (not well established).", caveats: [], source: "FDA Neurontin label." },
+
+  phenobarbital: { name: "Phenobarbital", brand: "", conc: null, concChoice: [3, 4], form: "elixir: 4 mg/mL (20 mg/5 mL) or 3 mg/mL. Confirm your stock.",
+    options: `<label for="pb-conc" style="margin-top:12px">Elixir strength you stock</label>
+      <select id="pb-conc"><option value="">Select…</option><option value="4">4 mg/mL (20 mg/5 mL)</option><option value="3">3 mg/mL</option></select>`,
+    compute(kg) {
+      return { rows: [row("Children (3–8 mg/kg/day)", perKg(kg, 3, 8))], note: "Given in 1–2 doses a day. Neonates: 4.5 mg/kg/day." };
+    },
+    loading: "Status epilepticus: 20 mg/kg IV over 15 min; may repeat 10–20 mg/kg; maximum total about 40 mg/kg.",
+    renal: "About 25% renal; reduce or extend the interval if GFR <10.", hepatic: "Severe (Child-Pugh >8): consider a 25–50% reduction.",
+    target: "10–40 mcg/mL (neonatal seizures 20–40).", caveats: ["Respiratory depression and sedation; long half-life."],
+    source: "FDA labels; Moffett 2018; ILAE TDM 2008." },
+
+  phenytoin: { name: "Phenytoin", brand: "Dilantin", conc: 25, form: "oral suspension 25 mg/mL (125 mg/5 mL, free acid)",
+    compute(kg) {
+      return { rows: [row("Initial (5 mg/kg/day)", perKg(kg, 5)), row("Maintenance (4–8 mg/kg/day)", perKg(kg, 4, 8))],
+        note: "Given in 2–3 doses a day.",
+        warn: ["OpenEvidence's note says \"cap 300 mg/day\". The Dilantin label describes 300 mg/day as the minimum adult dose older children may need, not a cap, so the page doesn't apply it. Please confirm."] };
+    },
+    loading: "Status epilepticus: fosphenytoin 15–20 mg PE/kg IV at no more than 2 mg PE/kg/min (or 150 mg PE/min).",
+    renal: "No fixed reduction; monitor FREE phenytoin (unbound fraction rises). No oral load in renal or hepatic disease.", hepatic: "Monitor free levels; early toxicity in liver disease.",
+    target: "Total 10–20 mcg/mL; free 1–2 mcg/mL.",
+    caveats: ["The suspension is the free ACID: about 8% more drug than the sodium salt in capsules and IV. Switching is not 1:1.", "Non-linear kinetics: small dose changes cause large level swings.", "Separate from enteral feeds.", "Check HLA-B*1502 in at-risk ancestry."],
+    source: "FDA Dilantin/Cerebyx labels." },
+
+  clonazepam: { name: "Clonazepam", brand: "Klonopin", conc: null, form: "No commercial liquid. Tablets and ODT (0.125–2 mg).", needsAge: true,
+    compute(kg, age) {
+      if (age > 10 || kg > 30) return { notCovered: "Over 10 years or over 30 kg: adult dosing. See the label." };
+      return { band: "10 years or younger and 30 kg or less", rows: [
+        row("Initial (0.01–0.03 mg/kg/day)", perKg(kg, 0.01, 0.03), { freq: 3 }), row("Maintenance (0.1–0.2 mg/kg/day)", perKg(kg, 0.1, 0.2), { freq: 3 })
+      ], note: "Three times daily. Initial dose no more than 0.05 mg/kg/day; titrate by 0.25–0.5 mg every 3 days." };
+    },
+    loading: "No US IV form.", renal: "Caution: metabolites renally excreted; no fixed adjustment.", hepatic: "Caution: hepatically metabolized; clearance may be impaired.",
+    target: "20–70 ng/mL (poorly defined; tolerance develops).", caveats: ["No commercial liquid: ODT or compounding needed for small children.", "Sedation, tolerance, and withdrawal on abrupt stop."],
+    source: "FDA Klonopin label; ILAE TDM 2008." }
+};
+
+/* Second-line IV loading (status epilepticus). mg (or mg PE) per dose; no mL because IV concentrations weren't supplied. */
+const RESCUE = {
+  levetiracetam: { name: "Levetiracetam IV", compute: kg => [row("Load (40–60 mg/kg), over 5–15 min", perKg(kg, 40, 60), { unit: "dose", cap: 4500 })],
+    notes: ["Off-label, guideline-supported. ESETT used 60 mg/kg. Maximum 4,500 mg."], source: "ESETT (Lancet 2020); AES SE review." },
+  valproate: { name: "Valproate IV", compute: kg => [row("Load (20–40 mg/kg), over 5–10 min", perKg(kg, 20, 40), { unit: "dose", cap: 4000 })],
+    notes: ["Off-label. ESETT used 40 mg/kg, maximum 4,000 mg. Then about 5 mg/kg/h, or 10–15 mg/kg/day divided.",
+      "CONTRAINDICATED in hepatic disease and with POLG mutations. Highest hepatotoxicity risk under 2 years."], source: "ESETT 2020; AES SE review; FDA valproate labels." },
+  fosphenytoin: { name: "Fosphenytoin IV", unitLabel: "mg PE", compute: kg => [row("Load (15–20 mg PE/kg)", perKg(kg, 15, 20), { unit: "dose" })],
+    notes: ["Infuse at no more than 2 mg PE/kg/min (or 150 mg PE/min), whichever is slower.", "VERIFY: OpenEvidence gave no maximum loading dose."], source: "FDA Cerebyx label." },
+  phenobarbital: { name: "Phenobarbital IV", compute: kg => [row("Load (20 mg/kg), over 15 min", perKg(kg, 20), { unit: "dose" }),
+      row("Repeat if needed (10–20 mg/kg)", perKg(kg, 10, 20), { unit: "dose" }), row("Maximum total (about 40 mg/kg)", perKg(kg, 40), { unit: "dose" })],
+    notes: ["Respiratory depression and sedation."], source: "FDA labels; AES SE review." },
+  lacosamide: { name: "Lacosamide IV", compute: kg => [row("Load (5–10 mg/kg), over 5–10 min", perKg(kg, 5, 10), { unit: "dose", cap: 400 }),
+      row("May repeat (5 mg/kg)", perKg(kg, 5), { unit: "dose", cap: 200 })],
+    notes: ["Off-label for status epilepticus. Monitor the PR interval."], source: "AES SE review; Yale NNHH SE protocol." },
+  brivaracetam: { name: "Brivaracetam IV", compute: () => [],
+    notes: ["Not computed: no pediatric status-epilepticus dosing is established. Adult registries used about 2 mg/kg (100 mg)."], source: "FDA Briviact label; Santamarina 2019." }
+};
+
+/* ============================ helpers ============================ */
+const $ = id => document.getElementById(id);
+const LB_PER_KG = 2.20462;
+const fmt = n => n >= 100 ? String(Math.round(n)) : n >= 10 ? String(Math.round(n * 10) / 10) : String(Math.round(n * 100) / 100);
+const esc = s => String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+const range = (lo, hi, unit) => (Math.abs(lo - hi) < 1e-9 ? fmt(lo) : fmt(lo) + "–" + fmt(hi)) + " " + unit;
+
+function patient() {
+  const raw = $("wt").value.trim(), unit = document.querySelector('input[name="u"]:checked').value;
+  const w = raw === "" ? null : Number(raw);
+  const kg = w == null || !isFinite(w) ? null : (unit === "kg" ? w : w / LB_PER_KG);
+  const y = $("age-y").value.trim(), m = $("age-m").value.trim();
+  const age = y === "" && m === "" ? null : (Number(y || 0) + Number(m || 0) / 12);
+  return { kg, w, unit, age, ageOk: age == null || (isFinite(age) && age >= 0 && age < 30 && Number(m || 0) < 12) };
+}
+
+function doseTable(rows, conc, unitLabel = "mg") {
+  const perDose = rows.some(r => r.freq || r.unit === "dose");
+  let h = `<div class="tablewrap"><table><thead><tr><th>Stage</th><th>${unitLabel}/day</th>`;
+  if (perDose) h += `<th>Per dose</th>`;
+  if (conc) h += perDose ? `<th>mL per dose @ ${fmt(conc)} mg/mL</th>` : `<th>mL/day @ ${fmt(conc)} mg/mL</th>`;
+  h += `</tr></thead><tbody>`;
+  rows.forEach(r => {
+    const tag = r.verify ? ` <span class="tag" title="${esc(r.verify)}">VERIFY</span>` : "";
+    const cap = r.capped ? `<span class="capped">capped at ${fmt(r.cap)} ${unitLabel}${r.unit === "dose" ? "" : "/day"} (source maximum)</span>` : "";
+    if (r.unit === "dose") {
+      h += `<tr><td>${esc(r.stage)}${tag}${cap}</td><td class="num">—</td><td class="num">${range(r.lo, r.hi, unitLabel)}</td>${conc ? `<td class="num">${range(r.lo / conc, r.hi / conc, "mL")}</td>` : ""}</tr>`;
+      return;
+    }
+    const pd = r.freq ? range(r.lo / r.freq, r.hi / r.freq, unitLabel) + ` × ${r.freq}/day` : "—";
+    h += `<tr><td>${esc(r.stage)}${tag}${cap}</td><td class="num">${range(r.lo, r.hi, unitLabel)}</td>`;
+    if (perDose) h += `<td class="num">${pd}</td>`;
+    if (conc) h += perDose ? `<td class="num">${r.freq ? range(r.lo / r.freq / conc, r.hi / r.freq / conc, "mL") : "—"}</td>` : `<td class="num">${range(r.lo / conc, r.hi / conc, "mL")}</td>`;
+    h += `</tr>`;
+  });
+  return h + `</tbody></table></div>`;
+}
+
+function patientProblem(p, needsAge) {
+  if (p.kg == null) return "Enter the patient's weight to calculate doses.";
+  if (!(p.kg >= 0.5 && p.kg <= 200)) return "Please check the weight you entered.";
+  if (!p.ageOk) return "Please check the age you entered.";
+  if (needsAge && p.age == null) return "Enter the patient's age. Dosing for this medication depends on age.";
+  return null;
+}
+
+/* ============================ rendering ============================ */
+function renderMaint() {
+  const key = $("drug").value, out = $("out");
+  if (!key) { out.innerHTML = ""; $("drug-opts").innerHTML = ""; return; }
+  const d = DRUGS[key], p = patient();
+  if ($("drug-opts").dataset.for !== key) { $("drug-opts").innerHTML = d.options || ""; $("drug-opts").dataset.for = key;
+    $("drug-opts").querySelectorAll("select").forEach(s => s.addEventListener("change", renderMaint)); }
+  let conc = d.conc;
+  if (d.concChoice) { const v = ($("pb-conc") || {}).value; conc = v ? Number(v) : null; }
+
+  let h = `<h3>Oral liquid</h3><p style="margin:0">${esc(d.form)}${conc ? ` <b>· mL = mg ÷ ${fmt(conc)}</b>` : ""}${d.concChoice && !conc ? ` <span class="tag">choose strength</span>` : ""}${!d.conc && !d.concChoice ? ` <span class="tag">no liquid</span>` : ""}</p>`;
+  const problem = patientProblem(p, d.needsAge);
+  if (problem) h += `<div class="banner" style="margin-top:12px"><p>${problem}</p></div>`;
+  else {
+    const res = d.compute(p.kg, p.age);
+    h += `<h3>Dose for ${fmt(p.kg)} kg${p.age != null ? `, ${fmt(p.age)} yr` : ""}${res.band ? ` · ${esc(res.band)}` : ""}</h3>`;
+    if (res.notCovered) h += `<div class="banner"><p>${esc(res.notCovered)}</p></div>`;
+    else {
+      h += doseTable(res.rows, conc);
+      if (res.note) h += `<p class="hint">${esc(res.note)}</p>`;
+      [...new Set([...(res.warn || []), ...res.rows.filter(r => r.verify).map(r => r.verify)])]
+        .forEach(w => { h += `<div class="caveat"><span class="tag">VERIFY</span> ${esc(w)}</div>`; });
+    }
+  }
+  [["Loading / status epilepticus", d.loading], ["Target level", d.target], ["Renal", d.renal], ["Hepatic", d.hepatic]]
+    .forEach(([k, v]) => { if (v) h += `<div class="field"><span class="k">${k}:</span> ${esc(v)}</div>`; });
+  if (d.caveats.length) { h += `<h3>Cautions</h3>`; d.caveats.forEach(c => h += `<div class="caveat">${esc(c)}</div>`); }
+  if (conc) h += `<div class="card conv-card" style="margin:16px 0 0;padding:14px"><b>mg ↔ mL</b> at ${fmt(conc)} mg/mL
+    <div class="conv"><input id="c-mg" type="number" inputmode="decimal" min="0" step="0.1" aria-label="mg"> mg =
+    <input id="c-ml" type="number" inputmode="decimal" min="0" step="0.1" aria-label="mL"> mL</div></div>`;
+  h += `<p class="src">Source: ${esc(d.source)}</p>`;
+  out.innerHTML = h;
+  if (conc) {
+    $("c-mg").addEventListener("input", () => { const v = parseFloat($("c-mg").value); $("c-ml").value = isFinite(v) ? fmt(v / conc) : ""; });
+    $("c-ml").addEventListener("input", () => { const v = parseFloat($("c-ml").value); $("c-mg").value = isFinite(v) ? fmt(v * conc) : ""; });
+  }
+}
+
+function renderRescue() {
+  const key = $("rdrug").value, out = $("rout");
+  if (!key) { out.innerHTML = ""; return; }
+  const d = RESCUE[key], p = patient();
+  let h = "";
+  const problem = patientProblem(p, false);
+  const rows = problem ? [] : d.compute(p.kg);
+  if (problem && key !== "brivaracetam") h += `<div class="banner" style="margin-top:12px"><p>${problem}</p></div>`;
+  else if (rows.length) { h += `<h3>Dose for ${fmt(p.kg)} kg</h3>` + doseTable(rows, null, d.unitLabel || "mg"); }
+  d.notes.forEach(n => { h += `<div class="caveat">${n.startsWith("VERIFY") ? `<span class="tag">VERIFY</span> ${esc(n.replace(/^VERIFY:\s*/, ""))}` : esc(n)}</div>`; });
+  h += `<p class="src">Source: ${esc(d.source)}</p>`;
+  out.innerHTML = h;
+}
+
+function renderPatient() {
+  const p = patient();
+  $("pt-echo").textContent = p.kg ? (p.unit === "lb" ? `${p.w} lb = ${fmt(p.kg)} kg` : `${fmt(p.kg)} kg = ${fmt(p.kg * LB_PER_KG)} lb`) +
+    (p.age != null && p.ageOk ? ` · age ${fmt(p.age)} years` : "") : "";
+  renderMaint(); renderRescue();
+}
+
+/* ============================ wiring ============================ */
+Object.keys(DRUGS).forEach(k => { const o = document.createElement("option"); o.value = k; o.textContent = DRUGS[k].name + (DRUGS[k].brand ? ` (${DRUGS[k].brand})` : ""); $("drug").appendChild(o); });
+Object.keys(RESCUE).forEach(k => { const o = document.createElement("option"); o.value = k; o.textContent = RESCUE[k].name; $("rdrug").appendChild(o); });
+["wt", "age-y", "age-m"].forEach(id => $(id).addEventListener("input", renderPatient));
+$("drug").addEventListener("change", renderMaint);
+$("rdrug").addEventListener("change", renderRescue);
+// Changing the unit never reinterprets the number: clear it and ask again.
+document.querySelectorAll('input[name="u"]').forEach(r => r.addEventListener("change", () => {
+  if ($("wt").value !== "") { $("wt").value = ""; $("pt-echo").textContent = "Unit changed. Please enter the weight again."; renderMaint(); renderRescue(); $("wt").focus(); }
+}));
+
+/* ---- PIN gate: same PIN, same saved unlock as the hub; second code opens the pet picker ---- */
+(function () {
+  const PIN_HASH = "e4dfbbc00eabfea05b32abab544a223787749f77442a0180ec384fe65847bdde";
+  const PET_HASH = "6747081bf1c609a055b764f2db8acb47ca1a270da2771465845c66cc8d9e24e2";
+  const KEY = "peds-tools-clinician";
+  const form = $("pin-form"), input = $("pin"), msg = $("pin-msg");
+  const show = on => { $("tool").hidden = !on; form.hidden = on; };
+  async function hash(t) { const b = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(t)); return [...new Uint8Array(b)].map(x => x.toString(16).padStart(2, "0")).join(""); }
+  let on = false; try { on = localStorage.getItem(KEY) === "1"; } catch (e) {}
+  show(on);
+  form.addEventListener("submit", async e => {
+    e.preventDefault();
+    const h = await hash("cleanout-hub:" + input.value.trim());
+    if (h === PET_HASH) { msg.textContent = "Meow! Pick a pet. It follows your mouse."; input.value = ""; if (window.PedsPets) window.PedsPets.showPicker(form.querySelector(".pin-row")); return; }
+    if (h === PIN_HASH) { try { localStorage.setItem(KEY, "1"); } catch (e2) {} msg.textContent = ""; input.value = ""; show(true); }
+    else { msg.textContent = "That PIN is not correct."; input.select(); }
+  });
+  $("lock-btn").addEventListener("click", () => { try { localStorage.removeItem(KEY); } catch (e) {} show(false); });
+})();
+
+/* ---- light/dark switch (shared setting with the hub) ---- */
+(function () {
+  const btn = $("theme-toggle"), isDark = () => document.documentElement.dataset.theme === "dark";
+  const label = () => { btn.textContent = isDark() ? "☀ Light" : "☾ Dark"; document.querySelector('meta[name="theme-color"]').setAttribute("content", isDark() ? "#0D0D0C" : "#232323"); };
+  btn.addEventListener("click", () => { const n = isDark() ? "light" : "dark"; document.documentElement.dataset.theme = n; try { localStorage.setItem("peds-tools-theme", n); } catch (e) {} label(); });
+  label();
+})();
+</script>
+</body>
+</html>
