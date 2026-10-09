@@ -16,7 +16,8 @@
  *   - a sheet with a single row (e.g. Sleep) is not directional;
  *   - an animation may say <CopyOf>Other</CopyOf> to reuse another animation's sheet.
  *
- * Off on touch-only devices and when the visitor prefers reduced motion.
+ * Off on touch-only devices (there's no cursor to follow). It does run with reduced motion
+ * turned on: it's an opt-in easter egg that only appears when the visitor picks it.
  */
 (function () {
   "use strict";
@@ -34,8 +35,7 @@
   const SLEEP_AFTER = 10000;  // ms without mouse movement before sleeping
 
   const touchOnly = () => window.matchMedia("(hover: none) and (pointer: coarse)").matches;
-  const reducedMotion = () => window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-  const canRun = () => !touchOnly() && !reducedMotion();
+  const canRun = () => !touchOnly();
 
   function read() { try { return localStorage.getItem(STORE); } catch (e) { return null; } }
   function write(v) { try { v ? localStorage.setItem(STORE, v) : localStorage.removeItem(STORE); } catch (e) {} }
@@ -166,8 +166,7 @@
       if (!canRun()) {
         const note = document.createElement("p");
         note.style.cssText = "margin:4px 0 0;width:100%;font-size:14px";
-        note.textContent = touchOnly() ? "Pets follow a mouse pointer, so they don't appear on touch-only devices."
-                                       : "Pets are off because this device is set to reduce motion.";
+        note.textContent = "Pets follow a mouse pointer, so they don't appear on touch-only devices.";
         box.appendChild(note);
       }
       (anchor || document.body).insertAdjacentElement("afterend", box);
