@@ -14,6 +14,8 @@ Start a new session by asking Claude to read this file:
 | Hub (families + clinicians) | https://hyponatremia-peds.github.io/peds-tools/ | `Hyponatremia-Peds/peds-tools` | `index.html` |
 | ASM dosing (clinician) | https://hyponatremia-peds.github.io/peds-tools/asm-dosing.html | `peds-tools` | `asm-dosing.html` |
 | Ballard Score (clinician) | https://hyponatremia-peds.github.io/peds-tools/ballard.html | `peds-tools` | `ballard.html` |
+| Febrile infant pathway (clinician) | https://hyponatremia-peds.github.io/peds-tools/febrile-infant.html | `peds-tools` | `febrile-infant.html` |
+| Kawasaki pathway (clinician) | https://hyponatremia-peds.github.io/peds-tools/kawasaki.html | `peds-tools` | `kawasaki.html` |
 | Constipation Cleanout Planner (families) | https://hyponatremia-peds.github.io/cleanout-planner/ | `Hyponatremia-Peds/cleanout-planner` | `index.html` |
 
 - Everything is plain single-file HTML/CSS/JS. No build step, no server, no frameworks. GitHub Pages serves each repo from `main`, at the root.
@@ -74,6 +76,8 @@ Lacosamide 6 to <11 kg was settled by a follow-up Snow check of the Vimpat label
 **Ballard Score page (added 2026-10-09):** New Ballard Score, behind the clinician PIN. All 12 items' criteria and techniques were checked against the official score sheet and training pages at ballardscore.com (OpenEvidence's wording for scarf sign, heel to ear and posture 4 was wrong, so the official landmarks are used). Accuracy, timing and limits come from OpenEvidence Snow (Ballard 1991; Donovan 1999; Lee 2016/2017; Sasidharan 2009; Alexander 1992; ACOG CO 700). GA = 24 + 0.4 x total; below -10 shows "under 20 weeks", above 50 "over 44 weeks". The official chart drawings are copyrighted, so they are not copied: each neuromuscular item has a collapsible "Show drawings" area with original schematic SVG drawings made from the verified criteria (tap one to select that score), plus a link to the official illustrated chart.
 
 **Site review (2026-10-09):** vigabatrin and oxcarbazepine band labels/boundaries fixed, valproate requires age, footer sources updated, pet menu readable in dark mode and placed in the footer on every page, pets.js?v=5 everywhere including the planner.
+
+**Febrile infant and Kawasaki pathways (added 2026-10-09):** both based on the CHOP clinical pathways (ED and inpatient), at the owner's request, read in full from chop.edu (flowchart branches checked visually) and summarized in our own words with links back to CHOP. Doses are CHOP's (febrile infant antimicrobial table; KD IVIG, aspirin, steroids, infliximab). Re-check against chop.edu when CHOP revises them (febrile infant last revised Aug 2026; KD May 2025). Pages are built from the Ballard page's shell (header, PIN gate, footer).
 
 **Other:**
 - The owner should review the planner's "When to call your child's healthcare provider" list (Claude's wording).
