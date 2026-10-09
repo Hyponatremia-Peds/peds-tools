@@ -45,7 +45,8 @@ After publishing, always open the live page and re-run the checks below.
 - Minimal text: no filler lines, no small uppercase "eyebrow" labels above headings.
 - Warning boxes are soft red (#FEF2F2 / #FCA5A5 / #7F1D1D); the serious stop box uses #E40014 / #C10007.
 - Icon: Rod of Asclepius with one cute "baby snake" (`favicon.svg`; PNGs rendered from it).
-- Every page's footer ends with "Made with [red pixel heart] Claude" (Claude links to claude.com/claude-code), plus the sprite credit on pages that load `pets.js`.
+- Every page's footer ends with "Made with [red pixel heart] Claude" (Claude links to claude.com/claude-code), then a **Credits** link to `credits.html` (sprites, Web Neko, fonts, design sources all live there, not in footers), then a "Source code on GitHub" link that stays **hidden until the clinician PIN has been entered** on that device.
+- The planner has a "← Pediatric Tools" link back to the hub at the top left, like the other pages.
 
 **Clinician section:**
 - A 4-digit PIN gate. Only a SHA-256 hash of `"cleanout-hub:" + PIN` is in the code; the owner knows the PIN. It's a convenience gate, **not security** (public site), so never put confidential content behind it.
