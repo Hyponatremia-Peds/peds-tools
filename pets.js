@@ -16,6 +16,9 @@
  *   - a sheet with a single row (e.g. Sleep) is not directional;
  *   - an animation may say <CopyOf>Other</CopyOf> to reuse another animation's sheet.
  *
+ * Entering the secret code saves "peds-tools-pet-unlocked" in localStorage; after that the picker
+ * shows in the footer of every page on that device.
+ *
  * Off on touch-only devices (there's no cursor to follow). It does run with reduced motion
  * turned on: it's an opt-in easter egg that only appears when the visitor picks it.
  */
@@ -39,6 +42,10 @@
 
   function read() { try { return localStorage.getItem(STORE); } catch (e) { return null; } }
   function write(v) { try { v ? localStorage.setItem(STORE, v) : localStorage.removeItem(STORE); } catch (e) {} }
+  // Once the secret code has been entered, this device remembers it and keeps showing the picker.
+  const UNLOCK = "peds-tools-pet-unlocked";
+  function isUnlocked() { try { return localStorage.getItem(UNLOCK) === "1"; } catch (e) { return false; } }
+  function unlock() { try { localStorage.setItem(UNLOCK, "1"); } catch (e) {} }
   function chosen() {
     const saved = read();
     if (saved) return saved;
@@ -160,23 +167,44 @@
       sel.style.cssText = "font:inherit;padding:8px 10px;min-height:44px;border-radius:4px;border:1px solid currentColor;background:transparent;color:inherit";
       ["none", "neko", ...PMD].forEach(v => { const o = document.createElement("option"); o.value = v; o.textContent = LABELS[v]; sel.appendChild(o); });
       sel.value = chosen();
-      // Switching pets reloads the page so the old pet is cleanly removed.
-      sel.addEventListener("change", () => { write(sel.value === "none" ? "" : sel.value); location.reload(); });
-      box.append(label, sel);
+      const saved = document.createElement("span");
+      saved.setAttribute("role", "status");
+      saved.style.cssText = "font-size:14px";
+      // Switching pets reloads the page so the old pet is cleanly removed. Not on touch-only
+      // devices: no pet runs there, and reloading while the phone's own select menu is still
+      // closing crashed some phone browsers. There we just save the choice.
+      sel.addEventListener("change", () => {
+        sel.blur();
+        write(sel.value === "none" ? "" : sel.value);
+        if (canRun()) setTimeout(() => location.reload(), 50);
+        else saved.textContent = "Saved.";
+      });
+      box.append(label, sel, saved);
       if (!canRun()) {
         const note = document.createElement("p");
         note.style.cssText = "margin:4px 0 0;width:100%;font-size:14px";
         note.textContent = "Pets follow a mouse pointer, so they don't appear on touch-only devices.";
         box.appendChild(note);
       }
-      (anchor || document.body).insertAdjacentElement("afterend", box);
+      if (anchor) anchor.insertAdjacentElement("afterend", box);
+      else document.body.appendChild(box);
     }
-    box.querySelector("select").focus();
+    return box;
   }
 
-  window.PedsPets = { showPicker, current: chosen, set: v => { write(v === "none" ? "" : v); location.reload(); } };
+  // Called when the secret code is entered: remember it on this device and show the picker there.
+  function openPicker(anchor) {
+    unlock();
+    const box = showPicker(anchor);
+    // Focusing a select on a phone pops its menu open by itself, so only do it with a mouse.
+    if (canRun()) box.querySelector("select").focus();
+  }
+
+  window.PedsPets = { showPicker: openPicker, current: chosen, set: v => { write(v === "none" ? "" : v); location.reload(); } };
 
   function start() {
+    // Already unlocked on this device: show the picker in the footer of every page.
+    if (isUnlocked()) showPicker(document.querySelector(".sprite-credit") || document.querySelector("footer"));
     if (!canRun()) return;
     const p = chosen();
     if (p === "neko") startNeko();
