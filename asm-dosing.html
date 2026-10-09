@@ -190,6 +190,34 @@
       </div>
     </details>
 
+    <details class="section" id="bridge-sec">
+      <summary>Clonazepam (Klonopin) bridge</summary>
+      <div class="inner">
+        <p style="margin:0 0 8px">Short, scheduled clonazepam (days to a few weeks) for a period of higher seizure risk, then stopped. It is not single-dose rescue and not long-term maintenance. Bridging is a practice convention, not a labeled indication.</p>
+        <h3>When it's used</h3>
+        <ul style="margin:6px 0 0;padding-left:1.2em">
+          <li>Seizure clusters or flurries (clonazepam ODT is the most common first-line choice in US pediatric practice; FDA-approved cluster rescue is rectal or nasal diazepam, or nasal midazolam).</li>
+          <li>Seizures worsening with an illness: give for several days and stop as the illness resolves.</li>
+          <li>While a new medicine is titrated to an effective dose (e.g., lamotrigine, clobazam), or during a cross-taper between medicines.</li>
+          <li>Catamenial seizures (adolescents): evidence is stronger for clobazam; clonazepam is used by analogy.</li>
+          <li>Short-term cover around surgery: expert opinion only.</li>
+        </ul>
+        <div id="brout"></div>
+        <h3>How long, and stopping</h3>
+        <ul style="margin:6px 0 0;padding-left:1.2em">
+          <li>No guideline sets the length. Up to 2–3 weeks: low dependence risk, so a short taper or stop is usually feasible. About 4–6 weeks: dependence possible, so taper. 3 months or more: taper is mandatory; tolerance develops in up to 30%.</li>
+          <li><b>In a child with epilepsy, taper any course longer than a few days.</b> Abrupt stopping can cause withdrawal seizures or status epilepticus (boxed warning). Withdrawal can start 1–2 days after stopping and peak in the second week.</li>
+          <li>Taper options: the label's rate is 0.125 mg twice daily less every 3 days (pause or go back a step if withdrawal appears). After longer use, about 10% of the original dose every 7 days over 8–12 weeks.</li>
+        </ul>
+        <h3>Cautions</h3>
+        <div class="caveat"><b>Boxed warnings:</b> profound sedation, respiratory depression and death with opioids; abuse and misuse; physical dependence and withdrawal.</div>
+        <div class="caveat"><b>Contraindicated</b> with significant liver disease, acute narrow-angle glaucoma, or benzodiazepine hypersensitivity.</div>
+        <div class="caveat">Drowsiness (about 50%), ataxia (about 30%), behavior problems (about 25%; paradoxical agitation more likely in children), drooling and increased airway secretions (watch children who struggle with secretions). Additive sedation with other CNS depressants, including phenobarbital. May worsen tonic-clonic seizures in mixed seizure types; with valproate may provoke absence status. Enzyme inducers lower clonazepam levels.</div>
+        <div class="caveat"><b>Clobazam alternative:</b> less sedation and tolerance. 30 kg or less: 5 mg/day, 10 mg on day 7, max 20 mg on day 14; over 30 kg: 10, 20, max 40 mg/day. Once daily if 5 mg/day or less, otherwise twice daily. Taper 5–10 mg/day each week. Suspension 2.5 mg/mL.</div>
+        <p class="src">Sources: FDA Klonopin label (tablets and ODT); Pediatrics in Review 2023; Pediatric Epilepsy Research Consortium survey (Pediatrics); AAP guidance on tapering; FDA Onfi label. Compiled with OpenEvidence.</p>
+      </div>
+    </details>
+
     <details class="section" id="is-sec">
       <summary>Infantile spasms</summary>
       <div class="inner">
@@ -809,11 +837,33 @@ function renderIS() {
   out.innerHTML = h;
 }
 
+/* ---- clonazepam bridge (FDA Klonopin label seizure dosing, via OpenEvidence 2026-10-09).
+   Same age/weight rule as the clonazepam entry above: adult dosing only when over 10 years AND over 30 kg. ---- */
+function renderBridge() {
+  const out = $("brout"), p = patient();
+  const problem = patientProblem(p, true);
+  if (problem) { out.innerHTML = `<div class="banner" style="margin-top:12px"><p>${problem}</p></div>`; return; }
+  const ped = !(p.age > 10 && p.kg > 30);
+  let h = `<h3>Dose for ${fmt(p.kg)} kg, ${fmt(p.age)} yr · ${ped ? "10 years or younger, or 30 kg or less" : "over 10 years and over 30 kg"}</h3>`;
+  if (ped) {
+    const lo = 0.01 * p.kg, hi = 0.03 * p.kg, cap = 0.05 * p.kg;
+    h += doseTable([row("Bridge start (0.01–0.03 mg/kg/day; lower end for a bridge)", { lo, hi }, { freq: 3 }),
+                    row("Never start above 0.05 mg/kg/day", { lo: cap, hi: cap }, { freq: 3 }),
+                    row("Maintenance range if continued (0.1–0.2 mg/kg/day)", perKg(p.kg, 0.1, 0.2), { freq: 3 })], null);
+    h += `<p class="hint">Three equal doses when possible (or twice daily); if doses can't be equal, give the largest at bedtime. Increase by no more than 0.25–0.5 mg every 3 days.${lo / 3 < 0.125 ? ` The smallest tablet is the 0.125 mg ODT; doses below that (here ${fmt(lo / 3)} mg) need a compounded liquid from pharmacy.` : ""}</p>`;
+  } else {
+    h += doseTable([row("Start (0.5 mg three times daily)", fixed(1.5), { freq: 3 }), row("Maximum", fixed(20), { freq: 3 })], null);
+    h += `<p class="hint">Increase by 0.5–1 mg every 3 days if continued. For a short bridge, stay at or near the starting dose.</p>`;
+  }
+  h += `<p class="hint">Tablets 0.5 mg (scored), 1 mg, 2 mg. Orally disintegrating tablets 0.125, 0.25, 0.5, 1, 2 mg (dissolve on the tongue; contain aspartame, so avoid in PKU). No US commercial liquid.</p>`;
+  out.innerHTML = h;
+}
+
 function renderPatient() {
   const p = patient();
   $("pt-echo").textContent = p.kg ? (p.unit === "lb" ? `${p.w} lb = ${fmt(p.kg)} kg` : `${fmt(p.kg)} kg = ${fmt(p.kg * LB_PER_KG)} lb`) +
     (p.age != null && p.ageOk ? ` · age ${fmt(p.age)} years` : "") : "";
-  renderMaint(); renderBenzo(); renderRescue(); renderIS();
+  renderMaint(); renderBenzo(); renderRescue(); renderBridge(); renderIS();
 }
 
 /* ============================ wiring ============================ */
@@ -825,11 +875,12 @@ $("drug").addEventListener("change", renderMaint);
 $("bdrug").addEventListener("change", renderBenzo);
 Object.keys(IS).forEach(k => { const o = document.createElement("option"); o.value = k; o.textContent = IS[k].name; $("isdrug").appendChild(o); });
 $("isdrug").addEventListener("change", renderIS);
+renderBridge();
 $("ht").addEventListener("input", renderIS);
 $("rdrug").addEventListener("change", renderRescue);
 // Changing the unit never reinterprets the number: clear it and ask again.
 document.querySelectorAll('input[name="u"]').forEach(r => r.addEventListener("change", () => {
-  if ($("wt").value !== "") { $("wt").value = ""; $("pt-echo").textContent = "Unit changed. Please enter the weight again."; renderMaint(); renderBenzo(); renderRescue(); renderIS(); $("wt").focus(); }
+  if ($("wt").value !== "") { $("wt").value = ""; $("pt-echo").textContent = "Unit changed. Please enter the weight again."; renderMaint(); renderBenzo(); renderRescue(); renderBridge(); renderIS(); $("wt").focus(); }
 }));
 
 /* ---- PIN gate: same PIN, same saved unlock as the hub; second code opens the pet picker ---- */

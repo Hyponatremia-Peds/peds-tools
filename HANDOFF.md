@@ -82,6 +82,8 @@ Lacosamide 6 to <11 kg was settled by a follow-up Snow check of the Vimpat label
 
 **IV fluids and sodium (added 2026-10-09):** every rule from an OpenEvidence Snow answer (AAP 2018 maintenance IV fluids; Holliday-Segar/4-2-1; dehydration per Powers 2015, IDSA 2017, RCH handbook; Na correction limits 10/24 h and 18/48 h, 8/24 h if high ODS risk, optional 6; 3% saline 2 mL/kg max 100 mL x up to 3; hypernatremia 0.5 mmol/L/h, about 10/24 h; Adrogue-Madias; TBW fractions by age/sex). The 100 mL/h maintenance cap is optional and labeled institutional. Dehydration buttons use 4%, 7.5% and 10% unless an exact % or pre-illness weight is entered.
 
+**Clonazepam bridge section (added 2026-10-09, before Infantile spasms on the ASM page):** definition, uses, dose calculator (FDA Klonopin seizure dosing: 0.01-0.03 mg/kg/day start, never above 0.05; 1.5 mg/day if over 10 y and over 30 kg, same rule as the clonazepam entry), duration and taper, boxed warnings and cautions, clobazam alternative. From OpenEvidence Snow.
+
 **Other:**
 - The owner should review the planner's "When to call your child's healthcare provider" list (Claude's wording).
 - Real-phone checks not yet done: iPhone "Copy link for Safari" from Brave; the Google Calendar buttons on Android.
