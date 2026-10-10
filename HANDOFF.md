@@ -65,7 +65,7 @@ On the owner's Windows PC the repos are at `C:\Users\Chris\peds-tools` and `C:\U
 - Reviewed by OpenEvidence five times plus targeted checks. Settled points: clonazepam adult dosing only when **over 10 years AND over 30 kg** (the bridge uses the same rule; one Snow answer read it as OR, so the owner may want to decide); phenobarbital maintenance 3–6 mg/kg/day; lacosamide 6 to < 11 kg 7.5–15 mg/kg/day (merged label table cell; a one-time look at the Vimpat PDF, Table 1, section 2.1, was suggested); valproate requires age; vigabatrin bands 10–15, > 15–20, > 20–25, > 25–60, > 60 kg.
 - Not covered on purpose: levetiracetam < 1 month, oxcarbazepine < 2 y, ethosuximide and gabapentin < 3 y.
 
-**Ballard Score:** every criterion and technique checked against the official score sheet at ballardscore.com (OpenEvidence's scarf sign, heel-to-ear and posture-4 wording was wrong). GA = 24 + 0.4 × total; below −10 is "under 20 weeks", above 50 "over 44 weeks". Original schematic drawings under each neuromuscular item (tap to select). Accuracy and limits from OpenEvidence.
+**Ballard Score:** every criterion and technique checked against the official score sheet at ballardscore.com (OpenEvidence's scarf sign, heel-to-ear and posture-4 wording was wrong). GA = 24 + 0.4 × total; below −10 is "under 20 weeks", above 50 "over 44 weeks". Original schematic drawings under each neuromuscular item (tap to select), and a Text/Pictures switch in the Exam card that shows the drawings as the score choices (remembered per device in `peds-tools-ballard-view`; physical items stay text). Accuracy and limits from OpenEvidence.
 
 **Febrile infant:**
 - `febrile-infant.html` follows the **AAP 2021 guideline** (Pantell et al.; still current as of 2026; post-erratum "procalcitonin with ANC" wording), with should/may/need-not and KAS grades, Table 3 doses (all confirmed; 29–60 d meningitis ceftazidime is every 6 h), and the AAP 2024 implementation flowcharts for edge cases. The guideline has no CSF WBC cutoff; the page shows literature values (16 for ≤ 28 d, 10 for 29–60 d) as a hint only.
@@ -81,7 +81,7 @@ On the owner's Windows PC the repos are at `C:\Users\Chris\peds-tools` and `C:\U
 
 - Light mode: TypeUI "Vertical" (page #F4F4F5, white panels, charcoal #232323, 4px corners, EB Garamond headings, Inter body, Geist Mono labels). Dark mode is the **default**: warm "Claude" palette (page #141413, panels #1C1B19, ivory #FAF9F6). Light/dark switch top right (setting `peds-tools-theme`; the planner keeps its own `cleanout-planner-theme`). Printing is black on white.
 - Minimal text, no filler, no small uppercase "eyebrow" labels above headings. Warnings are soft red (#FEF2F2 / #FCA5A5 / #7F1D1D); the serious stop box uses #E40014 / #C10007.
-- Icon: Rod of Asclepius with one cute baby snake (`favicon.svg`).
+- Icon (redone 2026-10-09, owner chose "B without blush"): Rod of Asclepius with one S-curved baby snake and the red pixel heart, on a dark rounded tile (`favicon.svg`). `apple-touch-icon.png` (180) and `og-image.png` (512) are rendered from it in a browser canvas; the same three files are copied to the planner repo.
 - Footer: sources paragraph, then "Made with [red pixel heart] Claude" (links to claude.com/claude-code), then **Credits**, then "Source code on GitHub", hidden until the clinician PIN has been entered on that device. Pages have a "← Pediatric Tools" link at the top left.
 
 ## 6. Clinician PIN and pets

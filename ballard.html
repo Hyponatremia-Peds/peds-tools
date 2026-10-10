@@ -104,7 +104,7 @@
   .opts { clear: both; display: grid; grid-template-columns: repeat(auto-fill, minmax(118px, 1fr)); gap: 6px; }
   .opt { position: relative; margin: 0; font-weight: 400; font-size: 14px; color: var(--body); cursor: pointer; }
   .opt input { position: absolute; opacity: 0; pointer-events: none; }
-  .opt span { display: block; height: 100%; padding: 8px 10px; border: 1px solid var(--border); border-radius: var(--radius); background: var(--soft); line-height: 1.35; }
+  .opt > span { display: block; height: 100%; padding: 8px 10px; border: 1px solid var(--border); border-radius: var(--radius); background: var(--soft); line-height: 1.35; }
   .opt b { display: block; font-family: var(--mono); font-weight: 500; font-size: 13px; color: var(--heading); margin-bottom: 2px; }
   .opt input:checked + span { background: var(--brand); border-color: var(--brand); color: var(--brand-text); }
   .opt input:checked + span b { color: var(--brand-text); }
@@ -112,6 +112,11 @@
   details.how { clear: both; margin: 8px 0 0; font-size: 14px; }
   details.how summary { cursor: pointer; color: var(--heading); font-weight: 500; }
   details.how p { margin: 6px 0 0; }
+  .opt-pic { display: none; }
+  .show-pics .opt-pic { display: block; margin-top: 2px; }
+  .show-pics .opt-pic svg { display: block; width: 100%; max-width: 120px; height: auto; margin: 0 auto; }
+  .show-pics .opt-pic + .opt-txt { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+  .show-pics details.drawings { display: none; }
   .pics { display: grid; grid-template-columns: repeat(auto-fill, minmax(104px, 1fr)); gap: 6px; margin-top: 8px; }
   .pic { margin: 0; padding: 6px; border: 1px solid var(--border); border-radius: var(--radius); background: var(--soft); text-align: center; cursor: pointer; color: var(--heading); }
   .pic svg { display: block; width: 100%; height: auto; }
@@ -189,6 +194,13 @@
         <div class="seg" role="radiogroup" aria-labelledby="sex-l">
           <input type="radio" name="sex" id="sex-m" value="m" checked><label for="sex-m">Male</label>
           <input type="radio" name="sex" id="sex-f" value="f"><label for="sex-f">Female</label>
+        </div>
+      </div>
+      <div style="margin-top:14px">
+        <span id="view-l" style="display:block;font-weight:600;color:var(--heading);margin-bottom:6px;font-size:15px">Show score choices as</span>
+        <div class="seg" role="radiogroup" aria-labelledby="view-l">
+          <input type="radio" name="view" id="view-t" value="text" checked><label for="view-t">Text</label>
+          <input type="radio" name="view" id="view-p" value="pics"><label for="view-p">Pictures</label>
         </div>
       </div>
       <label class="check"><input type="checkbox" id="confounded">
@@ -407,8 +419,8 @@ const scores = {};
 function itemHTML(it) {
   return `<fieldset class="item" id="f-${it.id}"${it.sex ? ` data-sex="${it.sex}"` : ""}>
     <legend>${esc(it.name)} <span class="pts" id="p-${it.id}"></span></legend>
-    <div class="opts">${it.opts.map(([s, t]) => `<label class="opt"><input type="radio" name="${it.id}" value="${s}"><span><b>${sgn(s)}</b>${esc(t)}</span></label>`).join("")}</div>
-    ${DRAW[it.id] ? `<details class="how"><summary>Show drawings</summary>
+    <div class="opts">${it.opts.map(([s, t]) => `<label class="opt"><input type="radio" name="${it.id}" value="${s}"><span><b>${sgn(s)}</b>${DRAW[it.id] ? `<span class="opt-pic" aria-hidden="true">${DRAW[it.id](s)}</span>` : ""}<span class="opt-txt">${esc(t)}</span></span></label>`).join("")}</div>
+    ${DRAW[it.id] ? `<details class="how drawings"><summary>Show drawings</summary>
       <div class="pics">${it.opts.map(([s, t]) => `<figure class="pic" data-item="${it.id}" data-score="${s}">${DRAW[it.id](s)}<figcaption>${sgn(s)}<span>${esc(t)}</span></figcaption></figure>`).join("")}</div>
       <p class="pics-note">Schematic drawings made for this site. Tap one to select that score. <a href="https://www.ballardscore.com/ScoreSheet/ScoreSheet" target="_blank" rel="noopener">Official illustrated chart</a></p></details>` : ""}
     ${it.how ? `<details class="how"><summary>How to do it</summary><p>${esc(it.how)}</p></details>` : ""}
@@ -493,6 +505,12 @@ function build() {
   ["hours", "ob-w", "ob-d"].forEach(id => $(id).addEventListener("input", update));
   $("confounded").addEventListener("change", update);
   document.querySelectorAll('input[name="sex"]').forEach(r => r.addEventListener("change", update));
+  const setView = v => { document.body.classList.toggle("show-pics", v === "pics"); $(v === "pics" ? "view-p" : "view-t").checked = true; };
+  let saved = null; try { saved = localStorage.getItem("peds-tools-ballard-view"); } catch (e) {}
+  setView(saved === "pics" ? "pics" : "text");
+  document.querySelectorAll('input[name="view"]').forEach(r => r.addEventListener("change", () => {
+    setView(r.value); try { localStorage.setItem("peds-tools-ballard-view", r.value); } catch (e) {}
+  }));
   $("reset-btn").addEventListener("click", () => {
     Object.keys(scores).forEach(k => delete scores[k]);
     document.querySelectorAll(".opts input").forEach(r => { r.checked = false; });

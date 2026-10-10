@@ -1,26 +1,26 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
-  <!-- Rod of Asclepius: one baby snake wound around a staff -->
+  <!-- Rod of Asclepius: one baby snake wound around a staff, with the site's red pixel heart -->
   <defs>
-    <path id="snake" d="M36 54.5 C30 54 26 50.5 32 48 C40.5 45.5 41.5 41 32 39 C22.5 37 22.5 31 32 29 C40.5 27 41.5 22 35.5 19 C33.5 18 33.5 15 37 14"/>
+    <path id="snake" d="M22 57 C22 48 42 49 42 40 C42 31 22 33 22 24 C22 17 33 15 37 14"/>
+    <!-- where the snake passes in front of the staff (centered on the crossings at y 48.5 and 15.3) -->
+    <clipPath id="front"><rect x="28.5" y="44.5" width="7" height="8"/><rect x="28.5" y="11.6" width="7" height="7.6"/></clipPath>
+    <!-- slightly wider for the light body, so no clip edge lands on it -->
+    <clipPath id="frontWide"><rect x="26" y="43" width="12" height="11"/><rect x="26" y="10.5" width="12" height="9.5"/></clipPath>
   </defs>
-  <rect width="64" height="64" rx="12" fill="#141413"/>
-  <!-- whole body, behind the staff -->
-  <g fill="none" stroke-linecap="round" stroke-linejoin="round">
-    <use href="#snake" stroke="#141413" stroke-width="8.2"/>
-    <use href="#snake" stroke="#FAF9F6" stroke-width="5.2"/>
-  </g>
-  <!-- staff with a knob and a pointed end -->
-  <circle cx="32" cy="7" r="3" fill="#FAF9F6"/>
-  <path d="M30.3 9 H33.7 V52 L32 60 L30.3 52 Z" fill="#FAF9F6"/>
-  <!-- the stretches that pass in front of the staff (two crossings and the neck) -->
-  <!-- dark edges are a little shorter and the body a little longer, so the joins don't show a seam -->
-  <g fill="none" stroke-linecap="butt" stroke-linejoin="round">
-    <use href="#snake" stroke="#141413" stroke-width="8.2" stroke-dasharray="0 8.75 8 28 8 10.25 9.51 40"/>
-    <use href="#snake" stroke="#FAF9F6" stroke-width="5.2" stroke-dasharray="0 7.25 11 25 11 7.25 11.01 40"/>
-  </g>
-  <!-- big round baby head, facing right -->
-  <ellipse cx="41" cy="13" rx="5.6" ry="4.6" transform="rotate(-6 41 13)" fill="#FAF9F6" stroke="#141413" stroke-width="1.2"/>
-  <circle cx="43.2" cy="11.9" r="1.7" fill="#141413"/>
-  <circle cx="43.7" cy="11.3" r=".55" fill="#FAF9F6"/>
-  <path d="M43 15.4 Q44.6 16.3 46 15.1" fill="none" stroke="#141413" stroke-width=".8" stroke-linecap="round"/>
+  <rect width="64" height="64" rx="14" fill="#141413"/>
+  <path transform="translate(9 8) scale(1.6)" fill="#E5484D" d="M1 0h2v1h-2zM4 0h2v1h-2zM0 1h7v2h-7zM1 3h5v1h-5zM2 4h3v1h-3zM3 5h1v1h-1z"/>
+  <!-- whole snake, behind the staff -->
+  <use href="#snake" fill="none" stroke="#141413" stroke-width="9" stroke-linecap="round"/>
+  <use href="#snake" fill="none" stroke="#FAF9F6" stroke-width="6" stroke-linecap="round"/>
+  <!-- staff and knob -->
+  <rect x="30" y="9" width="4" height="49" rx="2" fill="#FAF9F6" stroke="#141413" stroke-width="2"/>
+  <circle cx="32" cy="8" r="3.2" fill="#FAF9F6" stroke="#141413" stroke-width="1.5"/>
+  <!-- the stretches in front of the staff -->
+  <use href="#snake" clip-path="url(#front)" fill="none" stroke="#141413" stroke-width="9"/>
+  <use href="#snake" clip-path="url(#frontWide)" fill="none" stroke="#FAF9F6" stroke-width="6"/>
+  <!-- baby head, facing right -->
+  <ellipse cx="42.5" cy="12.5" rx="6.6" ry="5.6" fill="#FAF9F6" stroke="#141413" stroke-width="1.5"/>
+  <circle cx="44.6" cy="11.4" r="1.9" fill="#141413"/>
+  <circle cx="45.2" cy="10.7" r=".6" fill="#FAF9F6"/>
+  <path d="M43.8 15.4 Q45.4 16.4 47 15" fill="none" stroke="#141413" stroke-width=".9" stroke-linecap="round"/>
 </svg>
